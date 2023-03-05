@@ -5,7 +5,7 @@ using UnityEngine;
 public enum PlatformTypes { Position, Rotation, Circular}
 public enum PlatformMoveTypes { Vertical, Horizontal, Both }
 
-[RequireComponent(typeof(PlatformsResponse), typeof(BoxCollider))]
+[RequireComponent(typeof(PlatformsResponse))]
 public class PlatformsController : MonoBehaviour
 {
     [SerializeField] private PlatformTypes platformType;
@@ -14,13 +14,13 @@ public class PlatformsController : MonoBehaviour
     [SerializeField] private PlatformMoveTypes platformMoveType;
 
     private IPlatformsProvider platformsProvider;
-    private BoxCollider boxCollider;
+    [SerializeField] private BoxCollider boxCollider;
     // Start is called before the first frame update
     void Start()
     {
         platformsProvider = GetComponent<IPlatformsProvider>();
-        boxCollider = GetComponent<BoxCollider>();
-        boxCollider.isTrigger = true;
+        if (boxCollider != null)
+            boxCollider.isTrigger = true;
     }
 
     // Update is called once per frame
@@ -29,24 +29,15 @@ public class PlatformsController : MonoBehaviour
         switch (platformType)
         {
             case PlatformTypes.Position:
-                platformsProvider.PositionPlatform(platformMoveType, transform.position);
+                platformsProvider.PositionPlatform(platformMoveType);
                 break;
             case PlatformTypes.Rotation:
-                platformsProvider.RotationPlatform(transform.position);
+                platformsProvider.RotationPlatform();
                 break;
             case PlatformTypes.Circular:
-                platformsProvider.CircularPlatform(transform.position);
+                platformsProvider.CircularPlatform();
                 break;
         }
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        other.transform.parent = transform;
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        other.transform.parent = null;
-    }
 }
