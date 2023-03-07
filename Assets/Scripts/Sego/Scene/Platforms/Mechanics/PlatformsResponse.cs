@@ -22,11 +22,11 @@ public class PlatformsResponse : MonoBehaviour , IPlatformsProvider
 
 
     [Header("Cicular Movement Platforms")]
+    [SerializeField] private Transform centerPoint;
     [SerializeField] [Range(0f, 100f)] private float angularSpeedPercentage;
     [SerializeField] private float radiusX, radiusY, angularSpeedMultiplier;
-    [SerializeField] private Transform centerPoint;
     private float angle;
-    bool evenNum = true;
+
     private void Awake()
     {
         time = 0;
@@ -77,9 +77,9 @@ public class PlatformsResponse : MonoBehaviour , IPlatformsProvider
         }
         time += Time.deltaTime;
         if (time >= duration / percent)
-            time = 0;
-        
+            time = 0;   
     }
+
     public void CircularPlatform()
     {
         percent = (angularSpeedMultiplier * angularSpeedPercentage) / 360;

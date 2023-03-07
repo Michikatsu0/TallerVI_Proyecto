@@ -4,5 +4,7 @@ using UnityEngine;
 
 public interface IPlayerMechanicProvider
 {
-    
+    void Movement();
+    void Rotation();
+    void JumpAndGravity();
 }
