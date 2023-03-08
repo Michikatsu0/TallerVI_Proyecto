@@ -4,24 +4,16 @@ using UnityEngine;
 
 public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 {
-    [Header("Player Movement Settings")]
-    [SerializeField] private Joystick joystick;
-    [SerializeField] private float runSpeed;
-    [SerializeField] [Range(0f,1f)] private float deathZone;
+    
     private CharacterController characterController;
-    private Vector2 direction = Vector3.zero;
-
-    [Header("Player Rotation Settings")]
-    [SerializeField] private float smooth;
-
-    [Header("Player Jump & Gravity Settings")]
-    [SerializeField] private float jumpForce;
-
-
-    // Start is called before the first frame update
+    private float turnSmoothVelocity;
+    private float defaultRotation = 90, currentRotation;
+    private bool rotation = false;
     void Start()
     {
         characterController = GetComponent<CharacterController>();
+        transform.rotation = Quaternion.Euler(0f, defaultRotation, 0f);
+        currentRotation = defaultRotation;
     }
 
     public void JumpAndGravity()
@@ -29,17 +21,39 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         throw new System.NotImplementedException();
     }
 
-    public void Movement()
+    public void Movement(float runSpeed, float deathZone, float turnSmoothTime, Vector3 direction, Joystick joystick)
     {
-        direction.x = joystick.Horizontal * runSpeed;
+        direction.x = joystick.Horizontal * runSpeed * Time.deltaTime;
 
         if (joystick.Horizontal >= deathZone)
-            characterController.Move(direction * Time.deltaTime);
+        {
+            characterController.Move(direction);
+        }
+        else if (joystick.Horizontal <= -deathZone)
+        {
+            characterController.Move(direction);
+        }
+        Rotation(turnSmoothTime, joystick);
     }
 
-    public void Rotation()
+    public void Rotation(float turnSmoothTime, Joystick joystick)
     {
-        throw new System.NotImplementedException();
+        if (joystick.Horizontal > 0.15f)
+            currentRotation = defaultRotation;
+        else if (joystick.Horizontal < -0.15f)
+        {
+            if (rotation)
+                currentRotation = 3 * defaultRotation;
+            else
+                currentRotation = - defaultRotation;
+        }
+
+        if (rotation) rotation= false;
+        else rotation = true;
+        float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, currentRotation, ref turnSmoothVelocity, turnSmoothTime);
+        transform.rotation = Quaternion.Euler(0f,angle,0f);
+
+        
     }
 
     
