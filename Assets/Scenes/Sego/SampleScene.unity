@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 244324520}
   - component: {fileID: 244324519}
   - component: {fileID: 244324518}
-  - component: {fileID: 244324517}
+  - component: {fileID: 244324522}
   m_Layer: 0
   m_Name: Enemy1
   m_TagString: Untagged
@@ -143,36 +143,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &244324517
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 244324516}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 66312c11c990f954a84d86839332fb40, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Xdurationx: 1
-  Ydurationy: 1
-  Zdurationz: 1
-  Xeasex: 1
-  Yeasey: 1
-  Zeasez: 1
-  Xmovex: 1
-  Ymovey: 1
-  Zmovez: 1
-  Xpositionx: 87
-  Ypositiony: 71
-  Zpositionz: 0
-  Xloopcuantity: -1
-  Yloopcuantity: -1
-  Zloopcuantity: -1
-  Xlooptype: 1
-  Ylooptype: 1
-  Zlooptype: 1
 --- !u!136 &244324518
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -252,6 +222,36 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &244324522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 244324516}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8ec042c61f6d3e4da679c1a888442da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Xdurationx: 1
+  Ydurationy: 1
+  Zdurationz: 1
+  Xeasex: 1
+  Yeasey: 1
+  Zeasez: 1
+  Xmovex: 1
+  Ymovey: 1
+  Zmovez: 1
+  Xpositionx: 0
+  Ypositiony: 0
+  Zpositionz: 0
+  Xloopcuantity: -1
+  Yloopcuantity: -1
+  Zloopcuantity: -1
+  Xlooptype: 1
+  Ylooptype: 1
+  Zlooptype: 1
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -379,7 +379,7 @@ GameObject:
   - component: {fileID: 899251763}
   - component: {fileID: 899251762}
   - component: {fileID: 899251761}
-  - component: {fileID: 899251760}
+  - component: {fileID: 899251765}
   m_Layer: 0
   m_Name: Enemy3
   m_TagString: Untagged
@@ -387,36 +387,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &899251760
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 899251759}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 66312c11c990f954a84d86839332fb40, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Xdurationx: 9.76
-  Ydurationy: 4.1
-  Zdurationz: 8.27
-  Xeasex: 1
-  Yeasey: 1
-  Zeasez: 1
-  Xmovex: 1
-  Ymovey: 1
-  Zmovez: 0
-  Xpositionx: -64
-  Ypositiony: -44
-  Zpositionz: 0
-  Xloopcuantity: 42
-  Yloopcuantity: 34
-  Zloopcuantity: 0
-  Xlooptype: 0
-  Ylooptype: 0
-  Zlooptype: 0
 --- !u!136 &899251761
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -496,6 +466,36 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &899251765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 899251759}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8ec042c61f6d3e4da679c1a888442da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Xdurationx: 1
+  Ydurationy: 1
+  Zdurationz: 1
+  Xeasex: 1
+  Yeasey: 1
+  Zeasez: 1
+  Xmovex: 1
+  Ymovey: 1
+  Zmovez: 1
+  Xpositionx: 0
+  Ypositiony: 0
+  Zpositionz: 0
+  Xloopcuantity: -1
+  Yloopcuantity: -1
+  Zloopcuantity: -1
+  Xlooptype: 1
+  Ylooptype: 1
+  Zlooptype: 1
 --- !u!850595691 &929713636
 LightingSettings:
   m_ObjectHideFlags: 0
@@ -1072,7 +1072,7 @@ GameObject:
   - component: {fileID: 1832510649}
   - component: {fileID: 1832510648}
   - component: {fileID: 1832510647}
-  - component: {fileID: 1832510646}
+  - component: {fileID: 1832510651}
   m_Layer: 0
   m_Name: Enemy2
   m_TagString: Untagged
@@ -1080,36 +1080,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1832510646
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1832510645}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 66312c11c990f954a84d86839332fb40, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Xdurationx: 4.99
-  Ydurationy: 3.1
-  Zdurationz: 3.1
-  Xeasex: 1
-  Yeasey: 1
-  Zeasez: 1
-  Xmovex: 1
-  Ymovey: 1
-  Zmovez: 1
-  Xpositionx: 63
-  Ypositiony: -73
-  Zpositionz: 58
-  Xloopcuantity: 0
-  Yloopcuantity: 0
-  Zloopcuantity: 0
-  Xlooptype: 2
-  Ylooptype: 0
-  Zlooptype: 1
 --- !u!136 &1832510647
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1189,6 +1159,36 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1832510651
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1832510645}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8ec042c61f6d3e4da679c1a888442da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Xdurationx: 1
+  Ydurationy: 1
+  Zdurationz: 1
+  Xeasex: 1
+  Yeasey: 1
+  Zeasez: 1
+  Xmovex: 1
+  Ymovey: 1
+  Zmovez: 1
+  Xpositionx: 0
+  Ypositiony: 0
+  Zpositionz: 0
+  Xloopcuantity: -1
+  Yloopcuantity: -1
+  Zloopcuantity: -1
+  Xlooptype: 1
+  Ylooptype: 1
+  Zlooptype: 1
 --- !u!43 &1900100390
 Mesh:
   m_ObjectHideFlags: 0
