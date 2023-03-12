@@ -19,13 +19,9 @@ public class RotationPlatformsResponse : MonoBehaviour, IRotationPlatformProvide
         duration = 1;
         transform.rotation = Quaternion.Euler(0f,0f,rotationSlope);
     }
-    private void LateUpdate()
-    {
-        RotationPlatform();
-    }
+
     public void RotationPlatform()
     {
-
         percent = (rotationSpeedMultiplier * rotationSpeedPercentage) / 100;
 
         for (int i = 0; i < platforms.Count; i++)

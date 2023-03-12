@@ -5,10 +5,10 @@ using UnityEngine;
 
 public class PositionPlatformsResponse : MonoBehaviour, IPositionPlatformsProvider
 {
-    public enum PlatformMoveTypes { Vertical, Horizontal, Both }
+    public enum PlatformPositionTypes { Vertical, Horizontal, Both }
 
     [Header("Position Movement Platforms")]
-    [SerializeField] private PlatformMoveTypes platformMoveType;
+    [SerializeField] private PlatformPositionTypes platformMoveType;
     [SerializeField] AnimationCurve positionCurveX;
     [SerializeField] AnimationCurve positionCurveY;
     [SerializeField] private float amplitude, speedMultiplier = 1;
@@ -24,19 +24,16 @@ public class PositionPlatformsResponse : MonoBehaviour, IPositionPlatformsProvid
         vertical = transform.position.y;
         horizontal = transform.position.x;
     }
-    private void LateUpdate()
-    {
-        PositionPlatform();
-    }
+
     public void PositionPlatform()
     {
         percent = (speedMultiplier * movementSpeedPercentage) / 100;
         position = transform.position;
-        if (PlatformMoveTypes.Vertical == platformMoveType) // Vertical movement
+        if (PlatformPositionTypes.Vertical == platformMoveType) // Vertical movement
             position.y = amplitude * positionCurveY.Evaluate(percent * time) + vertical; 
-        else if (PlatformMoveTypes.Horizontal == platformMoveType) // Horizontal movement
+        else if (PlatformPositionTypes.Horizontal == platformMoveType) // Horizontal movement
             position.x = amplitude * positionCurveX.Evaluate(percent * time) + horizontal;
-        else if (PlatformMoveTypes.Both == platformMoveType) // Diagonal movement
+        else if (PlatformPositionTypes.Both == platformMoveType) // Diagonal movement
         {
             position.x = amplitude * positionCurveX.Evaluate(percent * time) + horizontal;
             position.y = amplitude * positionCurveY.Evaluate(percent * time) + vertical;

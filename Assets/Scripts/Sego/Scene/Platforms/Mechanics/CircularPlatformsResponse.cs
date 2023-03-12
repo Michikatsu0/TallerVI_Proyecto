@@ -13,11 +13,6 @@ public class CircularPlatformsResponse : MonoBehaviour, ICircularPlatformProvide
     private float percent, angle;
     private Vector2 position;
 
-    private void LateUpdate()
-    {
-        CircularPlatform();
-    }
-
     public void CircularPlatform()
     {
         percent = (angularSpeedMultiplier * angularSpeedPercentage) / 360;

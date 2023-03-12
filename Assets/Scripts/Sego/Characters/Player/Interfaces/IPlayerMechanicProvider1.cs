@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IPlayerMechanicProvider
+public interface IPlayerMechanicProvider1
 {
     void Movement(float runSpeed, float runSpeedPercentage, float jumpSpeedMultiplier ,float deathZoneX, float deathZoneY, Joystick joystick);
     void Rotation(float turnSmoothTime, float deathZoneX, Joystick joystick);

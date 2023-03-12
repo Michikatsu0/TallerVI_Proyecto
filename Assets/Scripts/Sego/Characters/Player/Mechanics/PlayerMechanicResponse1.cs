@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
+public class PlayerMechanicResponse1 : MonoBehaviour, IPlayerMechanicProvider
 {
     //¡¡¡ScriptableObject Implementation for multiples intance in behaviour!!!//
 
