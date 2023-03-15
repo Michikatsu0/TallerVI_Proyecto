@@ -25,8 +25,7 @@ public class enemyMovement : MonoBehaviour
     [SerializeField] bool Ymovey = true;
     [SerializeField] bool Zmovez = true;
 
-    //the final position. In the future we can make an adjustment to
-    //include the starting position so it will be easier to change
+    //choose the where you want to move
     [SerializeField] int Xpositionx = 0;
     [SerializeField] int Ypositiony = 0;
     [SerializeField] int Zpositionz = 0;
@@ -43,11 +42,13 @@ public class enemyMovement : MonoBehaviour
 
 
 
+
     //Sequence mysequence 
     // Start is called before the first frame update
     void Start()
     {
         DOTween.Init(); //initialize dotween
+
         enemymovement();//calls the enemy movement. Dotween does not need to be in update.  
     }
 
@@ -58,8 +59,11 @@ public class enemyMovement : MonoBehaviour
     }
     void enemymovement()
     {
-        if (Xmovex) { transform.DOMoveX(Xpositionx, Xdurationx).SetEase(Xeasex).SetLoops(Xloopcuantity, Xlooptype); } //moves in x
-        if (Ymovey) { transform.DOMoveY(Ypositiony, Ydurationy).SetEase(Yeasey).SetLoops(Yloopcuantity, Ylooptype); } //moves in y
-        if (Zmovez) { transform.DOMoveZ(Zpositionz, Zdurationz).SetEase(Zeasez).SetLoops(Zloopcuantity, Zlooptype); } //moves in z
+        float xFinal = transform.position.x + Xpositionx; //just used to make the final destination the diference between origin and movement you want to do
+        float yFinal = transform.position.y + Ypositiony;
+        float zFinal = transform.position.z + Zpositionz;
+        if (Xmovex) { transform.DOMoveX(xFinal, Xdurationx).SetEase(Xeasex).SetLoops(Xloopcuantity, Xlooptype); } //moves in x
+        if (Ymovey) { transform.DOMoveY(yFinal, Ydurationy).SetEase(Yeasey).SetLoops(Yloopcuantity, Ylooptype); } //moves in y
+        if (Zmovez) { transform.DOMoveZ(zFinal, Zdurationz).SetEase(Zeasez).SetLoops(Zloopcuantity, Zlooptype); } //moves in z
     }
 }
