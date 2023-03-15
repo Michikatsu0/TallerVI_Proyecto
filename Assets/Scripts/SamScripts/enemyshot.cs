@@ -9,6 +9,7 @@ public class enemyshot : MonoBehaviour
 {
     public GameObject enemyProjectile; //the objetc to instantiate
     [SerializeField] float shootTime; //the time between shoots, in seconds.
+
         
     // Start is called before the first frame update
     void Start()
