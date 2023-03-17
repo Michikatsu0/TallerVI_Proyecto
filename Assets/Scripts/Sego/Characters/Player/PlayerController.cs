@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(PlayerMechanicResponse))]
@@ -14,7 +15,12 @@ public class PlayerController : MonoBehaviour
     [Header("Gravity Settings")]
     [SerializeField] [Range(0f, 100f)] private float gravityMultiplierPercentage;
     [SerializeField] private float gravityMultiplier;
-    [SerializeField] [Range(-1,-10)] private float groundGravity;
+    [SerializeField] [Range(-1,-20)] private float groundGravity;
+
+    [Header("Fall Settings")]
+    [SerializeField] private float distance;
+    [SerializeField] private LayerMask isGround;
+
 
     [Header("Movement Settings")]
     [SerializeField] [Range(0f, 100f)] private float movementSpeedMultiplier;
@@ -45,7 +51,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         playerMechanicsProvider.Gravity(gravityMultiplier, gravityMultiplierPercentage, groundGravity);
-        
+        playerMechanicsProvider.Fall(distance, isGround);
         playerMechanicsProvider.Crouch(crouchSpeed, crouchSpeedMultiplier);
         playerMechanicsProvider.Jump(maxNumberOfJumps, jumpForce, jumpForceMultiplier, jumpSpeed, jumpSpeedMultiplier);
         playerMechanicsProvider.Rotation(turnSmoothTime);
