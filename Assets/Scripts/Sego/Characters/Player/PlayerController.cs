@@ -2,54 +2,56 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(PlayerMechanicResponse))]
 public class PlayerController : MonoBehaviour
 {
     [Header("Joystick Settings")]
-    [SerializeField] private Joystick joystick;
-    [SerializeField] [Range(0f, 1f)] private float deathZoneX;
-    [SerializeField] [Range(0f, 1f)] private float deathZoneY;
+    [SerializeField] public Joystick joystick;
+    [SerializeField] [Range(0f, 1f)] public float deathZoneX;
+    [SerializeField] [Range(0f, 1f)] public float deathZoneJumpY;
+    [SerializeField] [Range(0f, 1f)] public float deathZoneCrouchY;
 
     [Header("Gravity Settings")]
-    [SerializeField] private float gravityMultiplier;
     [SerializeField] [Range(0f, 100f)] private float gravityMultiplierPercentage;
-    [SerializeField] private float groundedGravity = -4.5f;
+    [SerializeField] private float gravityMultiplier;
+    [SerializeField] [Range(-1,-10)] private float groundGravity;
 
-    [Header("Player Movement Settings")]
-    [SerializeField] private float runSpeed;
-    [SerializeField] [Range(0f, 100f)] private float runSpeedPercentage;
+    [Header("Movement Settings")]
+    [SerializeField] [Range(0f, 100f)] private float movementSpeedMultiplier;
+    [SerializeField] private float movementSpeed;
 
-    [Header("Player Push Objects Settings")]
-    [SerializeField] private float forceBridges;
-    [SerializeField] [Range(1f, 5f)] private float forceBridgesMultiplier;
-    [SerializeField] [Range(0f, 100f)] private float forceBridgesPercentage;
-    [SerializeField] private float forceProbs;
-    [SerializeField][Range(0f, 100f)] private float forceProbsPercentage;
+    [Header("Crouch Movement Settings")]
+    [SerializeField] [Range(0f, 100f)] private float crouchSpeedMultiplier;
+    [SerializeField] private float crouchSpeed;
 
-    [Header("Player Slopes Movement Settings")]
-    [SerializeField] private float slopeSlideSpeed;
-    [SerializeField] [Range(0f, 100f)] private float slopeSlideSpeedPercentage;
+    [Header("Rotation Settings")]
+    [SerializeField] [Range(0f, 0.2f)] private float turnSmoothTime;
 
-    [Header("Player Jump Settings")]
+    [Header("Jump Settings")]
+    [SerializeField] private float maxNumberOfJumps;
+    [SerializeField] [Range(0f, 100f)] private float jumpForceMultiplier;
     [SerializeField] private float jumpForce;
-    [SerializeField] [Range(0f, 100f)] private float jumpForcePercentage;
-    [SerializeField] [Range(1f, 5f)] private float jumpSpeedMultiplier;
-
-    [Header("Player Rotation Settings")]
-    [SerializeField][Range(0f, 1f)] private float turnSmoothTime;
+    [SerializeField] [Range(0f, 100f)] private float jumpSpeedMultiplier;
+    [SerializeField] private float jumpSpeed;
 
     private IPlayerMechanicProvider playerMechanicsProvider;
 
-    void Start()
+    private void Awake()
     {
         playerMechanicsProvider = GetComponent<IPlayerMechanicProvider>();
+        playerMechanicsProvider.StartInputs(deathZoneX, deathZoneJumpY, deathZoneCrouchY, joystick);
     }
 
     void Update()
     {
-        playerMechanicsProvider.Gravity(gravityMultiplier, gravityMultiplierPercentage, groundedGravity); 
-        playerMechanicsProvider.Rotation(turnSmoothTime, deathZoneX, joystick);
-        playerMechanicsProvider.Jump(jumpForce, jumpForcePercentage, deathZoneY, joystick);
-        playerMechanicsProvider.Movement(runSpeed, runSpeedPercentage, jumpSpeedMultiplier ,deathZoneX, deathZoneY, joystick);
-        playerMechanicsProvider.PushObjects(forceBridges, forceBridgesMultiplier, forceBridgesPercentage, forceProbs, forceProbsPercentage);
+        playerMechanicsProvider.Gravity(gravityMultiplier, gravityMultiplierPercentage, groundGravity);
+        
+        playerMechanicsProvider.Crouch(crouchSpeed, crouchSpeedMultiplier);
+        playerMechanicsProvider.Jump(maxNumberOfJumps, jumpForce, jumpForceMultiplier, jumpSpeed, jumpSpeedMultiplier);
+        playerMechanicsProvider.Rotation(turnSmoothTime);
+        playerMechanicsProvider.Movement(movementSpeed, movementSpeedMultiplier);
     }
+
+
+
 }

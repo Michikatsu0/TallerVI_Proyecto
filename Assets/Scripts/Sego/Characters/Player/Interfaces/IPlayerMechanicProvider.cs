@@ -4,9 +4,10 @@ using UnityEngine;
 
 public interface IPlayerMechanicProvider
 {
-    void Movement(float runSpeed, float runSpeedPercentage, float jumpSpeedMultiplier ,float deathZoneX, float deathZoneY, Joystick joystick);
-    void Rotation(float turnSmoothTime, float deathZoneX, Joystick joystick);
-    void Gravity(float gravityMultiplier, float gravityMultiplierPercent, float groundedGravity);
-    void Jump(float jumpForce, float jumpForcePercentage, float deathZoneY, Joystick joystick);
-    void PushObjects(float forceBridges, float forceBridgesMultiplier, float forceBridgesPercentage, float forceProbs, float forceProbsPercentage);
+    void StartInputs(float deathZoneX, float deathZoneJumpY, float deathZoneCrouchY, Joystick joystick);
+    void Jump(float maxNumberOfJumps, float jumpForce, float jumpForceMultiplier, float jumpSpeed, float jumpSpeedMultiplier);
+    void Crouch(float crouchSpeed, float crouchSpeedMultiplier);
+    void Rotation(float turnSmoothTime);
+    void Gravity(float gravityMultiplier, float gravityMultiplierPercent, float groundGravity);
+    void Movement(float movementSpeed, float movementSpeedMultiplier);
 }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 
 [RequireComponent(typeof(PositionPlatformsResponse))]
 
@@ -42,6 +37,7 @@ public class PlatformsController : MonoBehaviour
                 break;
         }
     }
+
 
     private void OnTriggerEnter(Collider other)
     {

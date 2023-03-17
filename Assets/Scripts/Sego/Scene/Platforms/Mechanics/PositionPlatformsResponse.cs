@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
+[RequireComponent(typeof(Rigidbody))]
 public class PositionPlatformsResponse : MonoBehaviour, IPositionPlatformsProvider
 {
     public enum PlatformPositionTypes { Vertical, Horizontal, Both }
@@ -16,9 +16,10 @@ public class PositionPlatformsResponse : MonoBehaviour, IPositionPlatformsProvid
 
     private float time, duration, vertical, horizontal, percent;
     private Vector2 position;
-
+    private Rigidbody rgbd;
     private void Awake()
     {
+        rgbd= GetComponent<Rigidbody>();
         time = 0;
         duration = 1;
         vertical = transform.position.y;
@@ -38,7 +39,7 @@ public class PositionPlatformsResponse : MonoBehaviour, IPositionPlatformsProvid
             position.x = amplitude * positionCurveX.Evaluate(percent * time) + horizontal;
             position.y = amplitude * positionCurveY.Evaluate(percent * time) + vertical;
         }
-        transform.position = position;
+        rgbd.MovePosition(position);
         time += Time.deltaTime;
 
         if (time >= duration / percent)
