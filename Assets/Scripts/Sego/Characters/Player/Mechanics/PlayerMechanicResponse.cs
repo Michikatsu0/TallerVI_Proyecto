@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 using static UnityEngine.Rendering.DebugUI;
 
@@ -61,19 +62,13 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     #endregion
 
     #region Animations
+
     private Animator animator;
-
-
-
 
     private void SetAnimations()
     {
 
 
-
-        
-        animator.SetBool("IsJumping", yJoystickJumpLimit);
-        
     }
 
     #endregion
@@ -82,11 +77,11 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     private float gravityPercent;
 
+
     public void Gravity(float gravityMultiplier, float gravityMultiplierPercent, float groundGravity)
     {
         gravityPercent = (gravityMultiplier * gravityMultiplierPercent) / 100;
         animator.SetBool("IsGrounded", IsGrounded());
-
         if (IsGrounded() && currentDirection.y < 0.0f)
         {
             currentDirection.y = groundGravity;
@@ -98,6 +93,26 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
             currentDirection = currentDirection + (Physics.gravity * gravityPercent * Time.deltaTime);
             appliedMovement.y = Mathf.Max((previousYVelocity + currentDirection.y) * 0.5f, -20.0f);
         }
+    }
+
+    #endregion
+
+    #region Falling 
+
+    private float tmpDistance;
+    private bool isFalling;
+    private Vector3 vDistance;
+
+    public void Fall(float distance, LayerMask isGround)
+    {
+        tmpDistance = -distance;
+        vDistance.y = tmpDistance;
+           
+        isFalling = true;
+        if (Physics.SphereCast(transform.position, characterController.radius, Vector3.down, out RaycastHit hit, distance, isGround))
+            isFalling = false;
+
+        animator.SetBool("IsFalling", isFalling);
     }
 
     private bool IsGrounded() => characterController.isGrounded;
@@ -158,7 +173,13 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
             joystickJumpReady = false;
         }
 
+        if (yJoystickJumpLimit)
+            animator.SetBool("IsJumping", true);
+        else
+            animator.SetBool("IsJumping", false);
 
+        if (yJoystickJumpLimit && IsGrounded())
+            animator.SetBool("IsJumping", false);
     }
 
 
@@ -231,6 +252,8 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #endregion
 
+    #region Velocitys
+
     private void SetVelocitys()
     {
         if (IsGrounded())
@@ -252,6 +275,15 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     }
 
+    #endregion
 
-    
+
+    private void OnDrawGizmosSelected()
+    {
+        CharacterController characterController = gameObject.GetComponent<CharacterController>();
+        Gizmos.color = Color.red;
+        vDistance.y = tmpDistance;
+
+        Gizmos.DrawWireSphere(transform.position + vDistance, characterController.radius);
+    }
 }

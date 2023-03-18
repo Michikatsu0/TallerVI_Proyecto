@@ -22,7 +22,7 @@ public class PlatformsController : MonoBehaviour
         circularPlatformProvider = GetComponent<ICircularPlatformProvider>();
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         switch (platformType)
         {
