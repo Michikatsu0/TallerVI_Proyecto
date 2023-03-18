@@ -77,6 +77,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     private float gravityPercent;
 
+    private bool IsGrounded() => characterController.isGrounded;
 
     public void Gravity(float gravityMultiplier, float gravityMultiplierPercent, float groundGravity)
     {
@@ -115,8 +116,6 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         animator.SetBool("IsFalling", isFalling);
     }
 
-    private bool IsGrounded() => characterController.isGrounded;
-
     #endregion
 
     #region Rotation
@@ -138,9 +137,9 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #region Jump
 
-    private float jumpPercent, jumpSpeedPercent, numberOfJumps = 0, tmpPercent = 1;
-    private bool joystickJumpReady;
-
+    private float jumpPercent, jumpSpeedPercent, tmpPercent = 1;
+    private bool joystickJumpReady,jump2,jump3;
+    private int numberOfJumps = 0;
     public void Jump(float maxNumberOfJumps, float jumpForce, float jumpForceMultiplier, float jumpSpeed, float jumpSpeedMultiplier)
     {
         jumpPercent = (jumpForce * jumpForceMultiplier) / 100;
@@ -163,9 +162,25 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
             //        jumpPercent *= tmpPercent;
             //        tmpPercent -= 0.2f;
             //    }
-
             //}
 
+            animator.SetInteger("MultiJumps", numberOfJumps);
+
+            if (numberOfJumps == 2)
+            {
+                animator.SetBool("Jump2", true);
+                Invoke(nameof(ResetJump2), 0.1f);
+            }
+                
+            if (numberOfJumps == 3)
+            {
+                animator.SetBool("Jump3", true);
+                Invoke(nameof(ResetJump3), 0.1f);
+            }
+
+            var randomJump = Random.Range(0f, 1f);
+            animator.SetFloat("RandomJump", randomJump);
+            
             currentDirection.y = jumpPercent;
         }
         else if (!yJoystickJumpLimit)
@@ -178,10 +193,19 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         else
             animator.SetBool("IsJumping", false);
 
-        if (yJoystickJumpLimit && IsGrounded())
+        if (yJoystickJumpLimit && !isFalling)
             animator.SetBool("IsJumping", false);
     }
 
+    private void ResetJump2()
+    {
+        animator.SetBool("Jump2", false);
+    }
+
+    private void ResetJump3()
+    {
+        animator.SetBool("Jump3", false);
+    }
 
     private IEnumerator WaitForLanding()
     {
@@ -231,7 +255,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
             moveZAxis.z = -1;
         else if (transform.position.z < -0.03f)
             moveZAxis.z = 1; 
-        else 
+        else
             moveZAxis.z = 0;
 
         characterController.Move(moveZAxis * Time.deltaTime);
