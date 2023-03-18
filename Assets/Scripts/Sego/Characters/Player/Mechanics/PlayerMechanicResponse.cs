@@ -14,6 +14,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     //general variables
     private CharacterController characterController;
+    private Animator animator;
     ////Slope variables
     //private RaycastHit slopeHit;
     //private Vector3 rayHelperPos;
@@ -32,11 +33,9 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     void Update ()
     {
-        SetAnimations();
         JoystickUpdate();
         SetVelocitys();
     }
-
 
     #region Joystick
 
@@ -57,18 +56,6 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         xJoystickLimits = -deathZoneX >= joystick.Horizontal || deathZoneX <= joystick.Horizontal;
         yJoystickJumpLimit = deathZoneJumpY <= joystick.Vertical;
         yJoystickCrouchLimit = -deathZoneCrouchY >= joystick.Vertical;
-    }
-
-    #endregion
-
-    #region Animations
-
-    private Animator animator;
-
-    private void SetAnimations()
-    {
-
-
     }
 
     #endregion
@@ -137,7 +124,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #region Jump
 
-    private float jumpPercent, jumpSpeedPercent, tmpPercent = 1;
+    private float jumpPercent, jumpSpeedPercent;
     private bool joystickJumpReady,jump2,jump3;
     private int numberOfJumps = 0;
     public void Jump(float maxNumberOfJumps, float jumpForce, float jumpForceMultiplier, float jumpSpeed, float jumpSpeedMultiplier)
@@ -147,37 +134,14 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
         if (yJoystickJumpLimit && !joystickJumpReady && numberOfJumps < maxNumberOfJumps)
         {
-            if (numberOfJumps == 0)
-            {
-                StartCoroutine(WaitForLanding());
-                tmpPercent = 1;
-            }
+            if (numberOfJumps == 0) StartCoroutine(WaitForLanding());
+            
             numberOfJumps++;
             joystickJumpReady = true;
 
-            //for (int i = 1; i <= maxNumberOfJumps; i++)
-            //{
-            //    if (numberOfJumps == i)
-            //    {
-            //        jumpPercent *= tmpPercent;
-            //        tmpPercent -= 0.2f;
-            //    }
-            //}
-
             animator.SetInteger("MultiJumps", numberOfJumps);
-
-            if (numberOfJumps == 2)
-            {
-                animator.SetBool("Jump2", true);
-                Invoke(nameof(ResetJump2), 0.1f);
-            }
-                
-            if (numberOfJumps == 3)
-            {
-                animator.SetBool("Jump3", true);
-                Invoke(nameof(ResetJump3), 0.1f);
-            }
-
+            animator.SetBool("IsJumping", true);
+            Invoke(nameof(ResetJumpAnimation), 0.1f);
             var randomJump = Random.Range(0f, 1f);
             animator.SetFloat("RandomJump", randomJump);
             
@@ -188,23 +152,11 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
             joystickJumpReady = false;
         }
 
-        if (yJoystickJumpLimit)
-            animator.SetBool("IsJumping", true);
-        else
-            animator.SetBool("IsJumping", false);
-
-        if (yJoystickJumpLimit && !isFalling)
-            animator.SetBool("IsJumping", false);
     }
 
-    private void ResetJump2()
+    private void ResetJumpAnimation()
     {
-        animator.SetBool("Jump2", false);
-    }
-
-    private void ResetJump3()
-    {
-        animator.SetBool("Jump3", false);
+        animator.SetBool("IsJumping", false);
     }
 
     private IEnumerator WaitForLanding()
