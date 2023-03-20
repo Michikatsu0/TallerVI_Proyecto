@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 using static UnityEngine.Rendering.DebugUI;
 
 
@@ -15,6 +16,8 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     //general variables
     private CharacterController characterController;
     private Animator animator;
+
+
     ////Slope variables
     //private RaycastHit slopeHit;
     //private Vector3 rayHelperPos;
@@ -31,7 +34,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         crouchCenter.y = -0.345f;
     }
 
-    void Update ()
+    void Update()
     {
         JoystickUpdate();
         SetVelocitys();
@@ -42,7 +45,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     private Joystick joystick;
     private float deathZoneX, deathZoneJumpY, deathZoneCrouchY;
     private bool xJoystickLimits, yJoystickJumpLimit, yJoystickCrouchLimit;
-    
+
     public void StartInputs(float deathZoneX, float deathZoneJumpY, float deathZoneCrouchY, Joystick joystick)
     {
         this.deathZoneX = deathZoneX;
@@ -85,19 +88,19 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #endregion
 
-    #region Falling 
+    #region Falling
 
     private float tmpDistance;
     private bool isFalling;
     private Vector3 vDistance;
 
-    public void Fall(float distance, LayerMask isGround)
+    public void Fall(float centerDistance, LayerMask isGround)
     {
-        tmpDistance = -distance;
+        tmpDistance = -centerDistance;
         vDistance.y = tmpDistance;
-           
+
         isFalling = true;
-        if (Physics.SphereCast(transform.position, characterController.radius, Vector3.down, out RaycastHit hit, distance, isGround))
+        if (Physics.SphereCast(transform.position, characterController.radius, Vector3.down, out RaycastHit hit, centerDistance, isGround))
             isFalling = false;
 
         animator.SetBool("IsFalling", isFalling);
@@ -105,10 +108,55 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #endregion
 
+    #region Slopes
+
+    private float slopeRayDistance;
+    private RaycastHit slopeHit;
+
+    public void SlopeSlide(float slopeRayDistance, float slideSlopeSpeed, float slopeforceDown )
+    {
+        this.slopeRayDistance = slopeRayDistance;
+
+        if (OnStepSlope() && !jumping)
+            SlopeMovement(slideSlopeSpeed, slopeforceDown);
+    }
+
+
+    private bool OnStepSlope()
+    {
+        if (isFalling) return false;
+        if (Physics.Raycast(transform.position, Vector3.down, out slopeHit, slopeRayDistance))
+        {
+            Collider slope = slopeHit.collider;
+            GameObject targetSlope = slope.gameObject;
+
+            if (targetSlope.CompareTag("Slopes"))
+            {
+                float slopeAngle = Vector3.Angle(slopeHit.normal, Vector3.up);
+                if (slopeAngle > characterController.slopeLimit)
+                    return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
+    private void SlopeMovement(float slideSlopeSpeed, float slopeforceDown)
+    {
+        Vector3 slopeDirection = Vector3.up - slopeHit.normal * Vector3.Dot(Vector3.up, slopeHit.normal);
+        float slideSpeed = slideSlopeSpeed * Time.deltaTime;
+
+        currentDirection = slopeDirection * -slideSpeed;
+        currentDirection.y = -slopeforceDown * Time.deltaTime;
+
+        characterController.Move(currentDirection);
+    }
+
+    #endregion
+
     #region Rotation
 
     private float defaultRotation = 90, currentRotation, turnSmoothVelocity;
-
     public void Rotation(float turnSmoothTime)
     {
         if (deathZoneX <= joystick.Horizontal)
@@ -122,10 +170,17 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #endregion
 
+    #region Coyote Time
+
+    private bool canJump;
+    private float coyoteTime, time;
+
+    #endregion
+
     #region Jump
 
     private float jumpPercent, jumpSpeedPercent;
-    private bool joystickJumpReady,jump2,jump3;
+    private bool joystickJumpReady, jumping;
     private int numberOfJumps = 0;
     public void Jump(float maxNumberOfJumps, float jumpForce, float jumpForceMultiplier, float jumpSpeed, float jumpSpeedMultiplier)
     {
@@ -138,9 +193,9 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
             
             numberOfJumps++;
             joystickJumpReady = true;
-
+            jumping = true;
             animator.SetInteger("MultiJumps", numberOfJumps);
-            animator.SetBool("IsJumping", true);
+            animator.SetBool("IsJumping", jumping);
             Invoke(nameof(ResetJumpAnimation), 0.1f);
             var randomJump = Random.Range(0f, 1f);
             animator.SetFloat("RandomJump", randomJump);
@@ -156,13 +211,14 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     private void ResetJumpAnimation()
     {
-        animator.SetBool("IsJumping", false);
+        jumping = false;
+        animator.SetBool("IsJumping", jumping);
     }
 
     private IEnumerator WaitForLanding()
     {
-        yield return new WaitUntil(() => !IsGrounded());
-        yield return new WaitUntil(IsGrounded);
+        yield return new WaitUntil(() => isFalling);
+        yield return new WaitUntil(() => !isFalling);
 
         numberOfJumps = 0;
     }
@@ -248,18 +304,19 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
                 moveSpeed = jumpSpeedPercent;
             }
         }
-
+        if (OnStepSlope())
+            moveSpeed = 2;
     }
 
     #endregion
-
-
+    Vector3 target;
     private void OnDrawGizmosSelected()
     {
         CharacterController characterController = gameObject.GetComponent<CharacterController>();
         Gizmos.color = Color.red;
         vDistance.y = tmpDistance;
-
+        target.y = -slopeRayDistance;
+        Gizmos.DrawRay(transform.position, target);
         Gizmos.DrawWireSphere(transform.position + vDistance, characterController.radius);
     }
 }

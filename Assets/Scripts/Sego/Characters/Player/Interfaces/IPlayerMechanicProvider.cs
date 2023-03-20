@@ -9,6 +9,7 @@ public interface IPlayerMechanicProvider
     void Crouch(float crouchSpeed, float crouchSpeedMultiplier);
     void Rotation(float turnSmoothTime);
     void Gravity(float gravityMultiplier, float gravityMultiplierPercent, float groundGravity);
-    void Fall(float distance, LayerMask isGround);
+    void SlopeSlide(float slopeRayDistance, float slideSlopeSpeed, float slopeforceDown);
+    void Fall(float centerDistance, LayerMask isGround);
     void Movement(float movementSpeed, float movementSpeedMultiplier);
 }
