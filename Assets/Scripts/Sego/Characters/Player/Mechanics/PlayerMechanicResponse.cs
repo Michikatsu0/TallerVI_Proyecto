@@ -1,25 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
-using static UnityEngine.Rendering.DebugUI;
 
 
 public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 {
-
-    private enum PlayerStates { GroundMove, Jump, Crouch }
-    private PlayerStates playerState;
-
-    //general variables
     private CharacterController characterController;
     private Animator animator;
-    ////Slope variables
-    //private RaycastHit slopeHit;
-    //private Vector3 rayHelperPos;
-    //private bool exitingSlope;
-    //private float maxSlopeAngle, offset = 0.99f;
 
     void Start()
     {
@@ -28,10 +16,10 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         transform.rotation = Quaternion.Euler(0f, defaultRotation, 0f);
         currentRotation = defaultRotation;
         currentHeight = characterController.height;
-        crouchCenter.y = -0.345f;
+        crouchCenter.y = -0.3f;
     }
 
-    void Update ()
+    void Update()
     {
         JoystickUpdate();
         SetVelocitys();
@@ -42,7 +30,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     private Joystick joystick;
     private float deathZoneX, deathZoneJumpY, deathZoneCrouchY;
     private bool xJoystickLimits, yJoystickJumpLimit, yJoystickCrouchLimit;
-    
+
     public void StartInputs(float deathZoneX, float deathZoneJumpY, float deathZoneCrouchY, Joystick joystick)
     {
         this.deathZoneX = deathZoneX;
@@ -85,19 +73,18 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #endregion
 
-    #region Falling 
+    #region Falling
 
     private float tmpDistance;
     private bool isFalling;
-    private Vector3 vDistance;
 
-    public void Fall(float distance, LayerMask isGround)
+    public void Fall(float centerDistance, LayerMask isGround)
     {
-        tmpDistance = -distance;
+        tmpDistance = -centerDistance;
         vDistance.y = tmpDistance;
-           
+
         isFalling = true;
-        if (Physics.SphereCast(transform.position, characterController.radius, Vector3.down, out RaycastHit hit, distance, isGround))
+        if (Physics.SphereCast(transform.position, characterController.radius, Vector3.down, out RaycastHit hit, centerDistance, isGround))
             isFalling = false;
 
         animator.SetBool("IsFalling", isFalling);
@@ -105,10 +92,54 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #endregion
 
+    #region Slopes
+
+    private float slopeRayDistance;
+    private RaycastHit slopeHit;
+
+    public void SlopeSlide(float slopeRayDistance, float slideSlopeSpeed, float slopeforceDown )
+    {
+        this.slopeRayDistance = slopeRayDistance;
+
+        if (OnStepSlope() && !jumping)
+            SlopeMovement(slideSlopeSpeed, slopeforceDown);
+    }
+
+    private bool OnStepSlope()
+    {
+        if (isFalling) return false;
+        if (Physics.SphereCast(transform.position, characterController.radius+0.03f, Vector3.down, out slopeHit, slopeRayDistance))
+        {
+            Collider slope = slopeHit.collider;
+            GameObject targetSlope = slope.gameObject;
+
+            if (targetSlope.CompareTag("Slopes"))
+            {
+                float slopeAngle = Vector3.Angle(slopeHit.normal, Vector3.up);
+                if (slopeAngle > characterController.slopeLimit)
+                    return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
+    private void SlopeMovement(float slideSlopeSpeed, float slopeforceDown)
+    {
+        Vector3 slopeDirection = Vector3.up - slopeHit.normal * Vector3.Dot(Vector3.up, slopeHit.normal);
+        float slideSpeed = slideSlopeSpeed * Time.deltaTime;
+
+        currentDirection = slopeDirection * -slideSpeed;
+        currentDirection.y = -slopeforceDown * Time.deltaTime;
+
+        characterController.Move(currentDirection);
+    }
+
+    #endregion
+
     #region Rotation
 
     private float defaultRotation = 90, currentRotation, turnSmoothVelocity;
-
     public void Rotation(float turnSmoothTime)
     {
         if (deathZoneX <= joystick.Horizontal)
@@ -122,11 +153,19 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #endregion
 
+    #region Coyote Time
+
+    private bool canJump;
+    private float coyoteTime, time;
+
+    #endregion
+
     #region Jump
 
     private float jumpPercent, jumpSpeedPercent;
-    private bool joystickJumpReady,jump2,jump3;
+    private bool joystickJumpReady, jumping;
     private int numberOfJumps = 0;
+
     public void Jump(float maxNumberOfJumps, float jumpForce, float jumpForceMultiplier, float jumpSpeed, float jumpSpeedMultiplier)
     {
         jumpPercent = (jumpForce * jumpForceMultiplier) / 100;
@@ -138,9 +177,9 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
             
             numberOfJumps++;
             joystickJumpReady = true;
-
+            jumping = true;
             animator.SetInteger("MultiJumps", numberOfJumps);
-            animator.SetBool("IsJumping", true);
+            animator.SetBool("IsJumping", jumping);
             Invoke(nameof(ResetJumpAnimation), 0.1f);
             var randomJump = Random.Range(0f, 1f);
             animator.SetFloat("RandomJump", randomJump);
@@ -156,17 +195,17 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     private void ResetJumpAnimation()
     {
-        animator.SetBool("IsJumping", false);
+        jumping = false;
+        animator.SetBool("IsJumping", jumping);
     }
 
     private IEnumerator WaitForLanding()
     {
-        yield return new WaitUntil(() => !IsGrounded());
-        yield return new WaitUntil(IsGrounded);
+        yield return new WaitUntil(() => isFalling);
+        yield return new WaitUntil(() => !isFalling);
 
         numberOfJumps = 0;
     }
-
 
     #endregion
 
@@ -183,7 +222,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         if (yJoystickCrouchLimit)
         {
             characterController.center = crouchCenter;
-            characterController.height = currentHeight * 0.7f;
+            characterController.height = currentHeight * 0.6f;
         }
         else
         {
@@ -217,7 +256,6 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
             currentDirection.x = joystick.Horizontal;
             animator.SetFloat("MoveX", joystick.Horizontal);
         }
-           
         else
             currentDirection.x = 0; 
         
@@ -248,18 +286,78 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
                 moveSpeed = jumpSpeedPercent;
             }
         }
-
+        if (OnStepSlope())
+            moveSpeed = 2;
     }
 
     #endregion
 
+    #region Collider Character Controller
 
+    private Vector3 pushBridgesV, pushProbsV;
+    private float pushPowerBridgesPercent, pushPowerProbsPercent, pushDelay, pushTime = 0;
+
+    public void PushObjects(float pushPowerBridges, float pushPowerBridgesMultiplier, float pushDelay, float pushPowerProbs, float pushPowerProbsMultiplier)
+    {
+        if (-0.6f < joystick.Horizontal && 0.6f > joystick.Horizontal)
+            pushPowerBridgesPercent = 70;
+        else
+            pushPowerBridgesPercent = (pushPowerBridges * pushPowerBridgesMultiplier) / 100;
+        if (yJoystickCrouchLimit)
+            pushPowerBridgesPercent = 50;
+
+        pushPowerProbsPercent = (pushPowerProbs * pushPowerProbsMultiplier) / 100;
+        this.pushDelay = pushDelay;
+    }
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        GameObject target = hit.gameObject;
+        if (target.CompareTag("Bridges"))
+        {
+            Rigidbody rgbd = target.GetComponent<Rigidbody>();
+            if (rgbd == null || rgbd.isKinematic) return;
+            if (hit.moveDirection.y > 0) return;
+            if (hit.moveDirection.x < 0 || 0 < hit.moveDirection.x || hit.moveDirection.z < 0 || 0 < hit.moveDirection.z) return;
+            if (currentDirection.x == 0) return;
+
+            if (pushTime >= pushDelay)
+            {
+                Debug.Log("eche q: " + pushPowerBridgesPercent);
+                pushBridgesV.y = hit.moveDirection.y * pushPowerBridgesPercent / rgbd.mass;
+                rgbd.AddForce(pushBridgesV, ForceMode.Force);
+                pushTime = 0;
+            }
+            pushTime += Time.deltaTime;
+        }
+        else if (target.CompareTag("Probs"))
+        {
+            Rigidbody rgbd = target.GetComponent<Rigidbody>();
+            if (rgbd == null || rgbd.isKinematic) return;
+            if (hit.moveDirection.y < 0 || 0 < hit.moveDirection.y) return;
+            if (hit.moveDirection.z < 0 || 0 < hit.moveDirection.z) return;
+
+
+            pushProbsV.x = hit.moveDirection.x ;
+            rgbd.velocity = pushProbsV * (pushPowerProbsPercent) / rgbd.mass;
+        }
+    }
+
+    #endregion
+
+    #region Gizmos
+    private Vector3 target;
+    private Vector3 vDistance;
     private void OnDrawGizmosSelected()
     {
         CharacterController characterController = gameObject.GetComponent<CharacterController>();
         Gizmos.color = Color.red;
         vDistance.y = tmpDistance;
-
+        target.y = -slopeRayDistance;
+        Gizmos.DrawRay(transform.position, target);
         Gizmos.DrawWireSphere(transform.position + vDistance, characterController.radius);
+        Gizmos.DrawWireSphere(transform.position + target, characterController.radius + 0.03f);
     }
+    #endregion
+
 }

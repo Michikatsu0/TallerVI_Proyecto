@@ -18,9 +18,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] [Range(-1,-20)] private float groundGravity;
 
     [Header("Fall Settings")]
-    [SerializeField] private float distance;
+    [SerializeField] private float centerDistance;
     [SerializeField] private LayerMask isGround;
 
+    [Header("Slopes Settings")]
+    [SerializeField] private float slopeRayDistance;
+    [SerializeField] private float slideSlopeSpeed, slopeforceDown;
 
     [Header("Movement Settings")]
     [SerializeField] [Range(0f, 100f)] private float movementSpeedMultiplier;
@@ -40,6 +43,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] [Range(0f, 100f)] private float jumpSpeedMultiplier;
     [SerializeField] private float jumpSpeed;
 
+    [Header("Push RGBD's Settings")]
+    [SerializeField][Range(0f, 100f)] private float pushPowerBridgesMultiplier;
+    [SerializeField] private float pushPowerBridges, pushDelay;
+    [SerializeField][Range(0f, 100f)] private float pushPowerProbsMultiplier;
+    [SerializeField] private float pushPowerProbs;
+
     private IPlayerMechanicProvider playerMechanicsProvider;
 
     private void Awake()
@@ -51,7 +60,9 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         playerMechanicsProvider.Gravity(gravityMultiplier, gravityMultiplierPercentage, groundGravity);
-        playerMechanicsProvider.Fall(distance, isGround);
+        playerMechanicsProvider.SlopeSlide(slopeRayDistance, slideSlopeSpeed, slopeforceDown);
+        playerMechanicsProvider.PushObjects(pushPowerBridges, pushPowerBridgesMultiplier, pushDelay, pushPowerProbs, pushPowerProbsMultiplier);
+        playerMechanicsProvider.Fall(centerDistance, isGround);
         playerMechanicsProvider.Crouch(crouchSpeed, crouchSpeedMultiplier);
         playerMechanicsProvider.Jump(maxNumberOfJumps, jumpForce, jumpForceMultiplier, jumpSpeed, jumpSpeedMultiplier);
         playerMechanicsProvider.Rotation(turnSmoothTime);

@@ -17,7 +17,7 @@ public class RotationPlatformsResponse : MonoBehaviour, IRotationPlatformProvide
     {
         time = 0;
         duration = 1;
-        transform.rotation = Quaternion.Euler(0f,0f,rotationSlope);
+        transform.rotation = Quaternion.Euler(0f, 0f, rotationSlope);
     }
 
     public void RotationPlatform()
