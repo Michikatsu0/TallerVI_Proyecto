@@ -106,6 +106,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     private bool OnStepSlope()
     {
+
         if (isFalling) return false;
         if (Physics.SphereCast(transform.position, characterController.radius+0.03f, Vector3.down, out slopeHit, slopeRayDistance))
         {
