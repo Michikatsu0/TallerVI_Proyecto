@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-
 public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 {
     private CharacterController characterController;
@@ -16,7 +15,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         transform.rotation = Quaternion.Euler(0f, defaultRotation, 0f);
         currentRotation = defaultRotation;
         currentHeight = characterController.height;
-        crouchCenter.y = -0.3f;
+        crouchCenter.y = -0.25f;
     }
 
     void Update()
@@ -153,13 +152,6 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #endregion
 
-    #region Coyote Time
-
-    private bool canJump;
-    private float coyoteTime, time;
-
-    #endregion
-
     #region Jump
 
     private float jumpPercent, jumpSpeedPercent;
@@ -170,8 +162,9 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     {
         jumpPercent = (jumpForce * jumpForceMultiplier) / 100;
         jumpSpeedPercent = (jumpSpeed * jumpSpeedMultiplier) / 100;
+        CoyoteTime();
 
-        if (yJoystickJumpLimit && !joystickJumpReady && numberOfJumps < maxNumberOfJumps)
+        if (canJump && yJoystickJumpLimit && !joystickJumpReady && numberOfJumps < maxNumberOfJumps)
         {
             if (numberOfJumps == 0) StartCoroutine(WaitForLanding());
             
@@ -209,6 +202,26 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #endregion
 
+    #region Coyote Time
+
+    private bool canJump;
+    private float coyoteTime = 0.2f, coyoteTimeCounter = 0.5f;
+
+    private void CoyoteTime()
+    {
+        if (isFalling && numberOfJumps == 0)
+            coyoteTimeCounter -= Time.deltaTime;
+        else
+            coyoteTimeCounter = coyoteTime;
+
+        if (coyoteTimeCounter > 0)
+            canJump = true;
+        else
+            canJump = false;
+    }
+
+    #endregion
+
     #region Crouch
 
     private float currentHeight, crouchSpeedPercent;
@@ -222,7 +235,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         if (yJoystickCrouchLimit)
         {
             characterController.center = crouchCenter;
-            characterController.height = currentHeight * 0.6f;
+            characterController.height = currentHeight * 0.8f;
         }
         else
         {
@@ -323,7 +336,6 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
             if (pushTime >= pushDelay)
             {
-                Debug.Log("eche q: " + pushPowerBridgesPercent);
                 pushBridgesV.y = hit.moveDirection.y * pushPowerBridgesPercent / rgbd.mass;
                 rgbd.AddForce(pushBridgesV, ForceMode.Force);
                 pushTime = 0;
