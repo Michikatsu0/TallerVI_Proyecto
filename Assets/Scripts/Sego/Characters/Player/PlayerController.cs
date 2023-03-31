@@ -7,8 +7,10 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [Header("Joystick Settings")]
-    [SerializeField] public Joystick joystick;
+    [SerializeField] public Joystick rightJoystick;
+    [SerializeField] public Joystick leftJoystick;
     [SerializeField] [Range(0f, 1f)] public float deathZoneX;
+    [SerializeField] [Range(0f, 1f)] public float deathZoneAimXY;
     [SerializeField] [Range(0f, 1f)] public float deathZoneJumpY;
     [SerializeField] [Range(0f, 1f)] public float deathZoneCrouchY;
 
@@ -16,14 +18,20 @@ public class PlayerController : MonoBehaviour
     [SerializeField] [Range(0f, 100f)] private float gravityMultiplierPercentage;
     [SerializeField] private float gravityMultiplier;
     [SerializeField] [Range(-1,-20)] private float groundGravity;
-
+     
     [Header("Fall Settings")]
-    [SerializeField] private float centerDistance;
+    [SerializeField][Range(0f, 1f)] private float centerDistance;
     [SerializeField] private LayerMask isGround;
 
     [Header("Slopes Settings")]
-    [SerializeField] private float slopeRayDistance;
+    [SerializeField] [Range(0f, 1f)] private float slopeRayDistance;
     [SerializeField] private float slideSlopeSpeed, slopeforceDown;
+
+
+    [Header("Slopes Settings")]
+    [SerializeField][Range(0f, 0.2f)] private float turnAimSmoothTime;
+    [SerializeField][Range(0f, 100f)] private float aimSpeedMultiplier;
+    [SerializeField] private float aimSpeed;
 
     [Header("Movement Settings")]
     [SerializeField] [Range(0f, 100f)] private float movementSpeedMultiplier;
@@ -54,7 +62,8 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         playerMechanicsProvider = GetComponent<IPlayerMechanicProvider>();
-        playerMechanicsProvider.StartInputs(deathZoneX, deathZoneJumpY, deathZoneCrouchY, joystick);
+
+        playerMechanicsProvider.StartInputs(deathZoneX, deathZoneJumpY, deathZoneCrouchY, deathZoneAimXY, rightJoystick, leftJoystick);
     }
 
     void Update()
@@ -63,12 +72,12 @@ public class PlayerController : MonoBehaviour
         playerMechanicsProvider.SlopeSlide(slopeRayDistance, slideSlopeSpeed, slopeforceDown);
         playerMechanicsProvider.PushObjects(pushPowerBridges, pushPowerBridgesMultiplier, pushDelay, pushPowerProbs, pushPowerProbsMultiplier);
         playerMechanicsProvider.Fall(centerDistance, isGround);
-        playerMechanicsProvider.Crouch(crouchSpeed, crouchSpeedMultiplier);
         playerMechanicsProvider.Jump(maxNumberOfJumps, jumpForce, jumpForceMultiplier, jumpSpeed, jumpSpeedMultiplier);
+        playerMechanicsProvider.Crouch(crouchSpeed, crouchSpeedMultiplier);     
         playerMechanicsProvider.Rotation(turnSmoothTime);
+        playerMechanicsProvider.Aim(turnAimSmoothTime, aimSpeed, aimSpeedMultiplier);
         playerMechanicsProvider.Movement(movementSpeed, movementSpeedMultiplier);
+
     }
-
-
 
 }

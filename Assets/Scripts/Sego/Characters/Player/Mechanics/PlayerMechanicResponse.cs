@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 {
@@ -15,7 +16,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         transform.rotation = Quaternion.Euler(0f, defaultRotation, 0f);
         currentRotation = defaultRotation;
         currentHeight = characterController.height;
-        crouchCenter.y = -0.25f;
+        crouchCenter.y = -0.16f;
     }
 
     void Update()
@@ -25,24 +26,27 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     }
 
     #region Joystick
+    
+    private Joystick rightJoystick, leftJoystick;
+    private float deathZoneX, deathZoneJumpY, deathZoneCrouchY, deathZoneAimXY;
+    private bool xJoystickLimits, yJoystickJumpLimit, yJoystickCrouchLimit, xyJoystickAimLimit;
 
-    private Joystick joystick;
-    private float deathZoneX, deathZoneJumpY, deathZoneCrouchY;
-    private bool xJoystickLimits, yJoystickJumpLimit, yJoystickCrouchLimit;
-
-    public void StartInputs(float deathZoneX, float deathZoneJumpY, float deathZoneCrouchY, Joystick joystick)
+    public void StartInputs(float deathZoneX, float deathZoneJumpY, float deathZoneCrouchY, float deathZoneAimXY,  Joystick rightJoystick, Joystick leftJoystick)
     {
         this.deathZoneX = deathZoneX;
         this.deathZoneJumpY = deathZoneJumpY;
         this.deathZoneCrouchY = deathZoneCrouchY;
-        this.joystick = joystick;
+        this.deathZoneAimXY = deathZoneAimXY;
+        this.rightJoystick = rightJoystick;
+        this.leftJoystick = leftJoystick;
     }
 
     private void JoystickUpdate()
     {
-        xJoystickLimits = -deathZoneX >= joystick.Horizontal || deathZoneX <= joystick.Horizontal;
-        yJoystickJumpLimit = deathZoneJumpY <= joystick.Vertical;
-        yJoystickCrouchLimit = -deathZoneCrouchY >= joystick.Vertical;
+        xyJoystickAimLimit = -deathZoneAimXY >= rightJoystick.Horizontal || deathZoneAimXY <= rightJoystick.Horizontal || -deathZoneAimXY >= rightJoystick.Vertical || deathZoneAimXY <= rightJoystick.Vertical;
+        xJoystickLimits = -deathZoneX >= leftJoystick.Horizontal || deathZoneX <= leftJoystick.Horizontal;
+        yJoystickJumpLimit = deathZoneJumpY <= leftJoystick.Vertical;
+        yJoystickCrouchLimit = -deathZoneCrouchY >= leftJoystick.Vertical;
     }
 
     #endregion
@@ -142,9 +146,11 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     private float defaultRotation = 90, currentRotation, turnSmoothVelocity;
     public void Rotation(float turnSmoothTime)
     {
-        if (deathZoneX <= joystick.Horizontal)
+        if (xyJoystickAimLimit) return;
+
+        if (deathZoneX <= leftJoystick.Horizontal)
             currentRotation = defaultRotation;
-        else if (-deathZoneX >= joystick.Horizontal)
+        else if (-deathZoneX >= leftJoystick.Horizontal)
             currentRotation = 3 * defaultRotation;
 
         float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, currentRotation, ref turnSmoothVelocity, turnSmoothTime);
@@ -155,17 +161,23 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #region Jump
 
-    private float jumpPercent, jumpSpeedPercent;
+    private float jumpPercent, jumpSpeedPercent, maxNumberofJumps;
     private bool joystickJumpReady, jumping;
     private int numberOfJumps = 0;
 
     public void Jump(float maxNumberOfJumps, float jumpForce, float jumpForceMultiplier, float jumpSpeed, float jumpSpeedMultiplier)
     {
+        if (xyJoystickAimLimit)
+            this.maxNumberofJumps = 1;
+        else
+            this.maxNumberofJumps = maxNumberOfJumps;
+
+
         jumpPercent = (jumpForce * jumpForceMultiplier) / 100;
         jumpSpeedPercent = (jumpSpeed * jumpSpeedMultiplier) / 100;
         CoyoteTime();
 
-        if (canJump && yJoystickJumpLimit && !joystickJumpReady && numberOfJumps < maxNumberOfJumps)
+        if (canJump && yJoystickJumpLimit && !joystickJumpReady && numberOfJumps < maxNumberofJumps)
         {
             if (numberOfJumps == 0) StartCoroutine(WaitForLanding());
             
@@ -232,7 +244,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     {
         crouchSpeedPercent = (crouchSpeed * crouchSpeedMultiplier) / 100;
         animator.SetBool("IsCrouch", yJoystickCrouchLimit);
-
+        
         if (yJoystickCrouchLimit)
         {
             characterController.center = crouchCenter;
@@ -266,10 +278,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         characterController.Move(moveZAxis * Time.deltaTime);
 
         if (xJoystickLimits)
-        {
-            currentDirection.x = joystick.Horizontal;
-            animator.SetFloat("MoveX", joystick.Horizontal);
-        }
+            currentDirection.x = leftJoystick.Horizontal;
         else
             currentDirection.x = 0; 
         
@@ -279,6 +288,41 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     }
 
     #endregion
+    private float aimSpeedPercent;
+
+    public void Aim(float turnAimSmoothTime, float aimSpeed, float aimSpeedMultiplier)
+    {
+        aimSpeedPercent = (aimSpeed * aimSpeedMultiplier) / 100;
+
+        if (xyJoystickAimLimit)
+            animator.SetBool("IsAiming", xyJoystickAimLimit);
+        else
+            animator.SetBool("IsAiming", xyJoystickAimLimit);
+
+        if (xJoystickLimits && !xyJoystickAimLimit)
+        {
+            animator.SetFloat("MoveX", leftJoystick.Horizontal);
+            animator.SetLayerWeight(1, 0);
+            return;
+        }
+        else if (xyJoystickAimLimit)
+            animator.SetLayerWeight(1, 1);
+
+        if (deathZoneAimXY <= rightJoystick.Horizontal)
+        {
+            currentRotation = defaultRotation;
+            animator.SetFloat("MoveX", leftJoystick.Horizontal);
+        }
+        else if (-deathZoneAimXY >= rightJoystick.Horizontal)
+        {
+            currentRotation = 3 * defaultRotation;
+            animator.SetFloat("MoveX", -leftJoystick.Horizontal);
+        }
+
+        float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, currentRotation, ref turnSmoothVelocity, turnAimSmoothTime);
+        transform.rotation = Quaternion.Euler(0f, angle, 0f);
+    }
+
 
     #region Velocitys
 
@@ -286,19 +330,21 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     {
         if (IsGrounded())
         {
-            moveSpeed = moveSpeedPercent;
+            if (!xyJoystickAimLimit)
+                moveSpeed = moveSpeedPercent;
+            else
+                moveSpeed = aimSpeedPercent;
+
             if (yJoystickCrouchLimit)
-            {
                 moveSpeed = crouchSpeedPercent;
-            }
+            
         }
         else
         {
             moveSpeed = jumpSpeedPercent;
             if (yJoystickCrouchLimit)
-            {
                 moveSpeed = jumpSpeedPercent;
-            }
+            
         }
         if (OnStepSlope())
             moveSpeed = 2;
@@ -313,7 +359,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     public void PushObjects(float pushPowerBridges, float pushPowerBridgesMultiplier, float pushDelay, float pushPowerProbs, float pushPowerProbsMultiplier)
     {
-        if (-0.6f < joystick.Horizontal && 0.6f > joystick.Horizontal)
+        if (-0.6f < leftJoystick.Horizontal && 0.6f > leftJoystick.Horizontal)
             pushPowerBridgesPercent = 70;
         else
             pushPowerBridgesPercent = (pushPowerBridges * pushPowerBridgesMultiplier) / 100;
