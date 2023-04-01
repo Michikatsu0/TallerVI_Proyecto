@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -332,11 +333,39 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #endregion
 
+    #region Shoot
+
+    private GameObject projectilePrefab;
+    private Transform refShootPoint;
+    public void Shoot(float lastShootTime, float shootDelay, GameObject projectilePrefab, Transform refShootPoint)
+    {
+        this.refShootPoint = refShootPoint;
+        this.projectilePrefab = projectilePrefab;
+
+        if (xyJoystickAimLimit)
+        {
+            float angle2 = Mathf.Atan2(rightJoystick.Vertical, rightJoystick.Horizontal) * Mathf.Rad2Deg;
+            this.refShootPoint.rotation = Quaternion.Euler(new Vector3(0f, 0f, angle2 - 90f));
+            if (Time.time - lastShootTime > shootDelay)
+            {
+                InstanceProjectile();
+                lastShootTime = Time.time;
+            }
+        }
+    }
+
+    private void InstanceProjectile()
+    {
+        Vector3 spawnPosition = transform.position + transform.up * 1.0f;
+        Instantiate(projectilePrefab, spawnPosition, refShootPoint.rotation);
+    }
+
+    #endregion
+
     #region Health
 
     public static int currentHealth;
     public static bool IsInvincible = false;
-
 
     public void ChangeHealth(int amount) //Changes the current Health, public so enemydamage can access it. When damaged, starts the timer for invencibility
     {
