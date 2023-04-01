@@ -288,6 +288,9 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     }
 
     #endregion
+
+    #region Aim
+
     private float aimSpeedPercent;
 
     public void Aim(float turnAimSmoothTime, float aimSpeed, float aimSpeedMultiplier)
@@ -323,6 +326,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
     }
 
+    #endregion
 
     #region Velocitys
 
