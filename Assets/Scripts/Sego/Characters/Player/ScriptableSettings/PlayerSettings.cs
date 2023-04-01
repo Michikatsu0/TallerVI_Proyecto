@@ -38,6 +38,10 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
     [SerializeField][Range(0f, 100f)] public float crouchSpeedMultiplier;
     [SerializeField] public float crouchSpeed;
 
+    [Header("Health Settings")]
+    [SerializeField] public int maxHealth;
+    [SerializeField] public float maxTimeInvincible, deathTime;
+
     [Header("Rotation Settings")]
     [SerializeField][Range(0f, 0.2f)] public float turnSmoothTime;
 

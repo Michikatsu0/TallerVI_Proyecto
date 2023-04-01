@@ -32,7 +32,6 @@ public class PlayerController : MonoBehaviour
         playerMechanicsProvider.Rotation(playerSettings.turnSmoothTime);
         playerMechanicsProvider.Aim(playerSettings.turnAimSmoothTime, playerSettings.aimSpeed, playerSettings.aimSpeedMultiplier);
         playerMechanicsProvider.Movement(playerSettings.movementSpeed, playerSettings.movementSpeedMultiplier);
-
     }
 
 }

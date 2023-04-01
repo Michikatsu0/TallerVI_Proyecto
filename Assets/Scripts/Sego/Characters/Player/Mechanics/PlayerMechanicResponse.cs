@@ -8,6 +8,8 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 {
     private CharacterController characterController;
     private Animator animator;
+    private PlayerSettings playerSettings;
+
 
     void Start()
     {
@@ -17,12 +19,14 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         currentRotation = defaultRotation;
         currentHeight = characterController.height;
         crouchCenter.y = -0.16f;
+        currentHealth = playerSettings.maxHealth;
     }
 
     void Update()
     {
         JoystickUpdate();
         SetVelocitys();
+        IsDeath();
     }
 
     #region Joystick
@@ -324,6 +328,43 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
         float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, currentRotation, ref turnSmoothVelocity, turnAimSmoothTime);
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
+    }
+
+    #endregion
+
+    #region Health
+
+    public static int currentHealth;
+    public static bool IsInvincible = false;
+
+
+    public void ChangeHealth(int amount) //Changes the current Health, public so enemydamage can access it. When damaged, starts the timer for invencibility
+    {
+        StartCoroutine(InvencibleCoroutine());
+        currentHealth = Mathf.Clamp(currentHealth + amount, 0, playerSettings.maxHealth);
+    }
+
+    IEnumerator InvencibleCoroutine() //the invencibility timer, after waiting, sets the invencibility for false so the player can be damaged
+    {
+        yield return new WaitForSeconds(playerSettings.maxTimeInvincible);
+        IsInvincible = false;
+    }
+
+    public void IsDeath()
+    {
+        if (currentHealth <= 0)
+        {
+            StartCoroutine(DeathCoroutine());
+        }
+    }
+
+    IEnumerator DeathCoroutine() //waits for the destruction of the player, use and adjust the time for a death animation
+    {
+
+
+        yield return new WaitForSeconds(playerSettings.deathTime);
+
+
     }
 
     #endregion
