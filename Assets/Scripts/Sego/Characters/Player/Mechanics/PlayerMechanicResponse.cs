@@ -280,6 +280,15 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #endregion
 
+    #region Impact
+    public void AddImpact(Vector3 direction, float force)
+    {
+        direction.Normalize();
+        if (direction.y < 0) direction.y = -direction.y;
+        currentDirection += direction * force;
+    }
+    #endregion
+
     #region Velocitys
 
     private void SetVelocitys()

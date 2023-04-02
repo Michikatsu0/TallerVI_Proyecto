@@ -2,57 +2,105 @@ using UnityEngine;
 
 public class TackleEnemy : MonoBehaviour
 {
-    public float speed = 5.0f;
-    public float detectionRadius = 10.0f;
-    public float cooldownTime = 3.0f;
-    public LayerMask playerLayer;
-    public float impactForce = 500.0f;
+    public float movementSpeed = 5f;
+    public float detectionDistance = 5f;
+    public float cooldownTimer = 2f;
 
-    private Transform player;
-    private bool coolingDown;
-    private float cooldownTimer;
+    public float impactForce = 10f;
 
-    //private PlayerMechanicResponse playerMovement; // Referencia al script PlayerMovement
+    private PlayerMechanicResponse playerMovement; // Referencia al script PlayerMechanicResponse
 
-    void Start()
+    private GameObject player;
+
+    [SerializeField]private EnemyState currentState;
+
+    private RaycastHit hit;
+
+    private enum EnemyState
     {
-        player = GameObject.FindGameObjectWithTag("Player").transform;
-        coolingDown = false;
-        cooldownTimer = 0.0f;
-        //playerMovement = player.GetComponent<PlayerMechanicResponse>();
+        Inactive,
+        FollowPlayer,
+        Cooldown
     }
 
-    void Update()
+    private void Start()
     {
-        if (coolingDown)
-        {
-            cooldownTimer -= Time.deltaTime;
+        currentState = EnemyState.Inactive;
 
-            if (cooldownTimer <= 0.0f)
-            {
-                coolingDown = false;
-            }
-        }
-        else
+        player = GameObject.FindGameObjectWithTag("Player");
+
+        playerMovement = player.GetComponent<PlayerMechanicResponse>();
+    }
+
+    private void Update()
+    {
+        switch (currentState)
         {
-            if (Physics.CheckSphere(transform.position, detectionRadius, playerLayer))
+            case EnemyState.Inactive:
+
+                // El enemigo no hace nada en este estado
+                break;
+
+            case EnemyState.FollowPlayer:
+
+                if (Physics.Raycast(transform.position, player.transform.position - transform.position, out hit, detectionDistance))
+                {
+                    if (hit.collider != null && hit.collider.CompareTag("Player"))
+                    {
+                        transform.LookAt(new Vector3(player.transform.position.x, transform.position.y, player.transform.position.z));
+                        transform.position += transform.forward * movementSpeed * Time.deltaTime;
+                    }
+                }
+                break;
+
+            case EnemyState.Cooldown:
+
+                // El enemigo no hace nada mientras se enfría
+
+                cooldownTimer -= Time.deltaTime;
+                if (cooldownTimer <= 0)
+                {
+                    currentState = EnemyState.Inactive;
+                }
+                break;
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            Debug.Log("El jugador fue golpeado");
+
+            playerMovement.AddImpact(new Vector2(impactForce, impactForce), impactForce);
+
+            currentState = EnemyState.Cooldown;
+        }
+    }
+
+    public void DetectPlayer()
+    {
+        //Pruebas de niveles de accesibilidad
+        Debug.Log("El jugador ha sido detectado 1");
+
+        if (currentState == EnemyState.Inactive && Physics.Raycast(transform.position, player.transform.position - transform.position, out hit, detectionDistance))
+        {
+            //Pruebas de niveles de accesibilidad
+            Debug.Log("El jugador ha sido detectado 2");
+
+            if (hit.collider != null && hit.collider.CompareTag("Player"))
             {
-                Vector3 direction = (player.position - transform.position).normalized;
-                transform.position += direction * speed * Time.deltaTime;
+                //Pruebas de niveles de accesibilidad
+                Debug.Log("El jugador ha sido detectado 3");
+
+                currentState = EnemyState.FollowPlayer;
             }
         }
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnDrawGizmos()
     {
-        if (collision.gameObject.CompareTag("Player") && !coolingDown)
-        {
-            // Empuja al jugador
-            //playerMovement.AddImpact(new Vector2(impactForce, impactForce));
-
-            // Enfriamiento y el temporizador de enfriamiento
-            coolingDown = true;
-            cooldownTimer = cooldownTime;
-        }
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, detectionDistance);
     }
 }
