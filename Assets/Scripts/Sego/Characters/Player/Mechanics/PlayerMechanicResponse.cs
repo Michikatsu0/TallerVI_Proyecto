@@ -9,13 +9,14 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 {
     private CharacterController characterController;
     private Animator animator;
-    private PlayerSettings playerSettings;
-
-
+    [SerializeField] private PlayerSettings playerSettings;
+    [SerializeField] private LevelMenu levelMenu;
     void Start()
     {
+        
         characterController = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
+
         transform.rotation = Quaternion.Euler(0f, defaultRotation, 0f);
         currentRotation = defaultRotation;
         currentHeight = characterController.height;
@@ -333,32 +334,24 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #endregion
 
-    #region Shoot
+    #region Shoot P.
 
-    private GameObject projectilePrefab;
-    private Transform refShootPoint;
-    public void Shoot(float lastShootTime, float shootDelay, GameObject projectilePrefab, Transform refShootPoint)
+    private float lastShootTime = 0;
+    public void Shoot(float shootDelay, GameObject projectilePrefab, Transform refShootPoint)
     {
-        this.refShootPoint = refShootPoint;
-        this.projectilePrefab = projectilePrefab;
 
         if (xyJoystickAimLimit)
         {
             float angle2 = Mathf.Atan2(rightJoystick.Vertical, rightJoystick.Horizontal) * Mathf.Rad2Deg;
-            this.refShootPoint.rotation = Quaternion.Euler(new Vector3(0f, 0f, angle2 - 90f));
+            refShootPoint.rotation = Quaternion.Euler(new Vector3(0f, 0f, angle2 - 90f));
             if (Time.time - lastShootTime > shootDelay)
             {
-                InstanceProjectile();
+                Instantiate(projectilePrefab, refShootPoint.transform.position, refShootPoint.rotation);
                 lastShootTime = Time.time;
             }
         }
     }
 
-    private void InstanceProjectile()
-    {
-        Vector3 spawnPosition = transform.position + transform.up * 1.0f;
-        Instantiate(projectilePrefab, spawnPosition, refShootPoint.rotation);
-    }
 
     #endregion
 
@@ -385,14 +378,18 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         {
             StartCoroutine(DeathCoroutine());
         }
+
+        if (transform.position.y <= -15)
+        {
+            currentHealth = 0;
+        }
     }
 
     IEnumerator DeathCoroutine() //waits for the destruction of the player, use and adjust the time for a death animation
     {
-
-
+        levelMenu.lose = true;
         yield return new WaitForSeconds(playerSettings.deathTime);
-
+        gameObject.SetActive(false);
 
     }
 

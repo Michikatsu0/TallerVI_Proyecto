@@ -42,6 +42,10 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
     [SerializeField] public int maxHealth;
     [SerializeField] public float maxTimeInvincible, deathTime;
 
+    [Header("Shoot Settings")]
+    [SerializeField] public float shootDelay;
+    [SerializeField] public GameObject projectilePrefab;
+
     [Header("Rotation Settings")]
     [SerializeField][Range(0f, 0.2f)] public float turnSmoothTime;
 

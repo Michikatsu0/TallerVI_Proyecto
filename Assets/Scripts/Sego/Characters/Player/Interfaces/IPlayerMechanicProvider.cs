@@ -10,6 +10,7 @@ public interface IPlayerMechanicProvider
     void Crouch(float crouchSpeed, float crouchSpeedMultiplier);
     void PushObjects(float pushPowerBridges, float pushPowerBridgesMultiplier, float pushDelay, float pushPowerProbs, float pushPowerProbsMultiplier);
     void Rotation(float turnSmoothTime);
+    void Shoot(float shootDelay, GameObject projectilePrefab, Transform refShootPoint);
     void Gravity(float gravityMultiplier, float gravityMultiplierPercent, float groundGravity);
     void SlopeSlide(float slopeRayDistance, float slideSlopeSpeed, float slopeforceDown);
     void Fall(float centerDistance, LayerMask isGround);
