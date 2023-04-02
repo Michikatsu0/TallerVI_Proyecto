@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -8,21 +9,26 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 {
     private CharacterController characterController;
     private Animator animator;
-
+    [SerializeField] private PlayerSettings playerSettings;
+    [SerializeField] private LevelMenu levelMenu;
     void Start()
     {
+        
         characterController = GetComponent<CharacterController>();
         animator = GetComponent<Animator>();
+
         transform.rotation = Quaternion.Euler(0f, defaultRotation, 0f);
         currentRotation = defaultRotation;
         currentHeight = characterController.height;
         crouchCenter.y = -0.16f;
+        currentHealth = playerSettings.maxHealth;
     }
 
     void Update()
     {
         JoystickUpdate();
         SetVelocitys();
+        IsDeath();
     }
 
     #region Joystick
@@ -288,6 +294,9 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     }
 
     #endregion
+
+    #region Aim
+
     private float aimSpeedPercent;
 
     public void Aim(float turnAimSmoothTime, float aimSpeed, float aimSpeedMultiplier)
@@ -323,6 +332,68 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
     }
 
+    #endregion
+
+    #region Shoot P.
+
+    private float lastShootTime = 0;
+    public void Shoot(float shootDelay, GameObject projectilePrefab, Transform refShootPoint)
+    {
+
+        if (xyJoystickAimLimit)
+        {
+            float angle2 = Mathf.Atan2(rightJoystick.Vertical, rightJoystick.Horizontal) * Mathf.Rad2Deg;
+            refShootPoint.rotation = Quaternion.Euler(new Vector3(0f, 0f, angle2 - 90f));
+            if (Time.time - lastShootTime > shootDelay)
+            {
+                Instantiate(projectilePrefab, refShootPoint.transform.position, refShootPoint.rotation);
+                lastShootTime = Time.time;
+            }
+        }
+    }
+
+
+    #endregion
+
+    #region Health
+
+    public static int currentHealth;
+    public static bool IsInvincible = false;
+
+    public void ChangeHealth(int amount) //Changes the current Health, public so enemydamage can access it. When damaged, starts the timer for invencibility
+    {
+        StartCoroutine(InvencibleCoroutine());
+        currentHealth = Mathf.Clamp(currentHealth + amount, 0, playerSettings.maxHealth);
+    }
+
+    IEnumerator InvencibleCoroutine() //the invencibility timer, after waiting, sets the invencibility for false so the player can be damaged
+    {
+        yield return new WaitForSeconds(playerSettings.maxTimeInvincible);
+        IsInvincible = false;
+    }
+
+    public void IsDeath()
+    {
+        if (currentHealth <= 0)
+        {
+            StartCoroutine(DeathCoroutine());
+        }
+
+        if (transform.position.y <= -15)
+        {
+            currentHealth = 0;
+        }
+    }
+
+    IEnumerator DeathCoroutine() //waits for the destruction of the player, use and adjust the time for a death animation
+    {
+        levelMenu.lose = true;
+        yield return new WaitForSeconds(playerSettings.deathTime);
+        gameObject.SetActive(false);
+
+    }
+
+    #endregion
 
     #region Velocitys
 
