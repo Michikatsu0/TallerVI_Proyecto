@@ -10,6 +10,8 @@ public class LevelMenu : MonoBehaviour
 
     private void Update()
     {
+
+
         if (lose)
             panelList[0].SetActive(true);
         else
