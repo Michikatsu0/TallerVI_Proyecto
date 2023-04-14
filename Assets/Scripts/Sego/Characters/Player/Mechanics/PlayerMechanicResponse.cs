@@ -10,7 +10,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     private CharacterController characterController;
     private Animator animator;
     [SerializeField] private PlayerSettings playerSettings;
-    [SerializeField] private LevelMenu levelMenu;
+    [SerializeField] private LevelManager levelMenu;
     void Start()
     {
         
@@ -84,13 +84,13 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #region Falling
 
-    private float tmpDistance;
+    private float fallRayDistance;
     private bool isFalling;
 
     public void Fall(float centerDistance, LayerMask isGround)
     {
-        tmpDistance = -centerDistance;
-        vDistance.y = tmpDistance;
+        fallRayDistance = -centerDistance;
+        fallVectorDistance.y = fallRayDistance;
 
         isFalling = true;
         if (Physics.SphereCast(transform.position, characterController.radius, Vector3.down, out RaycastHit hit, centerDistance, isGround))
@@ -103,12 +103,13 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #region Slopes
 
-    private float slopeRayDistance;
+    private float slopeRayDistance, slopeRadiusDistance;
     private RaycastHit slopeHit;
 
-    public void SlopeSlide(float slopeRayDistance, float slideSlopeSpeed, float slopeforceDown )
+    public void SlopeSlide(float slopeRayDistance, float slopeRadiusDistance ,float slideSlopeSpeed, float slopeforceDown )
     {
         this.slopeRayDistance = slopeRayDistance;
+        this.slopeRadiusDistance = slopeRadiusDistance;
 
         if (OnStepSlope() && !jumping)
             SlopeMovement(slideSlopeSpeed, slopeforceDown);
@@ -118,7 +119,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     {
 
         if (isFalling) return false;
-        if (Physics.SphereCast(transform.position, characterController.radius+0.03f, Vector3.down, out slopeHit, slopeRayDistance))
+        if (Physics.SphereCast(transform.position, characterController.radius + slopeRadiusDistance, Vector3.down, out slopeHit, slopeRayDistance))
         {
             Collider slope = slopeHit.collider;
             GameObject targetSlope = slope.gameObject;
@@ -243,23 +244,38 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #region Crouch
 
-    private float currentHeight, crouchSpeedPercent;
+    private float currentHeight, crouchSpeedPercent, topHitDistance, crouchRadiusDistance;
+    private bool topHit;
     private Vector3 crouchCenter;
+    private RaycastHit hit;
 
-    public void Crouch(float crouchSpeed, float crouchSpeedMultiplier)
+    public void Crouch(float crouchSpeed, float crouchSpeedMultiplier, float topHitDistance, float crouchRadiusDistance, LayerMask isGround)
     {
+        this.topHitDistance = topHitDistance;
+        this.crouchRadiusDistance = crouchRadiusDistance;
         crouchSpeedPercent = (crouchSpeed * crouchSpeedMultiplier) / 100;
+
+        topHit = false;
         animator.SetBool("IsCrouch", yJoystickCrouchLimit);
-        
+
         if (yJoystickCrouchLimit)
         {
             characterController.center = crouchCenter;
             characterController.height = currentHeight * 0.8f;
         }
-        else
+        else 
         {
             characterController.center = Vector3.zero;
             characterController.height = currentHeight;
+        }
+
+        if (Physics.SphereCast(transform.position, characterController.radius + crouchRadiusDistance, Vector3.up, out hit, topHitDistance, isGround))
+        {
+            joystickJumpReady = true;
+            topHit = true;
+            animator.SetBool("IsCrouch", true);
+            characterController.center = crouchCenter;
+            characterController.height = currentHeight * 0.8f;
         }
     }
 
@@ -406,7 +422,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
             else
                 moveSpeed = aimSpeedPercent;
 
-            if (yJoystickCrouchLimit)
+            if (yJoystickCrouchLimit || topHit)
                 moveSpeed = crouchSpeedPercent;
             
         }
@@ -476,17 +492,20 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     #endregion
 
     #region Gizmos
-    private Vector3 target;
-    private Vector3 vDistance;
+    private Vector3 slopeVectorDistance;
+    private Vector3 fallVectorDistance;
+    private Vector3 topHitVectorDistance;
     private void OnDrawGizmosSelected()
     {
         CharacterController characterController = gameObject.GetComponent<CharacterController>();
         Gizmos.color = Color.red;
-        vDistance.y = tmpDistance;
-        target.y = -slopeRayDistance;
-        Gizmos.DrawRay(transform.position, target);
-        Gizmos.DrawWireSphere(transform.position + vDistance, characterController.radius);
-        Gizmos.DrawWireSphere(transform.position + target, characterController.radius + 0.03f);
+        fallVectorDistance.y = fallRayDistance;
+        slopeVectorDistance.y = -slopeRayDistance;
+        topHitVectorDistance.y = topHitDistance;
+        Gizmos.DrawRay(transform.position, slopeVectorDistance);
+        Gizmos.DrawWireSphere(transform.position + slopeVectorDistance, characterController.radius + slopeRadiusDistance);
+        Gizmos.DrawWireSphere(transform.position + fallVectorDistance, characterController.radius);
+        Gizmos.DrawWireSphere(transform.position + topHitVectorDistance, characterController.radius + crouchRadiusDistance);
     }
     #endregion
 

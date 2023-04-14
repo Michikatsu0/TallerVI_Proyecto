@@ -23,9 +23,9 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
     [Header("Slopes Settings")]
     [SerializeField][Range(0f, 1f)] public float slopeRayDistance;
     [SerializeField] public float slideSlopeSpeed, slopeforceDown;
+    [SerializeField][Range(0f, 1f)] public float slopeRadiusDistance;
 
-
-    [Header("Slopes Settings")]
+    [Header("Aim Settings")]
     [SerializeField][Range(0f, 0.2f)] public float turnAimSmoothTime;
     [SerializeField][Range(0f, 100f)] public float aimSpeedMultiplier;
     [SerializeField] public float aimSpeed;
@@ -37,6 +37,8 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
     [Header("Crouch Movement Settings")]
     [SerializeField][Range(0f, 100f)] public float crouchSpeedMultiplier;
     [SerializeField] public float crouchSpeed;
+    [SerializeField][Range(0f, 1f)] public float topHitDistance;
+    [SerializeField][Range(0f, 1f)] public float crouchRadiusDistance;
 
     [Header("Health Settings")]
     [SerializeField] public int maxHealth;
