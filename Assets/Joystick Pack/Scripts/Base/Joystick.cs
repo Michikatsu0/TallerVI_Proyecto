@@ -59,9 +59,6 @@ public class Joystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoint
 
     public void ResetJoysticks()
     {
-        input = Vector2.zero;
-        input = Vector2.zero;
-
         handle.anchorMin = center;
         handle.anchorMax = center;
         handle.pivot = center;
