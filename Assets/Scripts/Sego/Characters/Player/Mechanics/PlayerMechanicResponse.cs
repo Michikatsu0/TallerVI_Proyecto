@@ -166,6 +166,41 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #endregion
 
+    #region Dash
+
+    private float dashPercent;
+
+    public void Dash(float dashForce, float dashForceMultiplier)
+    {
+
+
+        dashPercent = (dashForce * dashForceMultiplier) / 100;
+
+        currentDirection.x = dashPercent;
+    }
+
+    #endregion
+
+    #region Coyote Time
+
+    private bool canJump;
+    private float coyoteTime = 0.2f, coyoteTimeCounter = 0.5f;
+
+    private void CoyoteTime()
+    {
+        if (isFalling && numberOfJumps == 0)
+            coyoteTimeCounter -= Time.deltaTime;
+        else
+            coyoteTimeCounter = coyoteTime;
+
+        if (coyoteTimeCounter > 0)
+            canJump = true;
+        else
+            canJump = false;
+    }
+
+    #endregion
+
     #region Jump
 
     private float jumpPercent, jumpSpeedPercent, maxNumberofJumps;
@@ -210,34 +245,20 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     {
         jumping = false;
         animator.SetBool("IsJumping", jumping);
+        if (!isFalling)
+            numberOfJumps = 0;
+
     }
 
     private IEnumerator WaitForLanding()
     {
+        if (!isFalling)
+            numberOfJumps = 0;
+
         yield return new WaitUntil(() => isFalling);
         yield return new WaitUntil(() => !isFalling);
 
         numberOfJumps = 0;
-    }
-
-    #endregion
-
-    #region Coyote Time
-
-    private bool canJump;
-    private float coyoteTime = 0.2f, coyoteTimeCounter = 0.5f;
-
-    private void CoyoteTime()
-    {
-        if (isFalling && numberOfJumps == 0)
-            coyoteTimeCounter -= Time.deltaTime;
-        else
-            coyoteTimeCounter = coyoteTime;
-
-        if (coyoteTimeCounter > 0)
-            canJump = true;
-        else
-            canJump = false;
     }
 
     #endregion
