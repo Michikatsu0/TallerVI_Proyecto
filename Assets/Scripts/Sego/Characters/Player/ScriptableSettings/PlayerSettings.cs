@@ -15,6 +15,9 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
     [SerializeField][Range(0f, 100f)] public float movementSpeedMultiplier;
     [SerializeField] public float movementSpeed;
 
+    [Header("Rotation Settings")]
+    [SerializeField][Range(0f, 0.2f)] public float turnSmoothTime;
+
     [Header("Crouch Movement Settings")]
     [SerializeField][Range(0f, 100f)] public float crouchSpeedMultiplier;
     [SerializeField] public float crouchSpeed, crouchCenter;
@@ -36,13 +39,14 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
     [SerializeField][Range(0f, 1f)] public float centerDistance;
     [SerializeField] public LayerMask isGround;
 
+    [Header("Dash Settings")]
+    [SerializeField][Range(0f, 100f)] public float dashForceMultiplier;
+    [SerializeField] public float dashForce;
+
     [Header("Slopes Settings")]
     [SerializeField][Range(0f, 1f)] public float slopeRayDistance;
     [SerializeField] public float slideSlopeSpeed, slopeforceDown;
     [SerializeField][Range(0f, 1f)] public float slopeRadiusDistance;
-
-    [Header("Rotation Settings")]
-    [SerializeField][Range(0f, 0.2f)] public float turnSmoothTime;
 
     [Header("Push RGBD's Settings")]
     [SerializeField][Range(0f, 100f)] public float pushPowerBridgesMultiplier;

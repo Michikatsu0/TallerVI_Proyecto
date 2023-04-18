@@ -10,7 +10,7 @@ public class LevelManager : MonoBehaviour
 
     [SerializeField] private List<GameObject> panelList = new List<GameObject>();
 
-    [SerializeField] public bool lose, win, joystick, pause, pausePanel, pauseButtom, loading, dashButton;
+    [SerializeField] public bool lose, win, joystick, pause, pausePanel, pauseButton, loading, dashButton;
     private Joystick leftJoystick, rightJoystick;
     Vector2 center = new Vector2(0.5f, 0.5f);
 
@@ -33,13 +33,8 @@ public class LevelManager : MonoBehaviour
             panelList[4].SetActive(false);
             panelList[5].SetActive(false);
         }
-         
-        if (dashButton)
-            panelList[6].SetActive(true);
-        else
-            panelList[6].SetActive(false);
 
-        if (pauseButtom)
+        if (pauseButton)
             panelList[2].SetActive(true);
         else
             panelList[2].SetActive(false);
@@ -49,13 +44,18 @@ public class LevelManager : MonoBehaviour
         else
             panelList[3].SetActive(false);
 
+        if (dashButton)
+            panelList[6].SetActive(true);
+        else
+            panelList[6].SetActive(false);
+
         if (pause)
         {
             leftJoystick.ResetJoysticks();
             rightJoystick.ResetJoysticks();
 
             pausePanel = true;
-            pauseButtom = false;
+            pauseButton = false;
             joystick = false;
             dashButton = false;
 
@@ -65,7 +65,7 @@ public class LevelManager : MonoBehaviour
         {
             pausePanel = false;
             joystick = true;
-            pauseButtom = true;
+            pauseButton = true;
             dashButton = true;
 
             Time.timeScale = 1;
@@ -78,7 +78,7 @@ public class LevelManager : MonoBehaviour
 
             panelList[0].SetActive(true);
             joystick = false;
-            pauseButtom = false;
+            pauseButton = false;
         }
         else
         {
@@ -91,7 +91,7 @@ public class LevelManager : MonoBehaviour
             rightJoystick.ResetJoysticks();
 
             panelList[1].SetActive(true);
-            pauseButtom = false;
+            pauseButton = false;
             joystick = false;
         }
         else
