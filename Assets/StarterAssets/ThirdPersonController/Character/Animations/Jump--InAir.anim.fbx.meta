@@ -22,7 +22,13 @@ ModelImporter:
     rigImportErrors: 
     rigImportWarnings: 
     animationImportErrors: 
-    animationImportWarnings: 
+    animationImportWarnings: "\nClip 'InAir' has import animation warnings that might
+      lower retargeting quality:\nNote: Activate translation DOF on avatar to improve
+      retargeting quality.\n\t'Spine' has translation animation that will be discarded.\n\t'Chest'
+      has translation animation that will be discarded.\n\t'UpperChest' has translation
+      animation that will be discarded.\n\t'Head' has translation animation that
+      will be discarded.\n\t'Right_LowerLeg' has translation animation that will
+      be discarded.\n\t'Right_Foot' has translation animation that will be discarded.\n"
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
     importAnimatedCustomProperties: 0
@@ -529,13 +535,13 @@ ModelImporter:
         length: 0
         modified: 0
     skeleton:
-    - name: Armature 1(Clone)
+    - name: Armature(Clone)
       parentName: 
       position: {x: 0.00000082453477, y: 0.00075561524, z: 0.027029568}
       rotation: {x: 1.3639232e-19, y: -0.000000013822758, z: 0.0000004446622, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: Skeleton
-      parentName: Armature 1(Clone)
+      parentName: Armature(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
@@ -887,7 +893,7 @@ ModelImporter:
       rotation: {x: 0.7070656, y: -0.0076321815, z: -0.0076321815, w: 0.7070656}
       scale: {x: 1, y: 1, z: 1}
     - name: Geometry
-      parentName: Armature 1(Clone)
+      parentName: Armature(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
@@ -908,7 +914,7 @@ ModelImporter:
     hasTranslationDoF: 0
     hasExtraRoot: 0
     skeletonHasParents: 1
-  lastHumanDescriptionAvatarSource: {fileID: 9000000, guid: de2bf95cb6bf3204891adaeed47f93b9,
+  lastHumanDescriptionAvatarSource: {fileID: 9000000, guid: d082c04857012334db1c42867669c67a,
     type: 3}
   autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 3
