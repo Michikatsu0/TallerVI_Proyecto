@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public enum SceneIndexes { TITLE, LOADING, PROTOTYPING }
+public enum SceneIndexes { TITLE, ZONE, LOADING,PROTOTYPING }
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
