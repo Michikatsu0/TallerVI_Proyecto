@@ -113,13 +113,18 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
             if (currentFallTime > 1.2f && !isFalling)
                 StartCoroutine(HeavyFallMovement());
 
-            if (transform.rotation.eulerAngles != Vector3.zero)
-                animMovement.z = -1;
+            if (leftJoystick.Horizontal != 0)
+                animMovement.z = leftJoystick.Horizontal;
             else
-                animMovement.z = 1;
-
+            {
+                if (transform.rotation.eulerAngles.y < 90f)
+                    animMovement.z = 1f;
+                else
+                    animMovement.z = -1f;
+            }
+            
             if (canHeavyFallMove)
-                characterController.Move(animMovement * heavyFallMovePercent * Time.deltaTime);
+                characterController.Move(animMovement.normalized * heavyFallMovePercent * Time.deltaTime);
             
             Invoke(nameof(ResetFallTime), 0.1f);
         }
@@ -194,7 +199,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     public void Rotation(float turnSmoothTime)
     {
-        if (rightJoystickXYAimLimit || canHeavyFallMove) return;
+        if (rightJoystickXYAimLimit) return;
 
         if (leftDeathZoneX <= leftJoystick.Horizontal)
             currentRotation = positiveRotation;
