@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Base Data Player", order = 1)]
+[CreateAssetMenu(menuName = "Base Mechanics Data Player", order = 1)]
 public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
 {
     [Header("Joystick Settings")]
@@ -13,7 +13,8 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
 
     [Header("Movement Settings")]
     [SerializeField][Range(0f, 100f)] public float movementSpeedMultiplier;
-    [SerializeField] public float movementSpeed;
+    [SerializeField][Range(0f, 1f)] public float movementSpeed;
+    [SerializeField][Range(0f, 2f)] public float xMoveSpeed;
 
     [Header("Rotation Settings")]
     [SerializeField][Range(0f, 0.2f)] public float turnSmoothTime;
@@ -37,9 +38,13 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
 
     [Header("Fall Settings")]
     [SerializeField][Range(0f, 1f)] public float centerDistance;
+    [SerializeField][Range(0f, 15f)] public float movementAnimSpeed;
+    [SerializeField][Range(0f, 5f)] public float heavyFallMoveDuration;
     [SerializeField] public LayerMask isGround;
 
     [Header("Dash Settings")]
+    [SerializeField][Range(0f, 1f)] public float dashDuration;
+    [SerializeField][Range(0f, 10f)] public float dashCoolDown;
     [SerializeField][Range(0f, 100f)] public float dashForceMultiplier;
     [SerializeField] public float dashForce;
 
@@ -58,10 +63,6 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
     [SerializeField][Range(0f, 0.2f)] public float turnAimSmoothTime;
     [SerializeField][Range(0f, 100f)] public float aimSpeedMultiplier;
     [SerializeField] public float aimSpeed;
-
-    [Header("Health Settings")]
-    [SerializeField] public int maxHealth;
-    [SerializeField] public float maxTimeInvincible, deathTime;
 
     public void Init()
     {

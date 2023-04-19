@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 148c6bf8303bc2f43999f0626ae6fd87
+guid: 717d8d1e33e9fd64981db08843db2c81
 ModelImporter:
   serializedVersion: 21300
   internalIDToNameTable: []
@@ -33,11 +33,11 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: Falling to roll
+      name: Quick Roll To Run
       takeName: mixamo.com
       internalID: -203655887218126122
-      firstFrame: 0
-      lastFrame: 54
+      firstFrame: 2.5
+      lastFrame: 36.7
       wrapMode: 0
       orientationOffsetY: 0
       level: 0.88
@@ -47,7 +47,7 @@ ModelImporter:
       loopTime: 0
       loopBlend: 0
       loopBlendOrientation: 1
-      loopBlendPositionY: 1
+      loopBlendPositionY: 0
       loopBlendPositionXZ: 0
       keepOriginalOrientation: 1
       keepOriginalPositionY: 1
