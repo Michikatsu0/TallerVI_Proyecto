@@ -194,7 +194,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     public void Rotation(float turnSmoothTime)
     {
-        if (rightJoystickXYAimLimit) return;
+        if (rightJoystickXYAimLimit || canHeavyFallMove) return;
 
         if (leftDeathZoneX <= leftJoystick.Horizontal)
             currentRotation = positiveRotation;
