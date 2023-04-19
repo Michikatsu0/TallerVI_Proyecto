@@ -7,7 +7,7 @@ public interface IPlayerMechanicProvider
     void Crouch(float crouchCenter, float crouchSpeed, float crouchSpeedMultiplier, float topHitDistance, float addRadiusDistance, LayerMask idGround);
     void Gravity(float gravityMultiplier, float gravityMultiplierPercent, float groundGravity);
     void Jump(float maxNumberOfJumps, float jumpForce, float jumpForceMultiplier, float jumpSpeed, float jumpSpeedMultiplier);
-    void Fall(float centerDistance, float movementAnimSpeed, float heavyFallMoveDuration, LayerMask isGround);
+    void Fall(float centerDistance, float heavyFallMoveSpeed, float heavyFallMoveSpeedMultiplier, float heavyFallMoveDelay, float heavyFallMoveDuration, LayerMask isGround);
     void SlopeSlide(float slopeRayDistance, float slopeRadiusDistance, float slideSlopeSpeed, float slopeforceDown);
     void PushObjects(float pushPowerBridges, float pushPowerBridgesMultiplier, float pushDelay, float pushPowerProbs, float pushPowerProbsMultiplier);
     void Rotation(float turnSmoothTime);

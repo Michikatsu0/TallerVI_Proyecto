@@ -82,13 +82,15 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #region Falling
 
-    private float fallRayDistance, currentFallTime, heavyFallAnim, movementAnimSpeed, heavyFallMoveDuration;
-    private bool isFalling, heavyFall = false;
+    private float fallRayDistance, currentFallTime, heavyFallMovePercent, heavyFallMoveDelay, heavyFallMoveDuration;
+    private bool isFalling, canHeavyFallMove;
     private Vector3 animMovement;
-    public void Fall(float centerDistance, float movementAnimSpeed, float heavyFallMoveDuration, LayerMask isGround)
+    public void Fall(float centerDistance, float heavyMoveFallSpeed, float heavyMoveFallSpeedMultiplier, float heavyFallMoveDelay, float heavyFallMoveDuration, LayerMask isGround)
     {
+        heavyFallMovePercent = (heavyMoveFallSpeed * heavyMoveFallSpeedMultiplier) / 100;
+        this.heavyFallMoveDelay = heavyFallMoveDelay;
         this.heavyFallMoveDuration = heavyFallMoveDuration;
-        this.movementAnimSpeed = movementAnimSpeed;
+        
         fallRayDistance = -centerDistance;
         fallVectorDistance.y = fallRayDistance;
 
@@ -109,10 +111,16 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         else
         {
             if (currentFallTime > 1.2f && !isFalling)
-            {
                 StartCoroutine(HeavyFallMovement());
-            }
 
+            if (transform.rotation.eulerAngles != Vector3.zero)
+                animMovement.z = -1;
+            else
+                animMovement.z = 1;
+
+            if (canHeavyFallMove)
+                characterController.Move(animMovement * heavyFallMovePercent * Time.deltaTime);
+            
             Invoke(nameof(ResetFallTime), 0.1f);
         }
             
@@ -120,14 +128,10 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     private IEnumerator HeavyFallMovement()
     {
-        if (transform.rotation.eulerAngles != Vector3.zero)
-            animMovement.z = -1;
-        else
-            animMovement.z = 1;
-
-        characterController.Move(animMovement * Time.deltaTime * movementAnimSpeed);
-
-        yield return null;
+        yield return new WaitForSeconds(heavyFallMoveDelay);
+        canHeavyFallMove = true;
+        yield return new WaitForSeconds(heavyFallMoveDuration);
+        canHeavyFallMove = false;
     }
 
     private void ResetFallTime()
@@ -214,9 +218,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         this.dashDuration = dashDuration;
         this.dashCoolDown = dashCoolDown;
 
-
         animator.SetBool("IsDashing", isDashing);
-
     }
 
     public void ButtonDash()
@@ -415,7 +417,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     private void SetVelocitys()
     {
-        if (IsGrounded())
+        if (!isFalling)
         {
             if (!rightJoystickXYAimLimit)
                 moveSpeed = moveSpeedPercent;
@@ -424,6 +426,9 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
             if (leftJoystickYCrouchLimit || topHit)
                 moveSpeed = crouchSpeedPercent;
+
+            if (canHeavyFallMove)
+                moveSpeed = 0;
         }
         else
         {

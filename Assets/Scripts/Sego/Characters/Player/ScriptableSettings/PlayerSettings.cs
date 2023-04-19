@@ -13,7 +13,7 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
 
     [Header("Movement Settings")]
     [SerializeField][Range(0f, 100f)] public float movementSpeedMultiplier;
-    [SerializeField][Range(0f, 1f)] public float movementSpeed;
+    [SerializeField] public float movementSpeed;
     [SerializeField][Range(0f, 2f)] public float xMoveSpeed;
 
     [Header("Rotation Settings")]
@@ -37,9 +37,11 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
     [SerializeField] public float jumpSpeed;
 
     [Header("Fall Settings")]
+    [SerializeField][Range(0f, 100f)] public float heavyFallMoveSpeedMultiplier;
+    [SerializeField] public float heavyFallMoveSpeed;
+    [SerializeField][Range(0f, 5f)] public float heavyFallMoveDelay, heavyFallMoveDuration;
+
     [SerializeField][Range(0f, 1f)] public float centerDistance;
-    [SerializeField][Range(0f, 15f)] public float movementAnimSpeed;
-    [SerializeField][Range(0f, 5f)] public float heavyFallMoveDuration;
     [SerializeField] public LayerMask isGround;
 
     [Header("Dash Settings")]
