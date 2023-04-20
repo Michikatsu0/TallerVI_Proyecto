@@ -11,6 +11,13 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     private Animator animator;
     [SerializeField] private PlayerSettings playerSettings;
     [SerializeField] private LevelMenu levelMenu;
+
+    private AudioSource audioSource;
+    private float soundTimer = 0.0f;
+    private float soundInterval = 0.5f;
+
+    public AudioClip step;
+
     void Start()
     {
         
@@ -284,7 +291,16 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         characterController.Move(moveZAxis * Time.deltaTime);
 
         if (xJoystickLimits)
-            currentDirection.x = leftJoystick.Horizontal;
+        {
+            currentDirection.z = leftJoystick.Horizontal;
+
+            if (soundTimer >= soundInterval && !isFalling)
+            {
+                audioSource.PlayOneShot(step, 0.25f);
+                soundTimer = 0.0f;
+            }
+            soundTimer += Time.deltaTime;
+        }
         else
             currentDirection.x = 0; 
         
