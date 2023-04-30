@@ -12,8 +12,6 @@ public class StatsSettings : ScriptableObject, ISerializationCallbackReceiver
     [SerializeField] public int maxHealth;
     [SerializeField] public float maxTimeInvincible, deathTime;
 
-
-
     public void Init()
     {
 

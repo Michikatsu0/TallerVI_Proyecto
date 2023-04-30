@@ -6,10 +6,10 @@ using UnityEngine;
 public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
 {
     [Header("Joystick Settings")]
-    [SerializeField][Range(0f, 1f)] public float deathZoneX;
-    [SerializeField][Range(0f, 1f)] public float deathZoneAimXY;
-    [SerializeField][Range(0f, 1f)] public float deathZoneJumpY;
-    [SerializeField][Range(0f, 1f)] public float deathZoneCrouchY;
+    [SerializeField][Range(0f, 1f)] public float leftDeathZoneX;
+    [SerializeField][Range(0f, 1f)] public float rightDeathZoneAimXY;
+    [SerializeField][Range(0f, 1f)] public float leftDeathZoneJumpY;
+    [SerializeField][Range(0f, 1f)] public float leftDeathZoneCrouchY;
 
     [Header("Movement Settings")]
     [SerializeField][Range(0f, 100f)] public float movementSpeedMultiplier;
@@ -36,6 +36,10 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
     [SerializeField][Range(0f, 100f)] public float jumpSpeedMultiplier;
     [SerializeField] public float jumpSpeed;
 
+    [Header("CoyoteTime Settings")]
+    [SerializeField] public float coyoteTimeCounter;
+    [SerializeField] public float coyoteTime;
+
     [Header("Fall Settings")]
     [SerializeField][Range(0f, 100f)] public float heavyFallMoveSpeedMultiplier;
     [SerializeField] public float heavyFallMoveSpeed;
@@ -49,10 +53,11 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
     [SerializeField][Range(0f, 10f)] public float dashCoolDown;
     [SerializeField][Range(0f, 100f)] public float dashForceMultiplier;
     [SerializeField] public float dashForce;
+    [SerializeField] public Material dashTrailMaterial;
 
     [Header("Slopes Settings")]
     [SerializeField][Range(0f, 1f)] public float slopeRayDistance;
-    [SerializeField] public float slideSlopeSpeed, slopeforceDown;
+    [SerializeField] public float slideSlopeSpeed, slopeforceDown, slideSlopeMovement;
     [SerializeField][Range(0f, 1f)] public float slopeRadiusDistance;
 
     [Header("Push RGBD's Settings")]
@@ -63,8 +68,13 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
 
     [Header("Aim Speed Movement Settings")]
     [SerializeField][Range(0f, 0.2f)] public float turnAimSmoothTime;
+    [SerializeField][Range(0f, 0.2f)] public float aimLayerSmoothTime;
     [SerializeField][Range(0f, 100f)] public float aimSpeedMultiplier;
     [SerializeField] public float aimSpeed;
+
+    [Header("Camera Settings")]
+    [SerializeField] public float baseCamPos;
+    [SerializeField] public float crouchCamPos, currentCamCrouchDelay, jumpCamPos, deadCamZone;
 
     public void Init()
     {

@@ -46,8 +46,8 @@ ModelImporter:
       name: Idle_Open
       takeName: SciFiDoor_AllAnimations
       internalID: -4160445307382519613
-      firstFrame: 70
-      lastFrame: 70
+      firstFrame: 69.9
+      lastFrame: 70.3
       wrapMode: 0
       orientationOffsetY: 0
       level: 0

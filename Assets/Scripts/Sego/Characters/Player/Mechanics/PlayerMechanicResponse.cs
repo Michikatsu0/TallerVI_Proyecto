@@ -1,25 +1,44 @@
+using UnityEngine;
 using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
-using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.Events;
+using System;
 
 public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 {
-    private CinemachineVirtualCamera cam;
+    [Header("Player Settings")]
+    [SerializeField] public PlayerSettings playerSettings;
+
+    private CinemachineFramingTransposer framingTransposer;
+    private CinemachineVirtualCamera virtualCamera;
     private CharacterController characterController;
     private Animator animator;
+    private Slider slider;
+
 
     void Start()
     {
         characterController = GetComponent<CharacterController>();
+
+        slider = GameObject.Find("CoolDown Dash Bar Button").GetComponentInChildren<Slider>();
+
         animator = GetComponent<Animator>();
-        cam = GameObject.Find("CM vcam1").GetComponent<CinemachineVirtualCamera>();
+
+        virtualCamera = GameObject.Find("CM vcam1").GetComponent<CinemachineVirtualCamera>();
+        framingTransposer = virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
 
         transform.rotation = Quaternion.Euler(0f, positiveRotation, 0f);
         currentRotation = positiveRotation;
 
         currentHeight = characterController.height;
+
+        trailRenderer = GetComponentInChildren<TrailRenderer>();
+        trailRenderer.material = playerSettings.dashTrailMaterial;
+        trailRenderer.startWidth = 1.3f;
+        trailRenderer.endWidth = 1;
+        trailRenderer.time = playerSettings.dashDuration;
     }
 
     void Update()
@@ -28,29 +47,53 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         SetVelocitys();
     }
 
+    #region Camara 
+
+    private Vector3 currentCamPos;
+    private float currentCamCrouchTime;
+
+    public void UpdateCameraHeight()
+    {
+        if (isFalling)
+        {
+            currentCamPos.y = playerSettings.jumpCamPos;
+            framingTransposer.m_DeadZoneHeight = Mathf.Lerp(framingTransposer.m_DeadZoneHeight, playerSettings.deadCamZone, 0.5f);
+        }
+        else
+        {
+            currentCamPos.y = playerSettings.baseCamPos;
+            framingTransposer.m_DeadZoneHeight = Mathf.Lerp(framingTransposer.m_DeadZoneHeight, 0, 0.5f);
+
+            if (leftJoystickYCrouchLimit)
+            {
+                if (leftJoystick.Vertical <= -0.9f)
+                {
+                    currentCamCrouchTime += Time.deltaTime;
+                    if (currentCamCrouchTime > playerSettings.currentCamCrouchDelay)
+                        currentCamPos.y = playerSettings.crouchCamPos;
+                }
+                else
+                    currentCamCrouchTime = 0;
+            }
+        }
+        framingTransposer.m_TrackedObjectOffset = currentCamPos;
+    }
+
+    #endregion
+
     #region Joystick
 
-    private Joystick leftJoystick, rightJoystick;
-    private float leftDeathZoneX, leftDeathZoneJumpY, leftDeathZoneCrouchY, rightDeathZoneAimXY;
+    [Header("Joystick Settings")]
+    [SerializeField] private Joystick leftJoystick;
+    [SerializeField] private Joystick rightJoystick;
     private bool leftJoystickXMovementLimits, leftJoystickYJumpLimit, leftJoystickYCrouchLimit, rightJoystickXYAimLimit;
-
-    public void StartInputs(float leftDeathZoneX, float leftDeathZoneJumpY, float leftDeathZoneCrouchY, float rightDeathZoneAimXY, Joystick rightJoystick, Joystick leftJoystick)
-    {
-        this.leftJoystick = leftJoystick;
-        this.rightJoystick = rightJoystick;
-
-        this.leftDeathZoneX = leftDeathZoneX;
-        this.leftDeathZoneJumpY = leftDeathZoneJumpY;
-        this.leftDeathZoneCrouchY = leftDeathZoneCrouchY;
-        this.rightDeathZoneAimXY = rightDeathZoneAimXY;
-    }
 
     private void JoystickUpdate()
     {
-        rightJoystickXYAimLimit = -rightDeathZoneAimXY >= rightJoystick.Horizontal || rightDeathZoneAimXY <= rightJoystick.Horizontal || -rightDeathZoneAimXY >= rightJoystick.Vertical || rightDeathZoneAimXY <= rightJoystick.Vertical;
-        leftJoystickXMovementLimits = -leftDeathZoneX >= leftJoystick.Horizontal || leftDeathZoneX <= leftJoystick.Horizontal;
-        leftJoystickYJumpLimit = leftDeathZoneJumpY <= leftJoystick.Vertical;
-        leftJoystickYCrouchLimit = -leftDeathZoneCrouchY >= leftJoystick.Vertical;
+        rightJoystickXYAimLimit = -playerSettings.rightDeathZoneAimXY >= rightJoystick.Horizontal || playerSettings.rightDeathZoneAimXY <= rightJoystick.Horizontal || -playerSettings.rightDeathZoneAimXY >= rightJoystick.Vertical || playerSettings.rightDeathZoneAimXY <= rightJoystick.Vertical;
+        leftJoystickXMovementLimits = -playerSettings.leftDeathZoneX >= leftJoystick.Horizontal || playerSettings.leftDeathZoneX <= leftJoystick.Horizontal;
+        leftJoystickYJumpLimit = playerSettings.leftDeathZoneJumpY <= leftJoystick.Vertical;
+        leftJoystickYCrouchLimit = -playerSettings.leftDeathZoneCrouchY >= leftJoystick.Vertical;
     }
 
     #endregion
@@ -61,14 +104,14 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     public bool IsGrounded() => characterController.isGrounded;
 
-    public void Gravity(float gravityMultiplier, float gravityMultiplierPercent, float groundGravity)
+    public void Gravity()
     {
-        gravityPercent = (gravityMultiplier * gravityMultiplierPercent) / 100;
+        gravityPercent = (playerSettings.gravityMultiplier * playerSettings.gravityMultiplierPercentage) / 100;
         animator.SetBool("IsGrounded", IsGrounded());
         if (IsGrounded() && currentDirection.y < 0.0f)
         {
-            currentDirection.y = groundGravity;
-            appliedMovement.y = groundGravity;
+            currentDirection.y = playerSettings.groundGravity;
+            appliedMovement.y = playerSettings.groundGravity;
         }
         else
         {
@@ -82,21 +125,17 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #region Falling
 
-    private float fallRayDistance, currentFallTime, heavyFallMovePercent, heavyFallMoveDelay, heavyFallMoveDuration;
+    private float currentFallTime, heavyFallMovePercent;
     private bool isFalling, canHeavyFallMove;
     private Vector3 animMovement;
-    public void Fall(float centerDistance, float heavyMoveFallSpeed, float heavyMoveFallSpeedMultiplier, float heavyFallMoveDelay, float heavyFallMoveDuration, LayerMask isGround)
+
+    public void Fall()
     {
-        heavyFallMovePercent = (heavyMoveFallSpeed * heavyMoveFallSpeedMultiplier) / 100;
-        this.heavyFallMoveDelay = heavyFallMoveDelay;
-        this.heavyFallMoveDuration = heavyFallMoveDuration;
-        
-        fallRayDistance = -centerDistance;
-        fallVectorDistance.y = fallRayDistance;
+        heavyFallMovePercent = (playerSettings.heavyFallMoveSpeed * playerSettings.heavyFallMoveSpeedMultiplier) / 100;
 
         isFalling = true;
         
-        if (Physics.SphereCast(transform.position, characterController.radius, Vector3.down, out RaycastHit hit, centerDistance, isGround))
+        if (Physics.SphereCast(transform.position, characterController.radius, Vector3.down, out RaycastHit hit, playerSettings.centerDistance, playerSettings.isGround))
         {
             isFalling = false;
         }
@@ -107,6 +146,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         {
             currentFallTime += Time.deltaTime;
             animator.SetFloat("FallTime", currentFallTime);
+            currentCamPos.y = 0f;
         }
         else
         {
@@ -122,49 +162,46 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
                 else
                     animMovement.z = -1f;
             }
-            
+
             if (canHeavyFallMove)
                 characterController.Move(animMovement.normalized * heavyFallMovePercent * Time.deltaTime);
-            
-            Invoke(nameof(ResetFallTime), 0.1f);
+
+            currentFallTime = 0;
         }
-            
     }
 
     private IEnumerator HeavyFallMovement()
     {
-        yield return new WaitForSeconds(heavyFallMoveDelay);
+        yield return new WaitForSeconds(playerSettings.heavyFallMoveDelay);
         canHeavyFallMove = true;
-        yield return new WaitForSeconds(heavyFallMoveDuration);
+        yield return new WaitForSeconds(playerSettings.heavyFallMoveDuration);
         canHeavyFallMove = false;
-    }
-
-    private void ResetFallTime()
-    {
-        currentFallTime = 0;
     }
 
     #endregion
 
     #region Slopes
 
-    private float slopeRayDistance, slopeRadiusDistance;
     private RaycastHit slopeHit;
-
-    public void SlopeSlide(float slopeRayDistance, float slopeRadiusDistance ,float slideSlopeSpeed, float slopeforceDown )
+    public void SlopeSlide()
     {
-        this.slopeRayDistance = slopeRayDistance;
-        this.slopeRadiusDistance = slopeRadiusDistance;
-
         if (OnStepSlope() && !isJumping)
-            SlopeMovement(slideSlopeSpeed, slopeforceDown);
+        {
+            Vector3 slopeDirection = Vector3.up - slopeHit.normal * Vector3.Dot(Vector3.up, slopeHit.normal);
+            float slideSpeed = playerSettings.slideSlopeSpeed * Time.deltaTime;
+
+            currentDirection = slopeDirection * -slideSpeed;
+            currentDirection.y = -playerSettings.slopeforceDown * Time.deltaTime;
+
+            characterController.Move(currentDirection);
+        }
     }
 
     private bool OnStepSlope()
     {
-
         if (isFalling) return false;
-        if (Physics.SphereCast(transform.position, characterController.radius + slopeRadiusDistance, Vector3.down, out slopeHit, slopeRayDistance))
+
+        if (Physics.SphereCast(transform.position, characterController.radius + playerSettings.slopeRadiusDistance, Vector3.down, out slopeHit, playerSettings.slopeRayDistance))
         {
             Collider slope = slopeHit.collider;
             GameObject targetSlope = slope.gameObject;
@@ -180,33 +217,29 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         return false;
     }
 
-    private void SlopeMovement(float slideSlopeSpeed, float slopeforceDown)
-    {
-        Vector3 slopeDirection = Vector3.up - slopeHit.normal * Vector3.Dot(Vector3.up, slopeHit.normal);
-        float slideSpeed = slideSlopeSpeed * Time.deltaTime;
-
-        currentDirection = slopeDirection * -slideSpeed;
-        currentDirection.y = -slopeforceDown * Time.deltaTime;
-
-        characterController.Move(currentDirection);
-    }
-
     #endregion
 
     #region Rotation
 
     private float positiveRotation = 0, negativeRotation = 180, currentRotation, turnSmoothVelocity;
 
-    public void Rotation(float turnSmoothTime)
+    public void Rotation()
     {
         if (rightJoystickXYAimLimit) return;
 
-        if (leftDeathZoneX <= leftJoystick.Horizontal)
+        if (playerSettings.leftDeathZoneX <= leftJoystick.Horizontal)
             currentRotation = positiveRotation;
-        else if (-leftDeathZoneX >= leftJoystick.Horizontal)
+        else if (-playerSettings.leftDeathZoneX >= leftJoystick.Horizontal)
             currentRotation = negativeRotation;
+        else if (isDashing)
+        {
+            if (joystickDashDirection.z > 0)
+                currentRotation = positiveRotation;
+            else if (joystickDashDirection.z < 0)
+                currentRotation = negativeRotation;
+        }
 
-        float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, currentRotation, ref turnSmoothVelocity, turnSmoothTime);
+        float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, currentRotation, ref turnSmoothVelocity, playerSettings.turnSmoothTime);
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
     }
 
@@ -214,16 +247,19 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #region Dash
 
-    private float dashPercent, dashTime, dashDuration, dashCoolDown;
+    private float dashPercent, dashTime;
     private Vector3 joystickDashDirection;
     private bool isDashing, canDash = true;
-    public void Dash(float dashDuration, float dashCoolDown, float dashForce, float dashForceMultiplier)
+    private TrailRenderer trailRenderer;
+
+    public void Dash()
     {
-        dashPercent = (dashForce * dashForceMultiplier) / 100;
-        this.dashDuration = dashDuration;
-        this.dashCoolDown = dashCoolDown;
+        dashPercent = (playerSettings.dashForce * playerSettings.dashForceMultiplier) / 100;
 
         animator.SetBool("IsDashing", isDashing);
+
+        PlayerActionsResponse.ActionDashBarCoolDown?.Invoke(isDashing);
+        trailRenderer.emitting = isDashing;
     }
 
     public void ButtonDash()
@@ -237,7 +273,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         canDash = false;
         dashTime = Time.time;
 
-        while (Time.time < dashTime + dashDuration)
+        while (Time.time < dashTime + playerSettings.dashDuration)
         {
             joystickDashDirection.z = leftJoystick.Horizontal;
             joystickDashDirection.y = leftJoystick.Vertical;
@@ -246,10 +282,9 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
             characterController.Move(currentDirection * dashPercent * Time.deltaTime);
             yield return null;
         }
-
+        dashTime = 0;
         isDashing = false;
-
-        yield return new WaitForSeconds(dashCoolDown);
+        yield return new WaitForSeconds(playerSettings.dashCoolDown);
         canDash = true;
     }
 
@@ -258,21 +293,21 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     #region Jump
 
     private float jumpPercent, jumpSpeedPercent, maxNumberofJumps;
-    private bool joystickJumpReady, isJumping;
+    private bool joystickJumpReady, isJumping, canJump;
     private int numberOfJumps = 0;
 
-    public void Jump(float maxNumberOfJumps, float jumpForce, float jumpForceMultiplier, float jumpSpeed, float jumpSpeedMultiplier)
+    public void Jump()
     {
         if (rightJoystickXYAimLimit)
             this.maxNumberofJumps = 1;
         else
-            this.maxNumberofJumps = maxNumberOfJumps;
+            this.maxNumberofJumps = playerSettings.maxNumberOfJumps;
 
-
-        jumpPercent = (jumpForce * jumpForceMultiplier) / 100;
-        jumpSpeedPercent = (jumpSpeed * jumpSpeedMultiplier) / 100;
+        jumpPercent = (playerSettings.jumpForce * playerSettings.jumpForceMultiplier) / 100;
+        jumpSpeedPercent = (playerSettings.jumpSpeed * playerSettings.jumpSpeedMultiplier) / 100;
+        
         CoyoteTime();
-
+        
         if (canJump && leftJoystickYJumpLimit && !joystickJumpReady && numberOfJumps < maxNumberofJumps)
         {
             if (numberOfJumps == 0) StartCoroutine(WaitForLanding());
@@ -288,6 +323,19 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     }
 
+    private void CoyoteTime()
+    {
+        if (isFalling && numberOfJumps == 0)
+            playerSettings.coyoteTimeCounter -= Time.deltaTime;
+        else
+            playerSettings.coyoteTimeCounter = playerSettings.coyoteTime;
+
+        if (playerSettings.coyoteTimeCounter > 0)
+            canJump = true;
+        else
+            canJump = false;
+    }
+
     private void JumpRoutine()
     {
         numberOfJumps++;
@@ -296,7 +344,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         animator.SetInteger("MultiJumps", numberOfJumps);
         animator.SetBool("IsJumping", isJumping);
         Invoke(nameof(ResetJumpAnimation), 0.1f);
-        var randomJump = Random.Range(0f, 1f);
+        var randomJump = UnityEngine.Random.Range(0, numberOfJumps);
         animator.SetFloat("RandomJump", randomJump);
 
         currentFallTime = 0f;
@@ -311,7 +359,6 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
             numberOfJumps = 0;
             currentFallTime = 0;
         }
-            
     }
 
     private IEnumerator WaitForLanding()
@@ -327,39 +374,17 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #endregion
 
-    #region Coyote Time
-
-    private bool canJump;
-    private float coyoteTime = 0.2f, coyoteTimeCounter = 0.5f;
-
-    private void CoyoteTime()
-    {
-        if (isFalling && numberOfJumps == 0)
-            coyoteTimeCounter -= Time.deltaTime;
-        else
-            coyoteTimeCounter = coyoteTime;
-
-        if (coyoteTimeCounter > 0)
-            canJump = true;
-        else
-            canJump = false;
-    }
-
-    #endregion
-
     #region Crouch
 
-    private float currentHeight, crouchSpeedPercent, topHitDistance, crouchRadiusDistance;
+    private float currentHeight, crouchSpeedPercent;
     private bool topHit;
     private Vector3 crouchCenterPosition;
-    private RaycastHit hit;
-    private float crouchTime; 
-    public void Crouch(float crouchCenter, float crouchSpeed, float crouchSpeedMultiplier, float topHitDistance, float crouchRadiusDistance, LayerMask isGround)
+    private RaycastHit topHitCrouch;
+
+    public void Crouch()
     {
-        this.topHitDistance = topHitDistance;
-        this.crouchRadiusDistance = crouchRadiusDistance;
-        crouchSpeedPercent = (crouchSpeed * crouchSpeedMultiplier) / 100;
-        crouchCenterPosition.y = crouchCenter;
+        crouchSpeedPercent = (playerSettings.crouchSpeed * playerSettings.crouchSpeedMultiplier) / 100;
+        crouchCenterPosition.y = playerSettings.crouchCenter;
 
         topHit = false;
         animator.SetBool("IsCrouch", leftJoystickYCrouchLimit);
@@ -373,9 +398,15 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         {
             characterController.center = Vector3.zero;
             characterController.height = currentHeight;
+            if (canHeavyFallMove)
+            {
+                characterController.center = crouchCenterPosition;
+                characterController.height = currentHeight * 0.8f;
+            }
+
         }
 
-        if (Physics.SphereCast(transform.position, characterController.radius + crouchRadiusDistance, Vector3.up, out hit, topHitDistance, isGround))
+        if (Physics.SphereCast(transform.position, characterController.radius + playerSettings.crouchTopHitRadiusDistance, Vector3.up, out topHitCrouch, playerSettings.topHitDistance, playerSettings.isGround))
         {
             joystickJumpReady = true;
             topHit = true;
@@ -392,9 +423,9 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     private float moveSpeed, moveSpeedPercent;
     private Vector3 currentDirection, moveXAxis, appliedMovement;
     
-    public void Movement(float movementSpeed, float moveSpeedPercentMultiplier, float xMoveSpeed)
+    public void Movement()
     { 
-        moveSpeedPercent = (movementSpeed * moveSpeedPercentMultiplier) / 100;
+        moveSpeedPercent = (playerSettings.movementSpeed * playerSettings.movementSpeedMultiplier) / 100;
         animator.SetBool("IsMoving", leftJoystickXMovementLimits);
 
         if (transform.position.x > 0.03f)
@@ -404,7 +435,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         else
             moveXAxis.x = 0;
 
-        characterController.Move(moveXAxis * Time.deltaTime * xMoveSpeed);
+        characterController.Move(moveXAxis * Time.deltaTime * playerSettings.xMoveSpeed);
 
         if (leftJoystickXMovementLimits)
             currentDirection.z = leftJoystick.Horizontal;
@@ -442,19 +473,21 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
                 moveSpeed = jumpSpeedPercent;
         }
         if (OnStepSlope())
-            moveSpeed = 2;
+            moveSpeed = playerSettings.slideSlopeMovement;
     }
 
     #endregion
 
     #region Aim
 
-    private float aimSpeedPercent;
+    private float aimSpeedPercent, currentAimLayerAnim;  //
 
-    public void Aim(float turnAimSmoothTime, float aimSpeed, float aimSpeedMultiplier)
+    public void AimAnimationMovement()
     {
-        aimSpeedPercent = (aimSpeed * aimSpeedMultiplier) / 100;
+        aimSpeedPercent = (playerSettings.aimSpeed * playerSettings.aimSpeedMultiplier) / 100;
 
+
+        // Setting Animation & Animation Weights
         if (rightJoystickXYAimLimit)
             animator.SetBool("IsAiming", rightJoystickXYAimLimit);
         else
@@ -463,24 +496,27 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         if (leftJoystickXMovementLimits && !rightJoystickXYAimLimit)
         {
             animator.SetFloat("MoveX", leftJoystick.Horizontal);
-            animator.SetLayerWeight(1, 0);
-            return;
+            currentAimLayerAnim = 0;
         }
         else if (rightJoystickXYAimLimit)
-            animator.SetLayerWeight(1, 1);
+            currentAimLayerAnim = 1;
 
-        if (rightDeathZoneAimXY <= rightJoystick.Horizontal)
+        float aimLlayerWeight = Mathf.Lerp(animator.GetLayerWeight(1), currentAimLayerAnim, playerSettings.aimLayerSmoothTime);
+        animator.SetLayerWeight(1, aimLlayerWeight);
+
+        // Rotation & Inverse Animation 
+        if (playerSettings.rightDeathZoneAimXY <= rightJoystick.Horizontal)
         {
             currentRotation = positiveRotation;
             animator.SetFloat("MoveX", leftJoystick.Horizontal);
         }
-        else if (-rightDeathZoneAimXY >= rightJoystick.Horizontal)
+        else if (-playerSettings.rightDeathZoneAimXY >= rightJoystick.Horizontal)
         {
             currentRotation = negativeRotation;
-            animator.SetFloat("MoveX", -leftJoystick.Horizontal);
+            animator.SetFloat("MoveX", -leftJoystick.Horizontal); //
         }
 
-        float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, currentRotation, ref turnSmoothVelocity, turnAimSmoothTime);
+        float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, currentRotation, ref turnSmoothVelocity, playerSettings.turnAimSmoothTime);
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
     }
 
@@ -489,19 +525,18 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     #region Collider Character Controller
 
     private Vector3 pushBridgesV, pushProbsV;
-    private float pushPowerBridgesPercent, pushPowerProbsPercent, pushDelay, pushTime = 0;
+    private float pushPowerBridgesPercent, pushPowerProbsPercent, pushTime = 0;
 
-    public void PushObjects(float pushPowerBridges, float pushPowerBridgesMultiplier, float pushDelay, float pushPowerProbs, float pushPowerProbsMultiplier)
+    public void PushObjects()
     {
         if (-0.6f < leftJoystick.Horizontal && 0.6f > leftJoystick.Horizontal)
             pushPowerBridgesPercent = 70;
         else
-            pushPowerBridgesPercent = (pushPowerBridges * pushPowerBridgesMultiplier) / 100;
+            pushPowerBridgesPercent = (playerSettings.pushPowerBridges * playerSettings.pushPowerBridgesMultiplier) / 100;
         if (leftJoystickYCrouchLimit)
             pushPowerBridgesPercent = 50;
 
-        pushPowerProbsPercent = (pushPowerProbs * pushPowerProbsMultiplier) / 100;
-        this.pushDelay = pushDelay;
+        pushPowerProbsPercent = (playerSettings.pushPowerProbs * playerSettings.pushPowerProbsMultiplier) / 100;
     }
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
@@ -515,7 +550,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
             if (hit.moveDirection.x < 0 || 0 < hit.moveDirection.x || hit.moveDirection.z < 0 || 0 < hit.moveDirection.z) return;
             if (currentDirection.x == 0) return;
 
-            if (pushTime >= pushDelay)
+            if (pushTime >= playerSettings.pushDelay)
             {
                 pushBridgesV.y = hit.moveDirection.y * pushPowerBridgesPercent / rgbd.mass;
                 rgbd.AddForce(pushBridgesV, ForceMode.Force);
@@ -548,13 +583,14 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     {
         CharacterController characterController = gameObject.GetComponent<CharacterController>();
         Gizmos.color = Color.red;
-        fallVectorDistance.y = fallRayDistance;
-        slopeVectorDistance.y = -slopeRayDistance;
-        topHitVectorDistance.y = topHitDistance;
+        fallVectorDistance.y = -playerSettings.centerDistance; 
+        slopeVectorDistance.y = -playerSettings.slopeRayDistance;
+        topHitVectorDistance.y = playerSettings.topHitDistance;
         Gizmos.DrawRay(transform.position, slopeVectorDistance);
-        Gizmos.DrawWireSphere(transform.position + slopeVectorDistance, characterController.radius + slopeRadiusDistance);
+        Gizmos.DrawWireSphere(transform.position + slopeVectorDistance, characterController.radius + playerSettings.slopeRadiusDistance);
         Gizmos.DrawWireSphere(transform.position + fallVectorDistance, characterController.radius);
-        Gizmos.DrawWireSphere(transform.position + topHitVectorDistance, characterController.radius + crouchRadiusDistance);
+        Gizmos.DrawWireSphere(transform.position + topHitVectorDistance, characterController.radius + playerSettings.crouchTopHitRadiusDistance);
+        Gizmos.DrawWireSphere(transform.position, characterController.height/2);
     }
 
     #endregion

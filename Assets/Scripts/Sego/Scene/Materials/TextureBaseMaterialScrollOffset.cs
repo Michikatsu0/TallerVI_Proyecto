@@ -8,7 +8,7 @@ using UnityEngine;
 public class TextureBaseMaterialScrollOffset : MonoBehaviour
 {
     [SerializeField] List<Material> scrollMaterial = new List<Material>();
-    [SerializeField] float offSetX, offSetY;
+    public float offSetX, offSetY;
     private Vector2 scrollPosition;
 
     private void Update()
@@ -19,4 +19,4 @@ public class TextureBaseMaterialScrollOffset : MonoBehaviour
         foreach (var element in scrollMaterial)
             element.mainTextureOffset += scrollPosition;
     }
-}
+} 
