@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine.Events;
 using System;
+using UnityEditor;
 
 public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 {
@@ -486,7 +487,6 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     {
         aimSpeedPercent = (playerSettings.aimSpeed * playerSettings.aimSpeedMultiplier) / 100;
 
-
         // Setting Animation & Animation Weights
         if (rightJoystickXYAimLimit)
             animator.SetBool("IsAiming", rightJoystickXYAimLimit);
@@ -513,11 +513,30 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         else if (-playerSettings.rightDeathZoneAimXY >= rightJoystick.Horizontal)
         {
             currentRotation = negativeRotation;
-            animator.SetFloat("MoveX", -leftJoystick.Horizontal); //
+            animator.SetFloat("MoveX", -leftJoystick.Horizontal);
         }
 
         float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, currentRotation, ref turnSmoothVelocity, playerSettings.turnAimSmoothTime);
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
+    }
+
+    private Vector3 aimDirection;
+    private Ray aimRay;
+    private RaycastHit aimHit;
+
+    public void AimRayCast()
+    {
+        aimDirection.z = rightJoystick.Horizontal;
+        aimDirection.y = leftJoystick.Vertical;
+
+        aimRay.origin = transform.position;
+        aimRay.direction = aimDirection.normalized;
+
+        if (Physics.Raycast(aimRay, out aimHit, 20f))
+        {
+            Debug.DrawRay(aimRay.origin, aimRay.direction * aimHit.distance, Color.red);
+
+        }
     }
 
     #endregion
@@ -590,7 +609,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         Gizmos.DrawWireSphere(transform.position + slopeVectorDistance, characterController.radius + playerSettings.slopeRadiusDistance);
         Gizmos.DrawWireSphere(transform.position + fallVectorDistance, characterController.radius);
         Gizmos.DrawWireSphere(transform.position + topHitVectorDistance, characterController.radius + playerSettings.crouchTopHitRadiusDistance);
-        Gizmos.DrawWireSphere(transform.position, characterController.height/2);
+       
     }
 
     #endregion

@@ -9,6 +9,7 @@
     void PushObjects();
     void Rotation();
     void AimAnimationMovement();
+    void AimRayCast();
     void Dash();
     void UpdateCameraHeight();
 }

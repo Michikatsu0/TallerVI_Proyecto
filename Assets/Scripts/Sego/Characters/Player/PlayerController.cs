@@ -25,6 +25,7 @@ public class PlayerController : MonoBehaviour
         playerMechanicsProvider.Crouch();
         playerMechanicsProvider.Rotation();
         playerMechanicsProvider.AimAnimationMovement();
+        playerMechanicsProvider.AimRayCast();
         playerMechanicsProvider.Dash();
         playerMechanicsProvider.Movement();
         playerMechanicsProvider.UpdateCameraHeight();
