@@ -72,6 +72,9 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
     [SerializeField][Range(0f, 100f)] public float aimSpeedMultiplier;
     [SerializeField] public float aimSpeed;
 
+    [Header("Aim Ray Settings")]
+    [SerializeField] public float aimRayMaxDistance;
+
     [Header("Camera Settings")]
     [SerializeField] public float baseCamPos;
     [SerializeField] public float crouchCamPos, currentCamCrouchDelay, jumpCamPos, deadCamZone;

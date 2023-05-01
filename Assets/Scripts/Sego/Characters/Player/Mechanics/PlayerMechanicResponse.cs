@@ -527,15 +527,18 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     public void AimRayCast()
     {
         aimDirection.z = rightJoystick.Horizontal;
-        aimDirection.y = leftJoystick.Vertical;
+        aimDirection.y = rightJoystick.Vertical;
 
         aimRay.origin = transform.position;
-        aimRay.direction = aimDirection.normalized;
+        aimRay.direction = aimDirection;
 
-        if (Physics.Raycast(aimRay, out aimHit, 20f))
+        if (Physics.Raycast(aimRay, out aimHit, playerSettings.aimRayMaxDistance))
         {
             Debug.DrawRay(aimRay.origin, aimRay.direction * aimHit.distance, Color.red);
-
+        }
+        else
+        {
+            Debug.DrawRay(aimRay.origin, aimRay.direction * playerSettings.aimRayMaxDistance, Color.red);
         }
     }
 
@@ -609,7 +612,6 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         Gizmos.DrawWireSphere(transform.position + slopeVectorDistance, characterController.radius + playerSettings.slopeRadiusDistance);
         Gizmos.DrawWireSphere(transform.position + fallVectorDistance, characterController.radius);
         Gizmos.DrawWireSphere(transform.position + topHitVectorDistance, characterController.radius + playerSettings.crouchTopHitRadiusDistance);
-       
     }
 
     #endregion
