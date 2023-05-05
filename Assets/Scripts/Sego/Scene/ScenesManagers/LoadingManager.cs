@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 public class LoadingManager : MonoBehaviour
@@ -12,10 +11,15 @@ public class LoadingManager : MonoBehaviour
     private bool onContinueButton;
     private Animator animator;
 
+    private void Awake()
+    {
+        TransitionUIPanel.Instance.FadeIn();
+        Instance = this;
+    }
+
     void Start()
     {
         animator = GetComponent<Animator>();
-        Instance = this;
     }
 
     void Update()
@@ -28,21 +32,9 @@ public class LoadingManager : MonoBehaviour
 
     private IEnumerator TransitionNextScene()
     {
-
         yield return new WaitForSeconds(transitionDelay);
-        SceneManager.LoadScene(sceneIndex, LoadSceneMode.Single);
+        SceneManager.LoadSceneAsync(sceneIndex, LoadSceneMode.Additive);
         yield return null;
-    }
-
-    public void ContinueButton()
-    {
-        onContinueButton = true;
-        Invoke(nameof(ContinueButton), 0.1f);
-    }
-
-    private void ResetContinueButton()
-    {
-        onContinueButton = false;
     }
 
     public void LoadingScene(int sceneIndex)

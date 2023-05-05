@@ -9,12 +9,14 @@ public class TitleManager : MonoBehaviour
     public static TitleManager Instance;
     public float transitionDelay;
     public bool tutorial = true;
-
-    private Animator animator;
     private void Awake()
     {
-        animator = GetComponent<Animator>();
         Instance = this;
+    }
+
+    private void Start()
+    {
+        TransitionUIPanel.Instance.FadeIn();    
     }
 
     void Update()
@@ -35,7 +37,7 @@ public class TitleManager : MonoBehaviour
     }
     public IEnumerator TransitionToNextScene(int sceneIndex)
     {
-
+        TransitionUIPanel.Instance.FadeOut();
         yield return new WaitForSeconds(transitionDelay);
         SceneManager.LoadScene(sceneIndex, LoadSceneMode.Single);
         yield return null;

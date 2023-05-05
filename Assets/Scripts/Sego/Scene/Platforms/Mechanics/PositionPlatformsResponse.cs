@@ -15,15 +15,14 @@ public class PositionPlatformsResponse : MonoBehaviour, IPositionPlatformsProvid
     [SerializeField][Range(0f, 100f)] private float movementSpeedPercentage;
 
     private float time, duration, vertical, horizontal, percent;
-    private Vector2 position;
-    private Rigidbody rgbd;
+    private Vector3 position;
+
     private void Awake()
     {
-        rgbd= GetComponent<Rigidbody>();
         time = 0;
         duration = 1;
         vertical = transform.position.y;
-        horizontal = transform.position.x;
+        horizontal = transform.position.z;
     }
 
     public void PositionPlatform()
@@ -33,13 +32,14 @@ public class PositionPlatformsResponse : MonoBehaviour, IPositionPlatformsProvid
         if (PlatformPositionTypes.Vertical == platformMoveType) // Vertical movement
             position.y = amplitude * positionCurveY.Evaluate(percent * time) + vertical; 
         else if (PlatformPositionTypes.Horizontal == platformMoveType) // Horizontal movement
-            position.x = amplitude * positionCurveX.Evaluate(percent * time) + horizontal;
+            position.z = amplitude * positionCurveX.Evaluate(percent * time) + horizontal;
         else if (PlatformPositionTypes.Both == platformMoveType) // Diagonal movement
         {
-            position.x = amplitude * positionCurveX.Evaluate(percent * time) + horizontal;
+            position.z = amplitude * positionCurveX.Evaluate(percent * time) + horizontal;
             position.y = amplitude * positionCurveY.Evaluate(percent * time) + vertical;
         }
-        rgbd.MovePosition(position);
+        
+        transform.position = position;
         time += Time.deltaTime;
 
         if (time >= duration / percent)

@@ -29,13 +29,13 @@ public class RotationPlatformsResponse : MonoBehaviour, IRotationPlatformProvide
             if (i % 2 == 0)
             {
                 rotation = platforms[i].transform.rotation.eulerAngles;
-                rotation.z = rotationSlope * rotationCurveEven.Evaluate(percent * time) + angleOffset;
+                rotation.x = rotationSlope * rotationCurveEven.Evaluate(percent * time) + angleOffset;
                 platforms[i].transform.rotation = Quaternion.Euler(0, 0, rotation.z);
             }
             else
             {
                 rotation = platforms[i].transform.rotation.eulerAngles;
-                rotation.z = rotationSlope * rotationCurveNotEven.Evaluate(percent * time) + angleOffset;
+                rotation.x = rotationSlope * rotationCurveNotEven.Evaluate(percent * time) + angleOffset;
                 platforms[i].transform.rotation = Quaternion.Euler(0, 0, rotation.z);
             }
         }

@@ -41,12 +41,29 @@ public class PlatformsController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        other.transform.SetParent(transform);
+        GameObject target = other.gameObject;
+        if (target.CompareTag("Player")) 
+        {
+            other.transform.SetParent(transform);
+        }
+        else if (target.CompareTag("Probs"))
+        {
+            other.transform.SetParent(transform);
+        }
+        
     }
 
     private void OnTriggerExit(Collider other)
     {
-        other.transform.SetParent(null);
+        GameObject target = other.gameObject;
+        if (target.CompareTag("Player"))
+        {
+            other.transform.SetParent(null);
+        }
+        else if (target.CompareTag("Probs"))
+        {
+            other.transform.SetParent(null);
+        }
     }
 }
 

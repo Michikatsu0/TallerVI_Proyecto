@@ -23,6 +23,8 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     {
         characterController = GetComponent<CharacterController>();
 
+        aimRayCrossHair = GameObject.Find("Aim CrossHair").transform;
+
         slider = GameObject.Find("CoolDown Dash Bar Button").GetComponentInChildren<Slider>();
 
         animator = GetComponent<Animator>();
@@ -155,13 +157,23 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
                 StartCoroutine(HeavyFallMovement());
 
             if (leftJoystick.Horizontal != 0)
-                animMovement.z = leftJoystick.Horizontal;
+            {
+                if (rightJoystickXYAimLimit)
+                    animMovement.z = rightJoystick.Horizontal;
+                else
+                    animMovement.z = leftJoystick.Horizontal;
+            }
             else
             {
-                if (transform.rotation.eulerAngles.y < 90f)
-                    animMovement.z = 1f;
+                if (rightJoystickXYAimLimit)
+                    animMovement.z = rightJoystick.Horizontal;
                 else
-                    animMovement.z = -1f;
+                {
+                    if (transform.rotation.eulerAngles.y < 90f)
+                        animMovement.z = 1f;
+                    else
+                        animMovement.z = -1f;
+                }
             }
 
             if (canHeavyFallMove)
@@ -520,9 +532,10 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
     }
 
-    private Vector3 aimDirection;
+    private Vector3 aimDirection, displacement;
     private Ray aimRay;
     private RaycastHit aimHit;
+    private Transform aimRayCrossHair;
 
     public void AimRayCast()
     {
@@ -535,13 +548,16 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         if (Physics.Raycast(aimRay, out aimHit, playerSettings.aimRayMaxDistance))
         {
             Debug.DrawRay(aimRay.origin, aimRay.direction * aimHit.distance, Color.red);
+            aimRayCrossHair.transform.position = aimHit.point;
         }
         else
         {
             Debug.DrawRay(aimRay.origin, aimRay.direction * playerSettings.aimRayMaxDistance, Color.red);
+            displacement = aimRay.direction.normalized * playerSettings.aimRayMaxDistance;
+            aimRayCrossHair.transform.position = transform.position + displacement;
         }
-    }
 
+    }
     #endregion
 
     #region Collider Character Controller
