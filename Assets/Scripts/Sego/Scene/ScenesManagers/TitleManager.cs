@@ -8,7 +8,7 @@ public class TitleManager : MonoBehaviour
 {
     public static TitleManager Instance;
     public float transitionDelay;
-    public bool tutorial = true;
+    public int tutorial;
     private void Awake()
     {
         Instance = this;
@@ -16,6 +16,7 @@ public class TitleManager : MonoBehaviour
 
     private void Start()
     {
+        tutorial = PlayerPrefs.GetInt("TutorialComplete");
         TransitionUIPanel.Instance.FadeIn();    
     }
 
@@ -26,11 +27,12 @@ public class TitleManager : MonoBehaviour
 
     public void OnTapScreenTitle()
     {
-        if (Input.touchCount > 0 && tutorial)
+        if (Input.touchCount > 0 && tutorial == 0)
         {
+            PlayerPrefs.SetInt("LoadingSceneIndexToLoad", 3);
             StartCoroutine(TransitionToNextScene((int)SceneIndexes.LOADING));
         }
-        else if (Input.touchCount > 0 && !tutorial)
+        else if (Input.touchCount > 0 && tutorial != 0)
         {
             SceneManager.LoadSceneAsync((int)SceneIndexes.LOBBY);
         }
