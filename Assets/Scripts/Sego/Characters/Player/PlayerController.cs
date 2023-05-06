@@ -4,41 +4,35 @@ using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(PlayerMechanicResponse))]
+[RequireComponent(typeof(HealthResponse))]
+
 public class PlayerController : MonoBehaviour
 {
-    [Header("Joystick Settings")]
-    [SerializeField] private Joystick rightJoystick;
-    [SerializeField] private Joystick leftJoystick;
-
-    [Header("Shoot Settings")]
-    [SerializeField] private Transform refShootPoint;
-
-    [Header("Player Settings")]
-    [SerializeField] private PlayerSettings playerSettings;
-
     private IPlayerMechanicProvider playerMechanicsProvider;
-
-    public PlayerSettings PlayerSettings { get => playerSettings; set => playerSettings = value; }
-
+    private HealthResponse healthResponse;
     private void Awake()
     {
+        healthResponse = GetComponent<HealthResponse>();
         playerMechanicsProvider = GetComponent<IPlayerMechanicProvider>();
-
-        playerMechanicsProvider.StartInputs(playerSettings.deathZoneX, playerSettings.deathZoneJumpY, playerSettings.deathZoneCrouchY, playerSettings.deathZoneAimXY, rightJoystick, leftJoystick);
     }
 
     void Update()
     {
-        playerMechanicsProvider.Gravity(playerSettings.gravityMultiplier, playerSettings.gravityMultiplierPercentage, playerSettings.groundGravity);
-        playerMechanicsProvider.SlopeSlide(playerSettings.slopeRayDistance, playerSettings.slideSlopeSpeed, playerSettings.slopeforceDown);
-        playerMechanicsProvider.PushObjects(playerSettings.pushPowerBridges, playerSettings.pushPowerBridgesMultiplier, playerSettings.pushDelay, playerSettings.pushPowerProbs, playerSettings.pushPowerProbsMultiplier);
-        playerMechanicsProvider.Fall(playerSettings.centerDistance, playerSettings.isGround);
-        playerMechanicsProvider.Shoot(playerSettings.shootDelay, playerSettings.projectilePrefab, refShootPoint);
-        playerMechanicsProvider.Jump(playerSettings.maxNumberOfJumps, playerSettings.jumpForce, playerSettings.jumpForceMultiplier, playerSettings.jumpSpeed, playerSettings.jumpSpeedMultiplier);
-        playerMechanicsProvider.Crouch(playerSettings.crouchSpeed, playerSettings.crouchSpeedMultiplier);     
-        playerMechanicsProvider.Rotation(playerSettings.turnSmoothTime);
-        playerMechanicsProvider.Aim(playerSettings.turnAimSmoothTime, playerSettings.aimSpeed, playerSettings.aimSpeedMultiplier);
-        playerMechanicsProvider.Movement(playerSettings.movementSpeed, playerSettings.movementSpeedMultiplier);
+        if (healthResponse.currentHealth <= 0) return;
+
+        playerMechanicsProvider.Gravity();
+        playerMechanicsProvider.SlopeSlide();
+        playerMechanicsProvider.PushObjects();
+        playerMechanicsProvider.Fall();
+        playerMechanicsProvider.Jump();
+        playerMechanicsProvider.Crouch();
+        playerMechanicsProvider.Rotation();
+        playerMechanicsProvider.AimAnimationMovement();
+        playerMechanicsProvider.AimRayCast();
+        playerMechanicsProvider.Dash();
+        playerMechanicsProvider.Movement();
+        playerMechanicsProvider.UpdateCameraHeight();
+
     }
 
 }

@@ -1,0 +1,1 @@
+﻿public enum SceneIndexes { TITLE, LOBBY, LOADING, PROTO }

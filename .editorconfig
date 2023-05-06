@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# CS0649: El campo 'LightFlicker.noFlicker' nunca se asigna y siempre tendrá el valor predeterminado false
+dotnet_diagnostic.CS0649.severity = silent
