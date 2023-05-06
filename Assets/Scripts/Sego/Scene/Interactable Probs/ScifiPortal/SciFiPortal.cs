@@ -4,7 +4,12 @@ using UnityEngine;
 
 public class SciFiPortal : MonoBehaviour
 {
-    // Start is called before the first frame update
+    [SerializeField] private ParticleSystem ps;
+    [SerializeField] private List<Material> portalMaterials = new List<Material>();
+
+
+    [SerializeField] private float spawnDelay = 0f;
+
     void Start()
     {
         

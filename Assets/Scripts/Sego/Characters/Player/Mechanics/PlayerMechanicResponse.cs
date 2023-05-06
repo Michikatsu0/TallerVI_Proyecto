@@ -583,8 +583,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         if (target.CompareTag("Bridges"))
         {
             Rigidbody rgbd = target.GetComponent<Rigidbody>();
-            if (rgbd == null || rgbd.isKinematic) return;
-            if (hit.moveDirection.y > 0) return;
+            if (hit.moveDirection.y < 0) return;
             if (hit.moveDirection.x < 0 || 0 < hit.moveDirection.x || hit.moveDirection.z < 0 || 0 < hit.moveDirection.z) return;
             if (currentDirection.x == 0) return;
 

@@ -9,14 +9,17 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     private IPlayerMechanicProvider playerMechanicsProvider;
-
+    private HealthResponse healthResponse;
     private void Awake()
     {
+        healthResponse = GetComponent<HealthResponse>();
         playerMechanicsProvider = GetComponent<IPlayerMechanicProvider>();
     }
 
     void Update()
     {
+        if (healthResponse.currentHealth <= 0) return;
+
         playerMechanicsProvider.Gravity();
         playerMechanicsProvider.SlopeSlide();
         playerMechanicsProvider.PushObjects();
@@ -29,6 +32,7 @@ public class PlayerController : MonoBehaviour
         playerMechanicsProvider.Dash();
         playerMechanicsProvider.Movement();
         playerMechanicsProvider.UpdateCameraHeight();
+
     }
 
 }
