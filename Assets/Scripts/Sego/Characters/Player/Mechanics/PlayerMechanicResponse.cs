@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using UnityEngine.Events;
 using System;
 using UnityEditor;
+using UnityEngine.InputSystem;
 
 public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 {
@@ -563,7 +564,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     #region Collider Character Controller
 
     private Vector3 pushBridgesV, pushProbsV;
-    private float pushPowerBridgesPercent, pushPowerProbsPercent, pushTime = 0;
+    private float pushPowerBridgesPercent, pushPowerProbsPercent, pushDelay, pushTime = 0;
 
     public void PushObjects()
     {
@@ -575,6 +576,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
             pushPowerBridgesPercent = 50;
 
         pushPowerProbsPercent = (playerSettings.pushPowerProbs * playerSettings.pushPowerProbsMultiplier) / 100;
+        this.pushDelay = playerSettings.pushDelay;
     }
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
@@ -583,12 +585,15 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         if (target.CompareTag("Bridges"))
         {
             Rigidbody rgbd = target.GetComponent<Rigidbody>();
-            if (hit.moveDirection.y < 0) return;
-            if (hit.moveDirection.x < 0 || 0 < hit.moveDirection.x || hit.moveDirection.z < 0 || 0 < hit.moveDirection.z) return;
-            if (currentDirection.x == 0) return;
 
-            if (pushTime >= playerSettings.pushDelay)
+            if (rgbd == null || rgbd.isKinematic) return;
+            if (hit.moveDirection.y > 0) return;
+            if (hit.moveDirection.x < 0 || 0 < hit.moveDirection.x || hit.moveDirection.z < 0 || 0 < hit.moveDirection.z) return;
+            if (currentDirection.z == 0) return;
+
+            if (pushTime >= pushDelay)
             {
+                Debug.Log("eche q: " + pushPowerBridgesPercent);
                 pushBridgesV.y = hit.moveDirection.y * pushPowerBridgesPercent / rgbd.mass;
                 rgbd.AddForce(pushBridgesV, ForceMode.Force);
                 pushTime = 0;
@@ -600,10 +605,10 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
             Rigidbody rgbd = target.GetComponent<Rigidbody>();
             if (rgbd == null || rgbd.isKinematic) return;
             if (hit.moveDirection.y < 0 || 0 < hit.moveDirection.y) return;
-            if (hit.moveDirection.z < 0 || 0 < hit.moveDirection.z) return;
+            if (hit.moveDirection.x < 0 || 0 < hit.moveDirection.x) return;
 
 
-            pushProbsV.x = hit.moveDirection.x ;
+            pushProbsV.z = hit.moveDirection.z;
             rgbd.velocity = pushProbsV * (pushPowerProbsPercent) / rgbd.mass;
         }
     }
