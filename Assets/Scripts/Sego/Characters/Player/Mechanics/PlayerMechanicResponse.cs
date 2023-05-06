@@ -569,11 +569,11 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     public void PushObjects()
     {
         if (-0.6f < leftJoystick.Horizontal && 0.6f > leftJoystick.Horizontal)
-            pushPowerBridgesPercent = 70;
+            pushPowerBridgesPercent = 150;
         else
             pushPowerBridgesPercent = (playerSettings.pushPowerBridges * playerSettings.pushPowerBridgesMultiplier) / 100;
         if (leftJoystickYCrouchLimit)
-            pushPowerBridgesPercent = 50;
+            pushPowerBridgesPercent = 120;
 
         pushPowerProbsPercent = (playerSettings.pushPowerProbs * playerSettings.pushPowerProbsMultiplier) / 100;
         this.pushDelay = playerSettings.pushDelay;
