@@ -67,7 +67,6 @@ public class LevelUIManager : MonoBehaviour
         else
             panelList[9].SetActive(false);
 
-        
 
         if (pause)
         {
@@ -122,19 +121,34 @@ public class LevelUIManager : MonoBehaviour
     
         if (panelAnim)
         {
-            PanelAnimation();
+            PanelAnimationOn();
+            panelList[10].SetActive(true);
+            panelList[11].SetActive(true);
         }
-    }
-
-    public void PanelAnimation()
-    {
-        foreach (var panel in panelList)
+        else
         {
-            panel.SetActive(false);
+            PanelAnimationOff();
+            panelList[10].SetActive(false);
+            panelList[11].SetActive(false);
         }
     }
 
+    public void PanelAnimationOn()
+    {
+        for (int i = 4; i < panelList.Count; i++)
+        {
+            panelList[i].SetActive(false);
+        }
+    }
 
+    public void PanelAnimationOff()
+    {
+        for (int i = 4; i < panelList.Count - 2; i++)
+        {
+            if (i == 9) return;
+            panelList[i].SetActive(true);
+        }
+    }
 
     public void ResetTheLevel()
     {
