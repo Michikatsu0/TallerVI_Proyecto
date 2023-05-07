@@ -17,7 +17,7 @@ public class HealthResponse : MonoBehaviour
     private CharacterController characterController;
     private void Start()
     {
-        ragdoll = GetComponent<RagdollResponse>();
+        ragdoll = GetComponentInChildren<RagdollResponse>();
         characterController = GetComponent<CharacterController>();
         currentHealth = statsSettings.maxHealth;
 

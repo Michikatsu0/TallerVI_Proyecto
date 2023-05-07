@@ -13,7 +13,7 @@ public class RagdollResponse : MonoBehaviour
     {
         rigidbodies = GetComponentsInChildren<Rigidbody>();
         colliders = GetComponentsInChildren<Collider>();
-        animator = GetComponent<Animator>();
+        animator = GetComponentInParent<Animator>();
 
         DeactiveRagdolls();
     }

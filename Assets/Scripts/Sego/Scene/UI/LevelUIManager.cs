@@ -12,7 +12,7 @@ public class LevelUIManager : MonoBehaviour
 
     [SerializeField] private List<GameObject> panelList = new List<GameObject>();
 
-    [SerializeField] public bool lose, win, joystick, pause, pausePanel, pauseButton, loading, dashButton, interactableUi;
+    [SerializeField] public bool lose, win, joystick, pause, pausePanel, pauseButton, loading, dashButton, dashBar, changeGun, interactableUi, panelAnim;
 
     private Joystick leftJoystick, rightJoystick;
     private int triggerId;
@@ -52,12 +52,21 @@ public class LevelUIManager : MonoBehaviour
         else
             panelList[6].SetActive(false);
 
-        if (interactableUi)
+        if (dashBar)
             panelList[7].SetActive(true);
         else
             panelList[7].SetActive(false);
 
-        
+        if (changeGun)
+            panelList[8].SetActive(true);
+        else
+            panelList[8].SetActive(false);
+
+        if (interactableUi)
+            panelList[9].SetActive(true);
+        else
+            panelList[9].SetActive(false);
+
 
         if (pause)
         {
@@ -108,6 +117,36 @@ public class LevelUIManager : MonoBehaviour
         else
         {
             panelList[1].SetActive(false);
+        }
+    
+        if (panelAnim)
+        {
+            PanelAnimationOn();
+            panelList[10].SetActive(true);
+            panelList[11].SetActive(true);
+        }
+        else
+        {
+            PanelAnimationOff();
+            panelList[10].SetActive(false);
+            panelList[11].SetActive(false);
+        }
+    }
+
+    public void PanelAnimationOn()
+    {
+        for (int i = 4; i < panelList.Count; i++)
+        {
+            panelList[i].SetActive(false);
+        }
+    }
+
+    public void PanelAnimationOff()
+    {
+        for (int i = 4; i < panelList.Count - 2; i++)
+        {
+            if (i == 9) return;
+            panelList[i].SetActive(true);
         }
     }
 
