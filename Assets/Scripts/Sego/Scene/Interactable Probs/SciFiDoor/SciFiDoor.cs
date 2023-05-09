@@ -12,17 +12,20 @@ public class SciFiDoor : MonoBehaviour
     [SerializeField] private List<Color> screenColors;
     [SerializeField] private List<Material> materials = new List<Material>();
     [SerializeField] private List<Texture> screenTextures = new List<Texture>();
+    [SerializeField] private List<AudioClip> audioClip = new List<AudioClip>();
 
     private float delayLockedColor = 0.5f;
     private bool justLocked = true, justLockedColor = true;
     private Animator animator;
     private InteractableProbResponse interactableProb;
     private TextureBaseMaterialScrollOffset textureScrollOffset;
-    
+    private AudioSource audioSource;
+
     void Start()
     {
         ProbsActionResponse.InteractableButtonUI += InteractuableButton;
         animator = GetComponentInChildren<Animator>();
+        audioSource = GetComponent<AudioSource>();
         interactableProb = GetComponentInChildren<InteractableProbResponse>();
         textureScrollOffset = GetComponent<TextureBaseMaterialScrollOffset>();
         materials[1].SetTexture("_EmissionMap", screenTextures[0]);
@@ -38,6 +41,7 @@ public class SciFiDoor : MonoBehaviour
             {
                 justLocked = false;
                 materials[0].SetColor("_EmissionColor", doorColors[2]);
+                materials[3].SetColor("_EmissionColor", doorColors[2]);
                 materials[2].SetColor("_EmissionColor", screenColors[1]);
             }
             interactableProb.canInteract = true;
@@ -50,6 +54,7 @@ public class SciFiDoor : MonoBehaviour
                 justLocked = true;
                 materials[0].SetColor("_EmissionColor", doorColors[1]);
                 materials[2].SetColor("_EmissionColor", doorColors[1]);
+                materials[3].SetColor("_EmissionColor", doorColors[1]);
             }
             interactableProb.canInteract = false;
         }
@@ -66,6 +71,7 @@ public class SciFiDoor : MonoBehaviour
         {
             this.interactableButton = interactableButton;
             locked = false;
+            audioSource.PlayDelayed(1f);
         }
     }
 
@@ -80,6 +86,7 @@ public class SciFiDoor : MonoBehaviour
                 materials[1].SetTexture("_EmissionMap", screenTextures[1]);
                 materials[1].SetColor("_EmissionColor", screenColors[0]);
                 materials[2].SetColor("_EmissionColor", screenColors[0]);
+                materials[3].SetColor("_EmissionColor", doorColors[0]);
                 textureScrollOffset.offSetX = 0;
                 textureScrollOffset.offSetY = 0.1f;
 
@@ -107,34 +114,42 @@ public class SciFiDoor : MonoBehaviour
     {
         materials[1].SetTexture("_EmissionMap", screenTextures[1]);
         materials[1].SetColor("_EmissionColor", screenColors[1]);
+
         textureScrollOffset.offSetX = 0;
         textureScrollOffset.offSetY = 0.1f;
 
-        materials[0].SetColor("_EmissionColor", doorColors[1]);
-        materials[2].SetColor("_EmissionColor", doorColors[1]);
+        WarningRed();
         yield return new WaitForSeconds(delayLockedColor);
-        materials[0].SetColor("_EmissionColor", doorColors[2]);
-        materials[2].SetColor("_EmissionColor", doorColors[2]);
+        WarningYellow();
         yield return new WaitForSeconds(delayLockedColor);
-        materials[0].SetColor("_EmissionColor", doorColors[1]);
-        materials[2].SetColor("_EmissionColor", doorColors[1]);
+        WarningRed();
         yield return new WaitForSeconds(delayLockedColor);
-        materials[0].SetColor("_EmissionColor", doorColors[2]);
-        materials[2].SetColor("_EmissionColor", doorColors[2]);
+        WarningYellow();
         yield return new WaitForSeconds(delayLockedColor);
-        materials[0].SetColor("_EmissionColor", doorColors[1]);
-        materials[2].SetColor("_EmissionColor", doorColors[1]);
+        WarningRed();
         yield return new WaitForSeconds(delayLockedColor);
-        materials[0].SetColor("_EmissionColor", doorColors[2]);
-        materials[2].SetColor("_EmissionColor", doorColors[2]);
+        WarningYellow();
 
         materials[1].SetTexture("_EmissionMap", screenTextures[0]);
         materials[1].SetColor("_EmissionColor", Color.white);
+
         textureScrollOffset.offSetX = 0.1f;
         textureScrollOffset.offSetY = 0.1f;
+
         yield return null;
     }
-
+    private void WarningYellow()
+    {
+        materials[0].SetColor("_EmissionColor", doorColors[2]);
+        materials[2].SetColor("_EmissionColor", doorColors[2]);
+        materials[3].SetColor("_EmissionColor", doorColors[2]);
+    }
+    private void WarningRed()
+    {
+        materials[0].SetColor("_EmissionColor", doorColors[1]);
+        materials[2].SetColor("_EmissionColor", doorColors[1]);
+        materials[3].SetColor("_EmissionColor", doorColors[1]);
+    }
     public void OnTriggerExit(Collider other)
     {
         GameObject target = other.gameObject;
@@ -151,6 +166,7 @@ public class SciFiDoor : MonoBehaviour
                 materials[1].SetTexture("_EmissionMap", screenTextures[0]);
                 materials[1].SetColor("_EmissionColor", Color.white);
                 materials[2].SetColor("_EmissionColor", screenColors[0]);
+                materials[3].SetColor("_EmissionColor", doorColors[1]);
                 textureScrollOffset.offSetX = 0.1f;
                 textureScrollOffset.offSetY = 0.1f;
 
