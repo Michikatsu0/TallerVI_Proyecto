@@ -74,6 +74,7 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
 
     [Header("Aim Ray Settings")]
     [SerializeField] public float aimRayMaxDistance;
+    [SerializeField] public float aimRigLayerSmoothTime;
 
     [Header("Camera Settings")]
     [SerializeField] public float baseCamPos;

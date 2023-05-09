@@ -30,8 +30,8 @@ public class PlayerController : MonoBehaviour
         playerMechanicsProvider.AimAnimationMovement();
         playerMechanicsProvider.AimRayCast();
         playerMechanicsProvider.Dash();
-        playerMechanicsProvider.UpdateCameraHeight();
         playerMechanicsProvider.Movement();
+        playerMechanicsProvider.UpdateCameraHeight();
     }
     private void FixedUpdate()
     {

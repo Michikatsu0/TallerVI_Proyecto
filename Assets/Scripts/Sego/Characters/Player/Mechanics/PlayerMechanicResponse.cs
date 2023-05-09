@@ -3,10 +3,8 @@ using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
-using UnityEngine.Events;
-using System;
-using UnityEditor;
-using UnityEngine.InputSystem;
+using UnityEngine.Animations.Rigging;
+using Unity.VisualScripting;
 
 public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 {
@@ -23,6 +21,12 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     void Start()
     {
         characterController = GetComponent<CharacterController>();
+
+        aimRigLayer = GameObject.Find("RigLayer_WeaponAiming").GetComponent<Rig>();
+
+        multiAimHead = GameObject.Find("Head_Aim").GetComponent<MultiAimConstraint>();
+
+        multiAimNeck = GameObject.Find("Neck_Aim").GetComponent<MultiAimConstraint>();
 
         aimRayCrossHair = GameObject.Find("Aim CrossHair").transform;
 
@@ -496,7 +500,9 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #region Aim & Rotation Movement
 
-    private float aimSpeedPercent, currentAimLayerAnim;  //
+    private Rig aimRigLayer;
+    private MultiAimConstraint multiAimHead, multiAimNeck;
+    private float aimSpeedPercent, currentAimLayerAnim, tmpRigWeight;  //
 
     public void AimAnimationMovement()
     {
@@ -504,9 +510,14 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
         // Setting Animation & Animation Weights
         if (rightJoystickXYAimLimit)
-            animator.SetBool("IsAiming", rightJoystickXYAimLimit);
+            animator.SetBool("IsAiming", true);
         else
-            animator.SetBool("IsAiming", rightJoystickXYAimLimit);
+            animator.SetBool("IsAiming", false);
+
+        if (rightJoystick.Horizontal != 0.0f || rightJoystick.Vertical != 0.0f)
+            aimRigLayer.weight += Time.deltaTime / playerSettings.aimRigLayerSmoothTime;
+        else
+            aimRigLayer.weight -= Time.deltaTime / playerSettings.aimRigLayerSmoothTime;
 
         if (leftJoystickXMovementLimits && !rightJoystickXYAimLimit)
         {
@@ -570,13 +581,28 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
         if (Physics.Raycast(aimRay, out aimHit, playerSettings.aimRayMaxDistance))
         {
-            Debug.DrawRay(aimRay.origin, aimRay.direction * aimHit.distance, Color.red);
-            aimRayCrossHair.transform.position = aimHit.point;
+            if (aimHit.collider.gameObject.layer == LayerMask.NameToLayer("IsGround"))
+            {
+                Debug.DrawRay(aimRay.origin, aimRay.direction * aimHit.distance, Color.red);
+                aimRayCrossHair.transform.position = aimHit.point;
+            }
         }
         else
         {
             Debug.DrawRay(aimRay.origin, aimRay.direction * playerSettings.aimRayMaxDistance, Color.red);
-            displacement = aimRay.direction.normalized * playerSettings.aimRayMaxDistance;
+            
+            
+            if (aimRay.direction.magnitude != 0)
+                displacement = aimRay.direction.normalized * playerSettings.aimRayMaxDistance;
+            else
+            {
+                if (currentRotation == positiveRotation)
+                    displacement = Vector3.forward * playerSettings.aimRayMaxDistance / 6f;
+                else
+                    displacement = -Vector3.forward * playerSettings.aimRayMaxDistance / 6f;
+
+            }
+
             aimRayCrossHair.transform.position = transform.position + displacement;
         }
 
