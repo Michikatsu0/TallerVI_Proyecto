@@ -278,7 +278,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     public void ButtonDash()
     {
-        if (canDash && (leftJoystick.Horizontal != 0 || leftJoystick.Vertical != 0))
+        if (canDash && (leftJoystick.Horizontal != 0 || leftJoystick.Vertical != 0) )
             StartCoroutine(DashRoutine());
     }
 
@@ -289,8 +289,10 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
         while (Time.time < dashTime + playerSettings.dashDuration)
         {
+
             joystickDashDirection.z = leftJoystick.Horizontal;
             joystickDashDirection.y = leftJoystick.Vertical;
+
             currentDirection = joystickDashDirection.normalized;
             isDashing = true;
             characterController.Move(currentDirection * dashPercent * Time.deltaTime);
@@ -492,7 +494,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #endregion
 
-    #region Aim
+    #region Aim & Rotation Movement
 
     private float aimSpeedPercent, currentAimLayerAnim;  //
 
@@ -518,20 +520,40 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         animator.SetLayerWeight(1, aimLlayerWeight);
 
         // Rotation & Inverse Animation 
+        
         if (playerSettings.rightDeathZoneAimXY <= rightJoystick.Horizontal)
         {
             currentRotation = positiveRotation;
+            if (isDashing)
+            {
+                if (joystickDashDirection.z > 0)
+                    currentRotation = positiveRotation;
+                else if (joystickDashDirection.z < 0)
+                    currentRotation = negativeRotation;
+            } 
+                
             animator.SetFloat("MoveX", leftJoystick.Horizontal);
         }
         else if (-playerSettings.rightDeathZoneAimXY >= rightJoystick.Horizontal)
         {
             currentRotation = negativeRotation;
+            if (isDashing)
+            {
+                if (joystickDashDirection.z > 0)
+                    currentRotation = positiveRotation;
+                else if (joystickDashDirection.z < 0)
+                    currentRotation = negativeRotation;
+            }
             animator.SetFloat("MoveX", -leftJoystick.Horizontal);
         }
 
         float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, currentRotation, ref turnSmoothVelocity, playerSettings.turnAimSmoothTime);
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
     }
+
+    #endregion
+
+    #region Aim Raycast
 
     private Vector3 aimDirection, displacement;
     private Ray aimRay;
@@ -559,6 +581,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         }
 
     }
+
     #endregion
 
     #region Collider Character Controller
