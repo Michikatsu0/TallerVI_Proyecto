@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine.Animations.Rigging;
 using Unity.VisualScripting;
+using UnityEngine.InputSystem;
 
 public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 {
@@ -15,7 +16,6 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     private CinemachineVirtualCamera virtualCamera;
     private CharacterController characterController;
     private Animator animator;
-    private Slider slider;
 
 
     void Start()
@@ -24,13 +24,9 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
         aimRigLayer = GameObject.Find("RigLayer_WeaponAiming").GetComponent<Rig>();
 
-        multiAimHead = GameObject.Find("Head_Aim").GetComponent<MultiAimConstraint>();
+        multiAimConstraint = GameObject.Find("WeaponPose_Aiming").GetComponent<MultiAimConstraint>();
 
-        multiAimNeck = GameObject.Find("Neck_Aim").GetComponent<MultiAimConstraint>();
-
-        aimRayCrossHair = GameObject.Find("Aim CrossHair").transform;
-
-        slider = GameObject.Find("CoolDown Dash Bar Button").GetComponentInChildren<Slider>();
+        aimRayCrossHair = GameObject.Find("Aim_CrossHair").transform;
 
         animator = GetComponent<Animator>();
 
@@ -53,6 +49,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     {
         JoystickUpdate();
         SetVelocitys();
+        //AimingDownUpdate();
     }
 
     #region Camara 
@@ -499,10 +496,25 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     #endregion
 
     #region Aim & Rotation Movement
-
+    
+    private float aimSpeedPercent, currentAimLayerAnimator, rotAimingWeapon,aimingAllowedAngle;
+    private MultiAimConstraint multiAimConstraint;
+    private Vector3 rotationAimWeapon;
     private Rig aimRigLayer;
-    private MultiAimConstraint multiAimHead, multiAimNeck;
-    private float aimSpeedPercent, currentAimLayerAnim, tmpRigWeight;  //
+
+    public void AimingDownUpdate()
+    {
+        aimingAllowedAngle = Mathf.Atan2(rightJoystick.Vertical, rightJoystick.Horizontal) * Mathf.Rad2Deg;
+
+        if (aimingAllowedAngle < -110 || aimingAllowedAngle > 260 || aimingAllowedAngle < -65)
+            rotAimingWeapon = playerSettings.defaultWeaponRot * (Mathf.Abs(rightJoystick.Vertical));
+        else
+            rotAimingWeapon = 0;
+
+        rotationAimWeapon.z = rotAimingWeapon;
+
+        multiAimConstraint.data.offset = rotationAimWeapon;
+    }
 
     public void AimAnimationMovement()
     {
@@ -522,12 +534,14 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         if (leftJoystickXMovementLimits && !rightJoystickXYAimLimit)
         {
             animator.SetFloat("MoveX", leftJoystick.Horizontal);
-            currentAimLayerAnim = 0;
+            currentAimLayerAnimator = 0;
         }
-        else if (rightJoystickXYAimLimit)
-            currentAimLayerAnim = 1;
+        if (rightJoystickXYAimLimit)
+            currentAimLayerAnimator = 1;
+        else
+            currentAimLayerAnimator = 0;
 
-        float aimLlayerWeight = Mathf.Lerp(animator.GetLayerWeight(1), currentAimLayerAnim, playerSettings.aimLayerSmoothTime);
+        float aimLlayerWeight = Mathf.Lerp(animator.GetLayerWeight(1), currentAimLayerAnimator, playerSettings.aimAnimatorLayerSmoothTime);
         animator.SetLayerWeight(1, aimLlayerWeight);
 
         // Rotation & Inverse Animation 
@@ -597,10 +611,9 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
             else
             {
                 if (currentRotation == positiveRotation)
-                    displacement = Vector3.forward * playerSettings.aimRayMaxDistance / 6f;
+                    displacement = Vector3.forward * playerSettings.aimRayMaxDistance / 10f;
                 else
-                    displacement = -Vector3.forward * playerSettings.aimRayMaxDistance / 6f;
-
+                    displacement = -Vector3.forward * playerSettings.aimRayMaxDistance / 10f;
             }
 
             aimRayCrossHair.transform.position = transform.position + displacement;

@@ -4,12 +4,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 public class CoolDownDashBar : MonoBehaviour
 {
     [SerializeField] private PlayerMechanicResponse mechanicResponse;
+    [SerializeField] private float sliderTimeTransition;
+
     private Slider slider;
-    private bool isDashing, barRegeneration;
-    private float sliderTimeTransition, currentTimeRegeneration, currentValue, refVelocity;
+    public bool isDashing, barRegeneration;
+    private float currentTimeRegeneration, currentValue, refVelocity;
 
     // Start is called before the first frame update
     void Start()
@@ -22,30 +25,29 @@ public class CoolDownDashBar : MonoBehaviour
         currentValue = slider.value;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        slider.maxValue = mechanicResponse.playerSettings.dashCoolDown;
+            slider.maxValue = mechanicResponse.playerSettings.dashCoolDown;
 
-        if (isDashing)
-        {
-            currentValue = 0;
-            sliderTimeTransition = 0.3f;
-            Invoke(nameof(StartRegeneration), mechanicResponse.playerSettings.dashDuration);
-            slider.value = Mathf.Lerp(slider.value, currentValue, sliderTimeTransition);
-        }
-        else
-        {
-            if (barRegeneration)
+            if (isDashing) 
             {
-                currentValue += Time.deltaTime;
-                slider.value = currentValue;
-                if (slider.value >= slider.maxValue)
+                currentValue = 0;
+                Invoke(nameof(StartRegeneration), mechanicResponse.playerSettings.dashDuration);
+                slider.value -= Time.deltaTime / sliderTimeTransition;
+            }
+            else
+            {
+                if (barRegeneration)
                 {
-                    barRegeneration = false;
+                    currentValue += Time.deltaTime;
+                    slider.value = currentValue;
+                    if (slider.value >= slider.maxValue)
+                    {
+                        barRegeneration = false;
+                    }
                 }
             }
-        }
+        
     }
 
     private void StartRegeneration()

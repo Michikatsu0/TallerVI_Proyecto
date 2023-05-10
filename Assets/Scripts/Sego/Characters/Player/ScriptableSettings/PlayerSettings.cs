@@ -68,13 +68,13 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
 
     [Header("Aim Speed Movement Settings")]
     [SerializeField][Range(0f, 0.2f)] public float turnAimSmoothTime;
-    [SerializeField][Range(0f, 0.2f)] public float aimLayerSmoothTime;
+    [SerializeField][Range(0f, 0.2f)] public float aimAnimatorLayerSmoothTime;
     [SerializeField][Range(0f, 100f)] public float aimSpeedMultiplier;
     [SerializeField] public float aimSpeed;
 
     [Header("Aim Ray Settings")]
     [SerializeField] public float aimRayMaxDistance;
-    [SerializeField] public float aimRigLayerSmoothTime;
+    [SerializeField] public float aimRigLayerSmoothTime, defaultWeaponRot;
 
     [Header("Camera Settings")]
     [SerializeField] public float baseCamPos;
