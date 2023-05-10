@@ -12,10 +12,11 @@ public class LevelUIManager : MonoBehaviour
 
     [SerializeField] private List<GameObject> panelList = new List<GameObject>();
 
-    [SerializeField] public bool lose, win, joystick, pause, pausePanel, pauseButton, loading, dashButton, dashBar, changeGun, interactableUi, panelAnim;
+    [SerializeField] public bool lose, win, joystick, pause, pausePanel, pauseButton, loading, dashButton, dashBar, changeGun, interactableUi;
 
     private Joystick leftJoystick, rightJoystick;
     private int triggerId;
+
     private void Awake()
     {
         ProbsActionResponse.InteractableUI += InteractableUI;
@@ -109,7 +110,6 @@ public class LevelUIManager : MonoBehaviour
         {
             leftJoystick.ResetJoysticks();
             rightJoystick.ResetJoysticks();
-
             panelList[1].SetActive(true);
             pauseButton = false;
             joystick = false;
@@ -118,36 +118,7 @@ public class LevelUIManager : MonoBehaviour
         {
             panelList[1].SetActive(false);
         }
-    
-        if (panelAnim)
-        {
-            PanelAnimationOn();
-            panelList[10].SetActive(true);
-            panelList[11].SetActive(true);
-        }
-        else
-        {
-            PanelAnimationOff();
-            panelList[10].SetActive(false);
-            panelList[11].SetActive(false);
-        }
-    }
-
-    public void PanelAnimationOn()
-    {
-        for (int i = 4; i < panelList.Count; i++)
-        {
-            panelList[i].SetActive(false);
-        }
-    }
-
-    public void PanelAnimationOff()
-    {
-        for (int i = 4; i < panelList.Count - 2; i++)
-        {
-            if (i == 9) return;
-            panelList[i].SetActive(true);
-        }
+   
     }
 
     public void ResetTheLevel()
