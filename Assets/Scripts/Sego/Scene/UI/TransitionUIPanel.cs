@@ -7,7 +7,7 @@ public class TransitionUIPanel : MonoBehaviour
     public static TransitionUIPanel Instance;
     private Animator animator;
     // Start is called before the first frame update
-    void Awake()
+    private void Awake()
     {
         Instance = this;
         animator = GetComponent<Animator>();

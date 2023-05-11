@@ -9,15 +9,16 @@ public class WeaponResponse : MonoBehaviour
     [SerializeField] private WeaponSettings weaponSettings;
     [SerializeField] private ParticleSystem[] muzzleEffects;
     [SerializeField] private ParticleSystem hitEffect;
-    [SerializeField] private Transform shotOrigin;
+    [SerializeField] private Transform raycastOrigin;
 
     private float accumulatedTime;
     private bool isFiring;
     private Ray ray;
     private RaycastHit hit;
-
+    private Transform raycastDestination;
     void Start()
     {
+        raycastDestination = GameObject.Find("Aim_CrossHair").transform;
         foreach (var particleSystem in muzzleEffects)
         {
             ParticleSystem.MainModule ps = particleSystem.GetComponent<ParticleSystem>().main;
@@ -58,15 +59,16 @@ public class WeaponResponse : MonoBehaviour
         foreach (var particleSystem in muzzleEffects)
             particleSystem.Emit(1);
 
-        ray.origin = shotOrigin.position;
-        ray.direction = shotOrigin.forward; // Ajust
+        ray.origin = raycastOrigin.position;
+        ray.direction = raycastDestination.position - raycastOrigin.position; // Ajust
 
         Physics.Raycast(ray, out hit);
         {
             Debug.DrawLine(ray.origin, hit.point, Color.red, 0.1f);
 
-            // HitEffect
-
+            hitEffect.transform.position = hit.point;
+            hitEffect.transform.forward = hit.normal;
+            hitEffect.Emit(1);
         }
     }
 

@@ -9,18 +9,20 @@ public class LoadingManager : MonoBehaviour
 
     [SerializeField] private float transitionDelay;
     [SerializeField] private Slider slider;
+    [SerializeField] private TransitionUIPanel transitionUIPanel;
     [SerializeField] private List<Animator> animators = new List<Animator>();
     private int sceneIndex;
     private bool flagOneTouech;
     private void Awake()
     {
-        TransitionUIPanel.Instance.FadeIn();
         Instance = this;
     }
 
     void Start()
     {
         flagOneTouech = true;
+
+        transitionUIPanel.FadeIn();
         sceneIndex = PlayerPrefs.GetInt("LoadingSceneIndexToLoad");
     }
 
@@ -40,7 +42,7 @@ public class LoadingManager : MonoBehaviour
 
     private IEnumerator TransitionNextScene()
     {
-        TransitionUIPanel.Instance.FadeOut();
+        transitionUIPanel.FadeOut();
         yield return new WaitForSeconds(transitionDelay);
         SceneManager.LoadSceneAsync(sceneIndex, LoadSceneMode.Single);
         yield return null;

@@ -12,7 +12,7 @@ public class LevelUIManager : MonoBehaviour
 
     [SerializeField] private List<GameObject> panelList = new List<GameObject>();
 
-    [SerializeField] public bool lose, win, joystick, pause, pausePanel, pauseButton, loading, dashButton, dashBar, changeGun, interactableUi;
+    [SerializeField] public bool lose, win, joystick, pause, pausePanel, pauseButton, healthBar, dashButton, dashBar, switchWeaponButton, weaponBar, interactableUi;
 
     private Joystick leftJoystick, rightJoystick;
     private int triggerId;
@@ -58,7 +58,7 @@ public class LevelUIManager : MonoBehaviour
         else
             panelList[7].SetActive(false);
 
-        if (changeGun)
+        if (switchWeaponButton)
             panelList[8].SetActive(true);
         else
             panelList[8].SetActive(false);
@@ -68,6 +68,20 @@ public class LevelUIManager : MonoBehaviour
         else
             panelList[9].SetActive(false);
 
+        if (healthBar)
+            panelList[12].SetActive(true);
+        else
+            panelList[12].SetActive(false);
+
+        if (switchWeaponButton)
+            panelList[13].SetActive(true);
+        else
+            panelList[13].SetActive(false);
+
+        if (weaponBar)
+            panelList[14].SetActive(true);
+        else
+            panelList[14].SetActive(false);
 
         if (pause)
         {
@@ -78,8 +92,11 @@ public class LevelUIManager : MonoBehaviour
             pauseButton = false;
             joystick = false;
             dashButton = false;
-
-            Time.timeScale = 0;
+            healthBar = false;
+            switchWeaponButton= false;
+            dashBar = false;
+            weaponBar = false;
+            //Time.timeScale = 0;
         }
         else
         {
@@ -87,8 +104,11 @@ public class LevelUIManager : MonoBehaviour
             joystick = true;
             pauseButton = true;
             dashButton = true;
-
-            Time.timeScale = 1;
+            healthBar= true;
+            switchWeaponButton = true;
+            dashBar = true;
+            weaponBar = true;
+            //Time.timeScale = 1;
         }
 
 
@@ -96,7 +116,6 @@ public class LevelUIManager : MonoBehaviour
         {
             leftJoystick.ResetJoysticks();
             rightJoystick.ResetJoysticks();
-
             panelList[0].SetActive(true);
             joystick = false;
             pauseButton = false;

@@ -5,19 +5,16 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class TitleManager : MonoBehaviour
-{
+{ 
     public static TitleManager Instance;
-    public float transitionDelay;
-    public int tutorial;
-    private void Awake()
-    {
-        Instance = this;
-    }
 
+    [SerializeField] private TransitionUIPanel transitionUIPanel;
+    [SerializeField] private float transitionDelay;
+    [SerializeField] private int tutorial;
     private void Start()
     {
         tutorial = PlayerPrefs.GetInt("TutorialComplete");
-        TransitionUIPanel.Instance.FadeIn();    
+        transitionUIPanel.FadeIn();    
     }
 
     void Update()
@@ -39,7 +36,7 @@ public class TitleManager : MonoBehaviour
     }
     public IEnumerator TransitionToNextScene(int sceneIndex)
     {
-        TransitionUIPanel.Instance.FadeOut();
+        transitionUIPanel.FadeOut();
         yield return new WaitForSeconds(transitionDelay);
         SceneManager.LoadScene(sceneIndex, LoadSceneMode.Single);
         yield return null;

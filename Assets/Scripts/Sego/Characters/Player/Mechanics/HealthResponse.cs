@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class HealthResponse : MonoBehaviour
 {
@@ -15,8 +16,12 @@ public class HealthResponse : MonoBehaviour
 
     private RagdollResponse ragdoll;
     private CharacterController characterController;
+    private Slider healthSlider;
+
     private void Start()
     {
+        healthSlider = GameObject.Find("Health Bar").GetComponent<Slider>();
+
         ragdoll = GetComponentInChildren<RagdollResponse>();
         characterController = GetComponent<CharacterController>();
         currentHealth = statsSettings.maxHealth;
