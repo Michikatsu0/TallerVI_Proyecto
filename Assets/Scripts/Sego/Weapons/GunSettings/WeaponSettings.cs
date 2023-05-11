@@ -16,7 +16,8 @@ public class WeaponSettings : ScriptableObject, ISerializationCallbackReceiver
     [SerializeField] public Color colorMuzzle;
 
 
-    [SerializeField] public float fireRate;
+    [SerializeField] public float fireRate = 25, bulletSpeed = 1000, bulletDrop, maxLifeTime;
+    [SerializeField] public bool isFiring;
     public void Init()
     {
 

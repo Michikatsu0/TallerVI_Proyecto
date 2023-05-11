@@ -521,10 +521,9 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         aimSpeedPercent = (playerSettings.aimSpeed * playerSettings.aimSpeedMultiplier) / 100;
 
         // Setting Animation & Animation Weights
-        if (rightJoystickXYAimLimit)
-            animator.SetBool("IsAiming", true);
-        else
-            animator.SetBool("IsAiming", false);
+        animator.SetBool("IsAiming", rightJoystickXYAimLimit);
+
+        PlayerActionsResponse.ActionShootWeaponTrigger(rightJoystickXYAimLimit);
 
         if (rightJoystick.Horizontal != 0.0f || rightJoystick.Vertical != 0.0f)
             aimRigLayer.weight += Time.deltaTime / playerSettings.aimRigLayerSmoothTime;
@@ -575,6 +574,12 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, currentRotation, ref turnSmoothVelocity, playerSettings.turnAimSmoothTime);
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
     }
+
+    #endregion
+
+    #region WeaponActive
+
+    private WeaponResponse currentWeapon;
 
     #endregion
 
