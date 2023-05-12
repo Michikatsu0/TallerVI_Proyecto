@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using UnityEngine.Animations.Rigging;
 using Unity.VisualScripting;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.XR;
 
 public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 {
@@ -23,8 +24,9 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         characterController = GetComponent<CharacterController>();
 
         aimRigLayer = GameObject.Find("RigLayer_WeaponAiming").GetComponent<Rig>();
-
-        multiAimConstraint = GameObject.Find("WeaponPose_Aiming").GetComponent<MultiAimConstraint>();
+        bodyAimRigLayer = GameObject.Find("RigLayer_AimBody").GetComponent<Rig>();
+        handIKRigLayer = GameObject.Find("RigLayer_Hand IK").GetComponent<Rig>();
+        multiAimWeaponRigPose = GameObject.Find("WeaponPose_Aiming").GetComponent<MultiAimConstraint>();
 
         aimRayCrossHair = GameObject.Find("Aim_CrossHair").transform;
 
@@ -43,13 +45,15 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         trailRenderer.startWidth = 1.3f;
         trailRenderer.endWidth = 1;
         trailRenderer.time = playerSettings.dashDuration;
+
+        audioSource = GetComponent<AudioSource>();
     }
 
     void Update()
     {
         JoystickUpdate();
         SetVelocitys();
-        //AimingDownUpdate();
+        AimingDownUpdate();
     }
 
     #region Camara 
@@ -497,54 +501,68 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #region Aim & Rotation Movement
     
-    private float aimSpeedPercent, currentAimLayerAnimator, rotAimingWeapon,aimingAllowedAngle;
-    private MultiAimConstraint multiAimConstraint;
-    private Vector3 rotationAimWeapon;
+    private float aimSpeedPercent, currentAimLayerAnimator, aimingAllowedAngle, refVelocity,multiWeaponPoseOffset;
+    private Vector3 aimWeaponRotation;
     private Rig aimRigLayer;
+    private Rig bodyAimRigLayer;
+    private Rig handIKRigLayer;
+    private MultiAimConstraint multiAimWeaponRigPose;
 
     public void AimingDownUpdate()
     {
-        aimingAllowedAngle = Mathf.Atan2(rightJoystick.Vertical, rightJoystick.Horizontal) * Mathf.Rad2Deg;
-
-        if (aimingAllowedAngle < -110 || aimingAllowedAngle > 260 || aimingAllowedAngle < -65)
-            rotAimingWeapon = playerSettings.defaultWeaponRot * (Mathf.Abs(rightJoystick.Vertical));
+        if (aimingAllowedAngle >= -125 && aimingAllowedAngle <= -55 || aimingAllowedAngle >= 235 && aimingAllowedAngle <= 305)
+            multiWeaponPoseOffset = -80 * (1 - Mathf.Abs(rightJoystick.Horizontal));
         else
-            rotAimingWeapon = 0;
+            multiWeaponPoseOffset = 0;
 
-        rotationAimWeapon.z = rotAimingWeapon;
+        aimWeaponRotation.z = Mathf.SmoothDamp(aimWeaponRotation.z, multiWeaponPoseOffset, ref refVelocity, 0.04f);
 
-        multiAimConstraint.data.offset = rotationAimWeapon;
+        multiAimWeaponRigPose.data.offset = aimWeaponRotation;
     }
 
     public void AimAnimationMovement()
     {
         aimSpeedPercent = (playerSettings.aimSpeed * playerSettings.aimSpeedMultiplier) / 100;
 
-        // Setting Animation & Animation Weights
+        #region Setting Animation | Animator and Rigs Weights
+
         animator.SetBool("IsAiming", rightJoystickXYAimLimit);
 
         PlayerActionsResponse.ActionShootWeaponTrigger(rightJoystickXYAimLimit);
 
-        if (rightJoystick.Horizontal != 0.0f || rightJoystick.Vertical != 0.0f)
-            aimRigLayer.weight += Time.deltaTime / playerSettings.aimRigLayerSmoothTime;
-        else
-            aimRigLayer.weight -= Time.deltaTime / playerSettings.aimRigLayerSmoothTime;
+        //if (rightJoystick.Horizontal != 0.0f || rightJoystick.Vertical != 0.0f)
+        //    aimRigLayer.weight += Time.deltaTime / playerSettings.aimRigLayerSmoothTime;
+        //else
+        //    aimRigLayer.weight -= Time.deltaTime / playerSettings.aimRigLayerSmoothTime;
 
         if (leftJoystickXMovementLimits && !rightJoystickXYAimLimit)
         {
             animator.SetFloat("MoveX", leftJoystick.Horizontal);
             currentAimLayerAnimator = 0;
         }
+
         if (rightJoystickXYAimLimit)
+        {
+            bodyAimRigLayer.weight += Time.deltaTime / playerSettings.aimRigLayerSmoothTime;
+            aimRigLayer.weight += Time.deltaTime / playerSettings.aimRigLayerSmoothTime;
+            handIKRigLayer.weight += Time.deltaTime / playerSettings.aimRigLayerSmoothTime;
             currentAimLayerAnimator = 1;
+        }
         else
+        {
+            bodyAimRigLayer.weight -= Time.deltaTime / playerSettings.aimRigLayerSmoothTime;
+            aimRigLayer.weight -= Time.deltaTime / playerSettings.aimRigLayerSmoothTime;
+            handIKRigLayer.weight -= Time.deltaTime / playerSettings.aimRigLayerSmoothTime;
             currentAimLayerAnimator = 0;
+        }
 
         float aimLlayerWeight = Mathf.Lerp(animator.GetLayerWeight(1), currentAimLayerAnimator, playerSettings.aimAnimatorLayerSmoothTime);
         animator.SetLayerWeight(1, aimLlayerWeight);
 
-        // Rotation & Inverse Animation 
-        
+        #endregion
+
+        #region Rotation & Inverse Animation 
+
         if (playerSettings.rightDeathZoneAimXY <= rightJoystick.Horizontal)
         {
             currentRotation = positiveRotation;
@@ -573,6 +591,8 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
         float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, currentRotation, ref turnSmoothVelocity, playerSettings.turnAimSmoothTime);
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
+
+        #endregion
     }
 
     #endregion
@@ -592,6 +612,8 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     public void AimRayCast()
     {
+        aimingAllowedAngle = Mathf.Atan2(rightJoystick.Vertical, rightJoystick.Horizontal) * Mathf.Rad2Deg;
+
         aimDirection.z = rightJoystick.Horizontal;
         aimDirection.y = rightJoystick.Vertical;
 
@@ -609,8 +631,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         else
         {
             Debug.DrawRay(aimRay.origin, aimRay.direction * playerSettings.aimRayMaxDistance, Color.red);
-            
-            
+
             if (aimRay.direction.magnitude != 0)
                 displacement = aimRay.direction.normalized * playerSettings.aimRayMaxDistance;
             else
@@ -620,11 +641,44 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
                 else
                     displacement = -Vector3.forward * playerSettings.aimRayMaxDistance / 10f;
             }
-
             aimRayCrossHair.transform.position = transform.position + displacement;
         }
-
     }
+
+    #endregion
+
+    #region Audio 
+
+    private AudioSource audioSource;
+    private float currentVolumen; 
+
+    private void OnFootStep(AnimationEvent animationEvent)
+    {
+        if (animationEvent.animatorClipInfo.weight > 0.5f)
+        {
+            if (playerSettings.audioClips.Count > 0)
+            {
+                var index = Random.Range(0, playerSettings.audioClips.Count);
+                if (animationEvent.intParameter == 0)
+                    currentVolumen = 0.1f;
+                else if (animationEvent.intParameter == 1)
+                    currentVolumen = 0.4f;
+                else if (animationEvent.intParameter == 2)
+                    currentVolumen = 0.7f;
+                else
+                    currentVolumen = 0.1f;
+                AudioSource.PlayClipAtPoint(playerSettings.audioClips[index], transform.TransformPoint(new Vector3(0.0f, characterController.center.y - characterController.height / 2, 0.0f)), currentVolumen);
+            }
+        }
+    }
+
+    //private void OnLand(AnimationEvent animationEvent)
+    //{
+    //    if (animationEvent.animatorClipInfo.weight > 0.5f)
+    //    {
+    //        AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_controller.center), FootstepAudioVolume);
+    //    }
+    //}
 
     #endregion
 

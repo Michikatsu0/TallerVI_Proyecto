@@ -5,14 +5,14 @@ using System.Net.Sockets;
 using UnityEngine;
 public class SciFiDoor : MonoBehaviour
 {
-    enum ScreenStates { open, close, waiting}
+    public static Action<List<AudioClip>> LockAnimationEvent;
 
     [SerializeField] private bool locked = true, interactableButton, isBroken;
     [SerializeField] private List<Color> doorColors;
     [SerializeField] private List<Color> screenColors;
     [SerializeField] private List<Material> materials = new List<Material>();
     [SerializeField] private List<Texture> screenTextures = new List<Texture>();
-    [SerializeField] private List<AudioClip> audioClip = new List<AudioClip>();
+    [SerializeField] private List<AudioClip> audioClips = new List<AudioClip>();
 
     private float delayLockedColor = 0.5f;
     private bool justLocked = true, justLockedColor = true;
@@ -23,6 +23,7 @@ public class SciFiDoor : MonoBehaviour
 
     void Start()
     {
+        LockAnimationEvent?.Invoke(audioClips);
         ProbsActionResponse.InteractableButtonUI += InteractuableButton;
         animator = GetComponentInChildren<Animator>();
         audioSource = GetComponent<AudioSource>();
@@ -69,10 +70,41 @@ public class SciFiDoor : MonoBehaviour
     {
         if (interactableProb.id == id)
         {
+            //if (audioSource.clip == audioClips[2] && audioSource.isPlaying) audioSource.Stop();
+            audioSource.PlayOneShot(audioClips[3], 0.5f);
+            StartCoroutine(DelayDoorOpenAudio());
             this.interactableButton = interactableButton;
             locked = false;
-            audioSource.PlayDelayed(1f);
         }
+    }
+    
+    private IEnumerator DelayDoorOpenAudio()
+    {
+        OpenDoorAudio();
+        yield return new WaitForSeconds(0.5f);
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        GameObject target = other.gameObject;
+        if (target.CompareTag("Player"))
+        {
+            if (!locked)
+            {
+                if (!isBroken)
+                {
+                    OpenDoorAudio();
+                }
+            }
+        }
+    }
+
+    private void OpenDoorAudio()
+    {
+        audioSource.pitch = 1;
+        audioSource.volume = 1;
+        audioSource.clip = audioClips[4];
+        audioSource.PlayDelayed(0.5f);
     }
 
     public void OnTriggerStay(Collider other)
@@ -94,6 +126,7 @@ public class SciFiDoor : MonoBehaviour
                     animator.SetBool("IsOpen", true);
                 else
                     animator.SetBool("IsOpenBroken", true);
+                
             }
             else
             {
@@ -101,11 +134,16 @@ public class SciFiDoor : MonoBehaviour
                 {
                     justLockedColor = false;
                     StartCoroutine(LockedDoorColor());
+                    audioSource.clip = audioClips[2];
+                    audioSource.Play();
+                    audioSource.volume = 0.22f;
+                    audioSource.pitch = 0.3f;
                 }
                 if (!isBroken)
                     animator.SetBool("IsOpen", false);
                 else
                     animator.SetBool("IsOpenBroken", false);
+                
             }
         }
     }
@@ -171,7 +209,9 @@ public class SciFiDoor : MonoBehaviour
                 textureScrollOffset.offSetY = 0.1f;
 
                 if (!isBroken)
+                {
                     animator.SetBool("IsOpen", false);
+                }
                 else
                     animator.SetBool("IsOpenBroken", false);
             }
