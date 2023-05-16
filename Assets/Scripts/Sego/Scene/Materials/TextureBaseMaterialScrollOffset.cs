@@ -13,6 +13,18 @@ public class TextureBaseMaterialScrollOffset : MonoBehaviour
 
     private void Update()
     {
+        if (LevelUIManager.Instance != null)
+        {
+            if (LevelUIManager.Instance.stateGame == StatesGameLoop.Pause) return;
+        }
+        else           
+            ScrollUpdate();
+            
+        ScrollUpdate();
+    }
+
+    void ScrollUpdate()
+    {
         scrollPosition.x = offSetX * Time.deltaTime;
         scrollPosition.y = offSetY * Time.deltaTime;
 

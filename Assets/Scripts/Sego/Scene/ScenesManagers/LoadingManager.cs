@@ -9,21 +9,27 @@ public class LoadingManager : MonoBehaviour
 
     [SerializeField] private float transitionDelay;
     [SerializeField] private Slider slider;
-    [SerializeField] private TransitionUIPanel transitionUIPanel;
     [SerializeField] private List<Animator> animators = new List<Animator>();
+    [SerializeField] private AudioSource audioSource;
+
+    [SerializeField] private BaseUISettings audioSettings;
+
     private int sceneIndex;
     private bool flagOneTouech;
     private void Awake()
     {
         Instance = this;
+        sceneIndex = PlayerPrefs.GetInt("LoadingSceneIndexToLoad");
     }
 
     void Start()
     {
         flagOneTouech = true;
-
-        transitionUIPanel.FadeIn();
-        sceneIndex = PlayerPrefs.GetInt("LoadingSceneIndexToLoad");
+        TransitionUIPanel.Instance.FadeIn();
+        audioSource.clip = audioSettings.titleClips[Random.Range(0, audioSettings.titleClips.Count)];
+        audioSource.volume = Mathf.Lerp(0, 0.5f, 1f);
+        audioSource.spatialBlend = 0.5f;
+        audioSource.Play();
     }
 
     void Update()
@@ -42,7 +48,8 @@ public class LoadingManager : MonoBehaviour
 
     private IEnumerator TransitionNextScene()
     {
-        transitionUIPanel.FadeOut();
+        TransitionUIPanel.Instance.FadeOut();
+        audioSource.volume = Mathf.Lerp(audioSource.volume, 0f, 1f);
         yield return new WaitForSeconds(transitionDelay);
         SceneManager.LoadSceneAsync(sceneIndex, LoadSceneMode.Single);
         yield return null;

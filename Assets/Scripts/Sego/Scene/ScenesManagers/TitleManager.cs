@@ -7,14 +7,19 @@ using UnityEngine.UI;
 public class TitleManager : MonoBehaviour
 { 
     public static TitleManager Instance;
-
-    [SerializeField] private TransitionUIPanel transitionUIPanel;
     [SerializeField] private float transitionDelay;
     [SerializeField] private int tutorial;
+    [SerializeField] private AudioSource audioSource;
+
+    [SerializeField] private BaseUISettings audioSettings;
     private void Start()
     {
         tutorial = PlayerPrefs.GetInt("TutorialComplete");
-        transitionUIPanel.FadeIn();    
+        TransitionUIPanel.Instance.FadeIn();
+        audioSource.clip = audioSettings.titleClips[Random.Range(0, audioSettings.titleClips.Count)];
+        audioSource.volume = Mathf.Lerp(0, 0.5f, 1f);
+        audioSource.spatialBlend = 0.5f;
+        audioSource.Play();
     }
 
     void Update()
@@ -36,7 +41,8 @@ public class TitleManager : MonoBehaviour
     }
     public IEnumerator TransitionToNextScene(int sceneIndex)
     {
-        transitionUIPanel.FadeOut();
+        TransitionUIPanel.Instance.FadeOut();
+        audioSource.volume = Mathf.Lerp(audioSource.volume, 0f, 1f);
         yield return new WaitForSeconds(transitionDelay);
         SceneManager.LoadScene(sceneIndex, LoadSceneMode.Single);
         yield return null;

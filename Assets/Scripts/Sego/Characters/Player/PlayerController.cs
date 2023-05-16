@@ -18,8 +18,10 @@ public class PlayerController : MonoBehaviour
     private HealthResponse healthResponse;
     private CharacterController characterController;
     private Animator animator;
+    private RagdollResponse ragdollResponse;
     private void Awake()
     {
+        ragdollResponse = GetComponent<RagdollResponse>();
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
         healthResponse = GetComponent<HealthResponse>();
@@ -28,7 +30,10 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (healthResponse.currentHealth <= 0 || LevelUIManager.Instance.stateGame == StatesGameLoop.Pause) {
+        if (healthResponse.currentHealth <= 0 || LevelUIManager.Instance.stateGame == StatesGameLoop.Pause)
+        {
+            if (healthResponse.currentHealth <= 0)
+                PlayerActionsResponse.ActionWeaponDeath?.Invoke(true);
             PlayerActionsResponse.ActionShootWeaponTrigger?.Invoke(false);
             animator.SetFloat("MoveX", 0);
             animator.SetBool("IsMoving", false);
@@ -36,6 +41,7 @@ public class PlayerController : MonoBehaviour
             return; 
         }
 
+        animator.enabled = true;
         playerMechanicsProvider.Gravity();
         playerMechanicsProvider.SlopeSlide();
         playerMechanicsProvider.PushObjects();

@@ -72,10 +72,11 @@ public class HealthResponse : MonoBehaviour
         int  stringHealth = (int)healthSlider.value;
         textMeshPro.text = stringHealth.ToString();
 
+        IsDeath();
+
         if (deathScript) return;
 
         ColorChanger();
-        IsDeath();
 
         if (currentHealth < 10.0f && !isRegenerating && canRegenerate)
         {

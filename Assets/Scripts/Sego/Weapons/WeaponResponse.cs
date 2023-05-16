@@ -27,13 +27,28 @@ public class WeaponResponse : MonoBehaviour
     [HideInInspector] public Transform raycastDestination;
     private List<Bullet> bullets = new List<Bullet>();
     private AudioSource audioSource;
+    private Rigidbody rgbd;
+    private Collider[] boxColliders;
+    private GameObject laser;
+    private bool isDeath = false;
+
     void Start()
     {
+        rgbd = GetComponent<Rigidbody>();
+        rgbd.useGravity = false;
+        rgbd.isKinematic = true;
+        rgbd.detectCollisions = false;
+        boxColliders = GetComponents<Collider>();
+
+        foreach (Collider collider in boxColliders)
+            collider.enabled = false;
+        
         foreach (var particleSystem in muzzleEffects)
         {
             ParticleSystem.MainModule ps = particleSystem.GetComponent<ParticleSystem>().main;
             ps.startColor = weaponSettings.colorMuzzle;
         }
+        PlayerActionsResponse.ActionWeaponDeath += OnDeathWeapon;
         PlayerActionsResponse.ActionShootWeaponTrigger += OnFiringWeapon;
         raycastDestination = GameObject.Find("Aim_CrossHair").transform;
         audioSource = GetComponent<AudioSource>();
@@ -42,11 +57,24 @@ public class WeaponResponse : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
-
         if (weaponSettings.isFiring)
             UpdateFiring(Time.deltaTime);
         UpdateBullets(Time.deltaTime);
+
+        if (isDeath)
+        {
+            isDeath = false;
+            rgbd.useGravity = true;
+            rgbd.isKinematic = false;
+            rgbd.detectCollisions = true;
+            foreach (BoxCollider boxCollider in boxColliders)
+                boxCollider.enabled = true;
+        }
+    }
+
+    public void OnDeathWeapon(bool isDeath)
+    {
+        this.isDeath = isDeath;
     }
 
     Vector3 GetPosition(Bullet bullet)
@@ -123,10 +151,11 @@ public class WeaponResponse : MonoBehaviour
             hitEffect.Emit(1);
 
             var ramdonHitClip = Random.Range(0, weaponSettings.weaponHitsAudioClips.Count);
-            //AudioSource.PlayClipAtPoint(weaponSettings.weaponHitsAudioClips[ramdonHitClip], transform.TransformPoint(hit.point), 0.5f);
+            PlayClipAtPoint(weaponSettings.weaponHitsAudioClips[ramdonHitClip], hit.point, Random.Range(0.1f,0.3f));
 
             bullet.time = weaponSettings.maxLifeTime;
             bullet.tracer.transform.position = hit.point;
+            end = hit.point;
 
             if (bullet.bounce > 0)
             {
@@ -166,6 +195,7 @@ public class WeaponResponse : MonoBehaviour
         {
             bullet.tracer.transform.position = end;
         }
+        
     }
 
     private void FireBullet()
@@ -189,5 +219,17 @@ public class WeaponResponse : MonoBehaviour
     private void OnDestroy()
     {
         PlayerActionsResponse.ActionShootWeaponTrigger -= OnFiringWeapon;
+    }
+
+    public static void PlayClipAtPoint (AudioClip clip, Vector3 position, float volume)
+    {
+        GameObject gameObject = new GameObject("One shot audio");
+        gameObject.transform.position = position;
+        AudioSource audioSource = (AudioSource)gameObject.AddComponent(typeof(AudioSource));
+        audioSource.clip = clip;
+        audioSource.spatialBlend = 0.5f;
+        audioSource.volume = volume;
+        audioSource.Play();
+        Object.Destroy((Object)gameObject, clip.length * ((double)Time.timeScale < 0.009999999776482582 ? 0.01f : Time.timeScale));
     }
 }
