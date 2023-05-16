@@ -5,22 +5,24 @@ using UnityEngine;
 
 public class InteractableProbResponse : MonoBehaviour
 {
-    public int id;
     [HideInInspector] public bool canInteract = true;
+    [SerializeField] private GameObject interactableButton;
+
+    private void Start()
+    {
+        interactableButton.SetActive(false);
+    }
 
     public void OnTriggerStay(Collider other)
     {
         GameObject target = other.gameObject;
         if (target.CompareTag("Player"))
         {
-            if (canInteract)
-            {
-                ProbsActionResponse.InteractableUI(true, id);
-            }
-            else
-            {
-                ProbsActionResponse.InteractableUI(false, id);
-            }
+            if (canInteract)            
+                interactableButton.SetActive(true);            
+            else            
+                interactableButton.SetActive(false);
+            
         }
     }
 
@@ -30,13 +32,10 @@ public class InteractableProbResponse : MonoBehaviour
         if (target.CompareTag("Player"))
         {
             if (canInteract)
-            {
-                ProbsActionResponse.InteractableUI(false, id);
-            }
+                interactableButton.SetActive(false);
             else
-            {
-                ProbsActionResponse.InteractableUI(false, id);
-            }
+                interactableButton.SetActive(false);
+            
         }
     }
 }

@@ -10,6 +10,7 @@
     void Rotation();
     void AimAnimationMovement();
     void AimRayCast();
+    void TriggerWeapon();
     void Dash();
     void UpdateCameraHeight();
 }

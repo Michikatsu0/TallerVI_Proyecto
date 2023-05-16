@@ -1,28 +1,41 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using Unity.VisualScripting;
+using System;
+using UnityEngine.UI;
+
+public enum StatesGameLoop{
+    Game,
+    Pause
+}
 
 public class LevelUIManager : MonoBehaviour
 {
     public static LevelUIManager Instance;
 
+    public static Action<StatesGameLoop> ActionShootWeaponTrigger;
+
+    public StatesGameLoop stateGame = StatesGameLoop.Game;
+
     [SerializeField] private List<GameObject> panelList = new List<GameObject>();
 
-    [SerializeField] public bool lose, win, joystick, pause, pausePanel, pauseButton, healthBar, dashButton, dashBar, switchWeaponButton, weaponBar, interactableUi;
+    [SerializeField] public bool lose, win, joystick, pause, pausePanel, pauseButton, healthBar, dashButton, dashBar, switchWeaponButton, weaponBar;
 
     private Joystick leftJoystick, rightJoystick;
-    private int triggerId;
 
-    private void Awake()
+    private void Start()
     {
-        ProbsActionResponse.InteractableUI += InteractableUI;
         Instance = this;
+        TransitionUIPanel.Instance.FadeIn();
         leftJoystick = panelList[4].GetComponent<Joystick>();
-        rightJoystick= panelList[5].GetComponent<Joystick>();
+        rightJoystick = panelList[5].GetComponent<Joystick>();
+        Invoke(nameof(DisabledPanelTransition), 1f);
+    }
+
+    private void DisabledPanelTransition()
+    {
+        TransitionUIPanel.Instance.transform.gameObject.SetActive(false);
     }
 
     private void Update()
@@ -63,28 +76,20 @@ public class LevelUIManager : MonoBehaviour
         else
             panelList[8].SetActive(false);
 
-        if (interactableUi)
+        if (healthBar)
             panelList[9].SetActive(true);
         else
             panelList[9].SetActive(false);
 
-        if (healthBar)
-            panelList[12].SetActive(true);
-        else
-            panelList[12].SetActive(false);
-
-        if (switchWeaponButton)
-            panelList[13].SetActive(true);
-        else
-            panelList[13].SetActive(false);
-
         if (weaponBar)
-            panelList[14].SetActive(true);
+            panelList[10].SetActive(true);
         else
-            panelList[14].SetActive(false);
+            panelList[10].SetActive(false);
 
         if (pause)
         {
+            stateGame = StatesGameLoop.Pause;
+
             leftJoystick.ResetJoysticks();
             rightJoystick.ResetJoysticks();
 
@@ -96,10 +101,13 @@ public class LevelUIManager : MonoBehaviour
             switchWeaponButton= false;
             dashBar = false;
             weaponBar = false;
-            //Time.timeScale = 0;
+
+            ActionShootWeaponTrigger?.Invoke(stateGame);
         }
         else
         {
+            stateGame = StatesGameLoop.Game;
+
             pausePanel = false;
             joystick = true;
             pauseButton = true;
@@ -108,12 +116,15 @@ public class LevelUIManager : MonoBehaviour
             switchWeaponButton = true;
             dashBar = true;
             weaponBar = true;
-            //Time.timeScale = 1;
+
+
+            ActionShootWeaponTrigger?.Invoke(stateGame);
         }
 
 
         if (lose)
         {
+            TransitionUIPanel.Instance.FadeOut();
             leftJoystick.ResetJoysticks();
             rightJoystick.ResetJoysticks();
             panelList[0].SetActive(true);
@@ -155,19 +166,5 @@ public class LevelUIManager : MonoBehaviour
         pause = false;
     }
 
-    public void InteractableUI(bool interactableUi, int id)
-    {
-        this.interactableUi = interactableUi;
-        this.triggerId = id;
-    }
-
-    public void InteractableButton()
-    {
-        ProbsActionResponse.InteractableButtonUI?.Invoke(true, triggerId);
-        Invoke(nameof(ResetInteractableButton), 0.1f);
-    }
-    private void ResetInteractableButton()
-    {
-        ProbsActionResponse.InteractableButtonUI?.Invoke(false, triggerId);
-    }
+    
 }

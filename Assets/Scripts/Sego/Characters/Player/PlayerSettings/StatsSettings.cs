@@ -10,7 +10,16 @@ public class StatsSettings : ScriptableObject, ISerializationCallbackReceiver
 {
     [Header("Health Settings")]
     [SerializeField] public int maxHealth;
-    [SerializeField] public float maxTimeInvincible, deathTime;
+    [SerializeField] public float maxTimeInvincible, deathTime, timeToRegenerate, regenerationSpeed;
+    
+    [Header("Health Slider Settings")]
+    [SerializeField] public List<Color> sliderColors;
+    [SerializeField] public float transitionDamageLerp;
+
+    [Header("Hit Effect Settings")]
+    [SerializeField] public float blinkIntensity, blinkDuration;
+    [SerializeField] public List<Color> armatureColorsMaterial;
+    [SerializeField] public List<Material> armatureHelmetMaterials;
 
     public void Init()
     {

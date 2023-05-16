@@ -16,16 +16,14 @@ public class SciFiDoor : MonoBehaviour
 
     private float delayLockedColor = 0.5f;
     private bool justLocked = true, justLockedColor = true;
-    private Animator animator;
+    private Animator[] animator;
     private InteractableProbResponse interactableProb;
     private TextureBaseMaterialScrollOffset textureScrollOffset;
     private AudioSource audioSource;
 
     void Start()
     {
-        LockAnimationEvent?.Invoke(audioClips);
-        ProbsActionResponse.InteractableButtonUI += InteractuableButton;
-        animator = GetComponentInChildren<Animator>();
+        animator = GetComponentsInChildren<Animator>();
         audioSource = GetComponent<AudioSource>();
         interactableProb = GetComponentInChildren<InteractableProbResponse>();
         textureScrollOffset = GetComponent<TextureBaseMaterialScrollOffset>();
@@ -66,16 +64,19 @@ public class SciFiDoor : MonoBehaviour
         }
     }
 
-    public void InteractuableButton(bool interactableButton, int id)
+    private void ResetInteractableButton()
     {
-        if (interactableProb.id == id)
-        {
-            //if (audioSource.clip == audioClips[2] && audioSource.isPlaying) audioSource.Stop();
-            audioSource.PlayOneShot(audioClips[3], 0.5f);
-            StartCoroutine(DelayDoorOpenAudio());
-            this.interactableButton = interactableButton;
-            locked = false;
-        }
+        interactableButton = false;
+    }
+
+    public void InteractuableButton(bool interactableButton)
+    {
+        LockAnimationEvent?.Invoke(audioClips); //Auxiliar Sound Class
+        audioSource.PlayOneShot(audioClips[3], 0.5f);
+        StartCoroutine(DelayDoorOpenAudio());
+        this.interactableButton = interactableButton;
+        locked = false;
+        Invoke(nameof(ResetInteractableButton), 0.1f);
     }
     
     private IEnumerator DelayDoorOpenAudio()
@@ -123,9 +124,9 @@ public class SciFiDoor : MonoBehaviour
                 textureScrollOffset.offSetY = 0.1f;
 
                 if (!isBroken)
-                    animator.SetBool("IsOpen", true);
+                    animator[0].SetBool("IsOpen", true);
                 else
-                    animator.SetBool("IsOpenBroken", true);
+                    animator[0].SetBool("IsOpenBroken", true);
                 
             }
             else
@@ -140,9 +141,9 @@ public class SciFiDoor : MonoBehaviour
                     audioSource.pitch = 0.3f;
                 }
                 if (!isBroken)
-                    animator.SetBool("IsOpen", false);
+                    animator[0].SetBool("IsOpen", false);
                 else
-                    animator.SetBool("IsOpenBroken", false);
+                    animator[0].SetBool("IsOpenBroken", false);
                 
             }
         }
@@ -210,23 +211,18 @@ public class SciFiDoor : MonoBehaviour
 
                 if (!isBroken)
                 {
-                    animator.SetBool("IsOpen", false);
+                    animator[0].SetBool("IsOpen", false);
                 }
                 else
-                    animator.SetBool("IsOpenBroken", false);
+                    animator[0].SetBool("IsOpenBroken", false);
             }
             else
             {
                 if (!isBroken)
-                    animator.SetBool("IsOpen", false);
+                    animator[0].SetBool("IsOpen", false);
                 else
-                    animator.SetBool("IsOpenBroken", false);
+                    animator[0].SetBool("IsOpenBroken", false);
             }
         }
-    }
-      
-    private void OnDestroy()
-    {
-        ProbsActionResponse.InteractableButtonUI -= InteractuableButton;
     }
 }

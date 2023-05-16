@@ -1,13 +1,14 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 
 public class WeaponResponse : MonoBehaviour
 {
     public class Bullet
     {
+        public int bounce;
         public float time;
         public Vector3 initialPosition;
         public Vector3 initialVelocity;
@@ -18,29 +19,30 @@ public class WeaponResponse : MonoBehaviour
     [SerializeField] private ParticleSystem[] muzzleEffects;
     [SerializeField] private ParticleSystem hitEffect;
     [SerializeField] private Transform raycastOrigin;
-    [SerializeField] private TrailRenderer tracerEffect;
 
+    public AnimationClip weaponAnimation;
     private float accumulatedTime, fireInterval;
     private Ray ray;
     private RaycastHit hit;
-    private Transform raycastDestination;
+    [HideInInspector] public Transform raycastDestination;
     private List<Bullet> bullets = new List<Bullet>();
-
+    private AudioSource audioSource;
     void Start()
     {
-        PlayerActionsResponse.ActionShootWeaponTrigger += StopFiring;
-        raycastDestination = GameObject.Find("Aim_CrossHair").transform;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
         foreach (var particleSystem in muzzleEffects)
         {
             ParticleSystem.MainModule ps = particleSystem.GetComponent<ParticleSystem>().main;
             ps.startColor = weaponSettings.colorMuzzle;
         }
+        PlayerActionsResponse.ActionShootWeaponTrigger += OnFiringWeapon;
+        raycastDestination = GameObject.Find("Aim_CrossHair").transform;
+        audioSource = GetComponent<AudioSource>();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
 
         if (weaponSettings.isFiring)
             UpdateFiring(Time.deltaTime);
@@ -49,7 +51,7 @@ public class WeaponResponse : MonoBehaviour
 
     Vector3 GetPosition(Bullet bullet)
     {
-        Vector3 gravity = Vector3.down * weaponSettings.bulletDrop;
+        Vector3 gravity = Vector3.down * weaponSettings.bulletDrop; 
         return bullet.initialPosition + bullet.initialVelocity * bullet.time + (0.5f * gravity * bullet.time * bullet.time);
     }
 
@@ -59,10 +61,10 @@ public class WeaponResponse : MonoBehaviour
         bullet.initialPosition = position;
         bullet.initialVelocity = velocity;
         bullet.time = 0.0f;
-        bullet.tracer = Instantiate(tracerEffect, position, Quaternion.identity);
+        bullet.tracer = Instantiate(weaponSettings.tracerEffect, position, Quaternion.identity); //Pool
         bullet.tracer.material.SetColor("_EmissionColor", weaponSettings.colorMuzzle);
         bullet.tracer.AddPosition(position);
-
+        bullet.bounce = weaponSettings.maxNumberBounces;
         return bullet;
     }
 
@@ -82,21 +84,25 @@ public class WeaponResponse : MonoBehaviour
         SimulateBullets(deltaTime);
         DestroyBullets();
     }
-
-    void DestroyBullets()
-    {
-        bullets.RemoveAll(bullet => bullet.time >= weaponSettings.maxLifeTime);
-    }
-
+    
     void SimulateBullets(float deltaTime)
     {
         bullets.ForEach(bullet =>
         {
-            Vector3 p0 = GetPosition(bullet);
-            bullet.time += deltaTime;
-            Vector3 p1 = GetPosition(bullet);
-            RaycastSegment(p0, p1, bullet);
+            if (bullet.tracer != null)
+            {
+                Vector3 p0 = GetPosition(bullet);
+                bullet.time += deltaTime;
+                Vector3 p1 = GetPosition(bullet);
+
+                RaycastSegment(p0, p1, bullet);
+            }
         });
+    }
+
+    void DestroyBullets()
+    {
+        bullets.RemoveAll(bullet => bullet.time >= weaponSettings.maxLifeTime);
     }
 
     void RaycastSegment(Vector3 start, Vector3 end, Bullet bullet)
@@ -107,6 +113,7 @@ public class WeaponResponse : MonoBehaviour
         ray.origin = start;
         ray.direction = direction;
 
+
         if (Physics.Raycast(ray, out hit, distance))
         {
             Debug.DrawLine(ray.origin, hit.point, Color.red, 0.1f);
@@ -115,14 +122,50 @@ public class WeaponResponse : MonoBehaviour
             hitEffect.transform.forward = hit.normal;
             hitEffect.Emit(1);
 
-            bullet.tracer.transform.position = hit.point;
+            var ramdonHitClip = Random.Range(0, weaponSettings.weaponHitsAudioClips.Count);
+            //AudioSource.PlayClipAtPoint(weaponSettings.weaponHitsAudioClips[ramdonHitClip], transform.TransformPoint(hit.point), 0.5f);
+
             bullet.time = weaponSettings.maxLifeTime;
+            bullet.tracer.transform.position = hit.point;
+
+            if (bullet.bounce > 0)
+            {
+                bullet.time = 0;
+                bullet.initialPosition = hit.point;
+                bullet.initialVelocity = Vector3.Reflect(bullet.initialVelocity, hit.normal);
+                bullet.bounce--;
+            }
+
+            var rgbd = hit.collider.GetComponent<Rigidbody>();
+            if (rgbd && !rgbd.isKinematic)
+            {
+                if (hit.collider.gameObject.CompareTag("Enemy"))
+                {
+                    //enemy Reciver funtion script
+                }
+                else if (hit.collider.gameObject.CompareTag("Probs"))
+                {
+                    rgbd.AddForceAtPosition(ray.direction * 5, hit.point, ForceMode.Impulse);
+                }
+                else if (hit.collider.gameObject.CompareTag("Bridges"))
+                {
+                    rgbd.AddForceAtPosition(ray.direction * 2.5f, hit.point, ForceMode.Impulse);
+                }
+            }
+
+            var playerHealth = hit.collider.gameObject.GetComponent<HealthResponse>();
+            if (playerHealth)
+            {
+                if (hit.collider.gameObject.CompareTag("Player"))
+                {
+                    playerHealth.TakeDamage(weaponSettings.damage);
+                }
+            }
         }
         else
         {
             bullet.tracer.transform.position = end;
         }
-
     }
 
     private void FireBullet()
@@ -134,10 +177,17 @@ public class WeaponResponse : MonoBehaviour
         var bullet = CreateBullet(raycastOrigin.position, velocity);
         bullets.Add(bullet);
 
+        var ramdonShootClip = Random.Range(0, weaponSettings.weaponShootAudioClips.Count);
+        audioSource.PlayOneShot(weaponSettings.weaponShootAudioClips[ramdonShootClip], 0.5f);
     }
 
-    public void StopFiring(bool isFiring)
+    public void OnFiringWeapon(bool isFiring)
     {
         weaponSettings.isFiring = isFiring;
+    }
+
+    private void OnDestroy()
+    {
+        PlayerActionsResponse.ActionShootWeaponTrigger -= OnFiringWeapon;
     }
 }
