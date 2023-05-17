@@ -40,8 +40,6 @@ public class PlayerController : MonoBehaviour
             animator.enabled = false;
             return; 
         }
-
-        animator.enabled = true;
         playerMechanicsProvider.Gravity();
         playerMechanicsProvider.SlopeSlide();
         playerMechanicsProvider.PushObjects();

@@ -19,7 +19,7 @@ public class LevelUIManager : MonoBehaviour
     public StatesGameLoop stateGame = StatesGameLoop.Game;
 
     public int level;
-
+    [SerializeField] private UISettings uISettings;
     [SerializeField] private List<GameObject> uIObjectList = new List<GameObject>();
     [SerializeField] private List<AudioClip> audioClips = new List<AudioClip>();
 
@@ -30,6 +30,9 @@ public class LevelUIManager : MonoBehaviour
 
     private void Start()
     {
+        camUIAudioSource = GameObject.Find("Camera").GetComponent<AudioSource>();
+        camUIAudioSource.spatialBlend = 0.5f;
+        camUIAudioSource.volume = 1f;
         Instance = this;
         TransitionUIPanel.Instance.FadeIn();
         leftJoystick = uIObjectList[2].GetComponent<Joystick>();

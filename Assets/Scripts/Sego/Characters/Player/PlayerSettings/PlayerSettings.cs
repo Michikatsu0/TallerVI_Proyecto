@@ -68,7 +68,7 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
 
     [Header("Aim Speed Movement Settings")]
     [SerializeField][Range(0f, 0.2f)] public float turnLookRotationSmoothTime;
-    [SerializeField][Range(0f, 0.2f)] public float aimAnimatorLayerSmoothTime;
+    [SerializeField][Range(0f, 10f)] public float aimAnimatorLayerSmoothTime;
     [SerializeField][Range(0f, 100f)] public float aimSpeedMultiplier;
     [SerializeField] public float aimSpeed;
 

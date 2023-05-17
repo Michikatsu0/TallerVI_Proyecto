@@ -572,18 +572,18 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     {
         if (currentWeapon)
         {
-            animatorLayer1 = Mathf.Lerp(animator.GetLayerWeight(1), 0, playerSettings.aimAnimatorLayerSmoothTime);
+            animatorLayer1 = Mathf.Lerp(animator.GetLayerWeight(1), 0, playerSettings.aimAnimatorLayerSmoothTime * Time.deltaTime);
 
             PlayerActionsResponse.ActionShootWeaponTrigger?.Invoke(rightJoystickXYAimLimit);
 
             if (rightJoystickXYAimLimit)
             {
-                animatorLayer2 = Mathf.Lerp(animator.GetLayerWeight(2), 1, playerSettings.aimAnimatorLayerSmoothTime);
+                animatorLayer2 = Mathf.Lerp(animator.GetLayerWeight(2), 1, playerSettings.aimAnimatorLayerSmoothTime * Time.deltaTime);
                 
             }
             else
             {
-                animatorLayer2 = Mathf.Lerp(animator.GetLayerWeight(2), 0, playerSettings.aimAnimatorLayerSmoothTime);
+                animatorLayer2 = Mathf.Lerp(animator.GetLayerWeight(2), 0, playerSettings.aimAnimatorLayerSmoothTime * Time.deltaTime);
 
 
                 if (leftJoystickXMovementLimits)
@@ -596,17 +596,17 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         else
         {
 
-            animatorLayer2 = Mathf.Lerp(animator.GetLayerWeight(2), 0, playerSettings.aimAnimatorLayerSmoothTime);
+            animatorLayer2 = Mathf.Lerp(animator.GetLayerWeight(2), 0, playerSettings.aimAnimatorLayerSmoothTime * Time.deltaTime);
            
 
             if (rightJoystickXYAimLimit)
             {
-                animatorLayer1 = Mathf.Lerp(animator.GetLayerWeight(1), 1, playerSettings.aimAnimatorLayerSmoothTime);
+                animatorLayer1 = Mathf.Lerp(animator.GetLayerWeight(1), 1, playerSettings.aimAnimatorLayerSmoothTime * Time.deltaTime);
                
             }
             else
             {
-                animatorLayer1 = Mathf.Lerp(animator.GetLayerWeight(1), 0, playerSettings.aimAnimatorLayerSmoothTime);
+                animatorLayer1 = Mathf.Lerp(animator.GetLayerWeight(1), 0, playerSettings.aimAnimatorLayerSmoothTime * Time.deltaTime);
 
 
                 if (leftJoystickXMovementLimits)

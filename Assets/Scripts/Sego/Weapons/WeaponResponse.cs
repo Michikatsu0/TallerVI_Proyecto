@@ -151,7 +151,7 @@ public class WeaponResponse : MonoBehaviour
             hitEffect.Emit(1);
 
             var ramdonHitClip = Random.Range(0, weaponSettings.weaponHitsAudioClips.Count);
-            PlayClipAtPoint(weaponSettings.weaponHitsAudioClips[ramdonHitClip], hit.point, Random.Range(0.1f,0.3f));
+            PlayAudioAtPosition.PlayClipAtPoint(weaponSettings.weaponHitsAudioClips[ramdonHitClip], hit.point, Random.Range(0.05f,0.1f));
 
             bullet.time = weaponSettings.maxLifeTime;
             bullet.tracer.transform.position = hit.point;
@@ -182,14 +182,14 @@ public class WeaponResponse : MonoBehaviour
                 }
             }
 
-            var playerHealth = hit.collider.gameObject.GetComponent<HealthResponse>();
-            if (playerHealth)
-            {
-                if (hit.collider.gameObject.CompareTag("Player"))
-                {
-                    playerHealth.TakeDamage(weaponSettings.damage);
-                }
-            }
+            //var playerHealth = hit.collider.gameObject.GetComponent<HealthResponse>();
+            //if (playerHealth)
+            //{
+            //    if (hit.collider.gameObject.CompareTag("Player"))
+            //    {
+            //        playerHealth.TakeDamage(weaponSettings.damage);
+            //    }
+            //}
         }
         else
         {
@@ -221,15 +221,4 @@ public class WeaponResponse : MonoBehaviour
         PlayerActionsResponse.ActionShootWeaponTrigger -= OnFiringWeapon;
     }
 
-    public static void PlayClipAtPoint (AudioClip clip, Vector3 position, float volume)
-    {
-        GameObject gameObject = new GameObject("One shot audio");
-        gameObject.transform.position = position;
-        AudioSource audioSource = (AudioSource)gameObject.AddComponent(typeof(AudioSource));
-        audioSource.clip = clip;
-        audioSource.spatialBlend = 0.5f;
-        audioSource.volume = volume;
-        audioSource.Play();
-        Object.Destroy((Object)gameObject, clip.length * ((double)Time.timeScale < 0.009999999776482582 ? 0.01f : Time.timeScale));
-    }
 }

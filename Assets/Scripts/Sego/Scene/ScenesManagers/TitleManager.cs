@@ -7,42 +7,50 @@ using UnityEngine.UI;
 public class TitleManager : MonoBehaviour
 { 
     public static TitleManager Instance;
-    [SerializeField] private float transitionDelay;
-    [SerializeField] private int tutorial;
-    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private UISettings audioSettings;
+    [SerializeField] private float transitionDelay, lerpAudioTransition;
+    private int tutorial, fly = 0;
 
-    [SerializeField] private BaseUISettings audioSettings;
+    private AudioSource camUIAudioSource;
+    private bool flagOneTouch = true;
     private void Start()
     {
+        camUIAudioSource = GameObject.Find("Main Camera").GetComponent<AudioSource>();
         tutorial = PlayerPrefs.GetInt("TutorialComplete");
+        camUIAudioSource.clip = audioSettings.titleClips[Random.Range(0, audioSettings.titleClips.Count)];
+        camUIAudioSource.spatialBlend = 0.5f;
+        camUIAudioSource.Play();
         TransitionUIPanel.Instance.FadeIn();
-        audioSource.clip = audioSettings.titleClips[Random.Range(0, audioSettings.titleClips.Count)];
-        audioSource.volume = Mathf.Lerp(0, 0.5f, 1f);
-        audioSource.spatialBlend = 0.5f;
-        audioSource.Play();
     }
 
     void Update()
     {
         OnTapScreenTitle();
+        if (fly == 0)
+            camUIAudioSource.volume = Mathf.Lerp(camUIAudioSource.volume, 0.5f, lerpAudioTransition * Time.deltaTime);
+        else
+            camUIAudioSource.volume = Mathf.Lerp(camUIAudioSource.volume, 0f, lerpAudioTransition * Time.deltaTime);
     }
 
     public void OnTapScreenTitle()
     {
-        if (Input.touchCount > 0 && tutorial == 0)
+        if (Input.touchCount > 0 && tutorial == 0 && flagOneTouch)
         {
+            fly = 1;
+            flagOneTouch = false;
             PlayerPrefs.SetInt("LoadingSceneIndexToLoad", 3);
+            camUIAudioSource.PlayOneShot(audioSettings.uICanvasClips[2], 0.5f);
             StartCoroutine(TransitionToNextScene((int)SceneIndexes.LOADING));
         }
         else if (Input.touchCount > 0 && tutorial != 0)
         {
+            flagOneTouch = false;
             SceneManager.LoadSceneAsync((int)SceneIndexes.LOBBY);
         }
     }
     public IEnumerator TransitionToNextScene(int sceneIndex)
     {
         TransitionUIPanel.Instance.FadeOut();
-        audioSource.volume = Mathf.Lerp(audioSource.volume, 0f, 1f);
         yield return new WaitForSeconds(transitionDelay);
         SceneManager.LoadScene(sceneIndex, LoadSceneMode.Single);
         yield return null;
