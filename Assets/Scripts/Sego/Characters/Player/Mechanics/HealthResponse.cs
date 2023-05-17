@@ -143,6 +143,10 @@ public class HealthResponse : MonoBehaviour
 
     IEnumerator DeathCoroutine() //waits for the destruction of the player, use and adjust the time for a death animation
     {
+        statsManager.muertes++; //añade uno al contador de muertes
+        statsManager.OnGameOver();
+        upgradesManager.OnGameOver();
+
         deathScript = true;
         ragdoll.ActivateRagdolls();
         characterController.enabled = false;

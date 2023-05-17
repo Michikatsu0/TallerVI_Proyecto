@@ -343,7 +343,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         {
             joystickJumpReady = false;
         }
-
+        statsManager.saltosDados++; //cada que salta añade uno al contador
     }
 
     private void CoyoteTime()
