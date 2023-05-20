@@ -182,14 +182,14 @@ public class WeaponResponse : MonoBehaviour
                 }
             }
 
-            //var playerHealth = hit.collider.gameObject.GetComponent<HealthResponse>();
-            //if (playerHealth)
-            //{
-            //    if (hit.collider.gameObject.CompareTag("Player"))
-            //    {
-            //        playerHealth.TakeDamage(weaponSettings.damage);
-            //    }
-            //}
+            var playerHealth = hit.collider.gameObject.GetComponent<HealthResponse>();
+            if (playerHealth)
+            {
+                if (hit.collider.gameObject.CompareTag("Player"))
+                {
+                    playerHealth.TakeDamage(weaponSettings.damage);
+                }
+            }
         }
         else
         {

@@ -80,7 +80,7 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
 
     [Header("Camera Settings")]
     [SerializeField] public float baseCamPos;
-    [SerializeField] public float crouchCamPos, currentCamCrouchDelay, jumpCamPos, deadCamZone;
+    [SerializeField] public float crouchCamPos, currentCamCrouchDelay, jumpCamPos, deadCamZone, lerpDeadZoneHeight, lerpCamMoveVelocity;
 
     [Header("Audio Settings")]
     [SerializeField] public List<AudioClip> footStepAudioClips = new List<AudioClip>();

@@ -26,7 +26,7 @@ public class LoadingManager : MonoBehaviour
     {
         camUIAudioSource = GameObject.Find("Main Camera").GetComponent<AudioSource>();
         TransitionUIPanel.Instance.FadeIn();
-        camUIAudioSource.clip = audioSettings.loadingClips[Random.Range(0, audioSettings.titleClips.Count)];
+        camUIAudioSource.clip = audioSettings.loadingClips[Random.Range(0, audioSettings.loadingClips.Count)];
         camUIAudioSource.spatialBlend = 0.5f;
         camUIAudioSource.Play();
     }

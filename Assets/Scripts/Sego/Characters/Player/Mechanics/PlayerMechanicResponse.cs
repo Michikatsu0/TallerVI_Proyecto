@@ -68,12 +68,12 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         if (isFalling)
         {
             currentCamPos.y = playerSettings.jumpCamPos;
-            framingTransposer.m_DeadZoneHeight = Mathf.Lerp(framingTransposer.m_DeadZoneHeight, playerSettings.deadCamZone, 0.5f);
+            framingTransposer.m_DeadZoneHeight = Mathf.Lerp(framingTransposer.m_DeadZoneHeight, playerSettings.deadCamZone, playerSettings.lerpDeadZoneHeight * Time.deltaTime);
         }
         else
         {
             currentCamPos.y = playerSettings.baseCamPos;
-            framingTransposer.m_DeadZoneHeight = Mathf.Lerp(framingTransposer.m_DeadZoneHeight, 0, 0.5f);
+            framingTransposer.m_DeadZoneHeight = Mathf.Lerp(framingTransposer.m_DeadZoneHeight, 0, playerSettings.lerpDeadZoneHeight * Time.deltaTime);
 
             if (leftJoystickYCrouchLimit)
             {
@@ -87,7 +87,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
                     currentCamCrouchTime = 0;
             }
         }
-        framingTransposer.m_TrackedObjectOffset = currentCamPos;
+        framingTransposer.m_TrackedObjectOffset = Vector3.Lerp(framingTransposer.m_TrackedObjectOffset, currentCamPos, playerSettings.lerpCamMoveVelocity * Time.deltaTime);
     }
 
     #endregion
@@ -648,7 +648,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
         if (Physics.Raycast(aimRay, out aimHit, playerSettings.aimRayMaxDistance))
         {
-            if (aimHit.collider.gameObject.layer == LayerMask.NameToLayer("IsGround"))
+            if (aimHit.collider.gameObject.layer == LayerMask.NameToLayer("IsGround") || aimHit.collider.gameObject.layer == LayerMask.NameToLayer("IsEnemy"))
             {
                 Debug.DrawRay(aimRay.origin, aimRay.direction * aimHit.distance, Color.red);
                 aimRayCrossHair.transform.position = aimHit.point;

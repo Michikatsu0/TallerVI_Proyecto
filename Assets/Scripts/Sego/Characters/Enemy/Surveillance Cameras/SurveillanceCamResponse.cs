@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.Animations;
 using UnityEngine.Animations.Rigging;
 
@@ -15,49 +17,72 @@ public enum AlertSystemStates
 
 public class SurveillanceCamResponse : MonoBehaviour
 {
-    public static Action<AlertSystemStates> SurveillanceAlertSecurity;
+    [SerializeField] private SurveillanceSettings surveillanceSettings;
 
-    [SerializeField] private AlertSystemStates alertSystemState;
-    [SerializeField] private float timeToStartAlert, timeToAlertEnd, lerpAimWeight;
-    [SerializeField] private Material glassCam;
-    [SerializeField] private Animator rigController;
+    [SerializeField] private Transform playerTarget, searchTarget;
+    [SerializeField] private Image fillImage;
+    [SerializeField] private Rig playerAimRig;
+    [SerializeField] private Rig searchAimRig;
 
-    private Animator animator;
-    private Rig aimConstraint;
+    private List<BaseEnemyController> enemysAround = new List<BaseEnemyController>();
     private Color color;
-    private float startTime, endTime;
-    public bool canAlert = true, startAlert,onAlert;
+    private Vector3 searchTargetPos;
+    private Slider sliderTimeAlert;
+    private Animator animator;
+    
+    private float timeStartAlert, timeEndAlert, searchTime, currentDistance;
+    private bool onAlert;
+    private AudioSource audioSource;
 
     void Start()
     {
-        animator= GetComponent<Animator>();
-        aimConstraint = GetComponentInChildren<Rig>();
+        audioSource = GetComponent<AudioSource>();
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 0.5f;
+        audioSource.volume = 0.1f;
+        searchTargetPos.y = transform.position.y;
+        searchTargetPos.z = transform.position.z;
         SphereScanner();
+        animator = GetComponent<Animator>();
+        searchTarget = GameObject.Find("Search_Target_Cam").transform;
+        playerTarget = GameObject.Find("Player_Armature_CharacterController").transform;
+        sliderTimeAlert = GameObject.Find("Alert_Bar").GetComponent<Slider>();
+        sliderTimeAlert.maxValue = surveillanceSettings.timeToStartAlert;
+        sliderTimeAlert.value = timeStartAlert;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        TimingAlert();
-
+        TimingDistanceAlertManager();
         SurveillanceCamFuntion();
-        
-
+        ColorChanger();
     }
 
-    [SerializeField] private float radiusRange;
-    private List<GameObject> enemysAround = new List<GameObject>();
-    private RaycastHit hit;
- 
+    void ColorChanger()
+    {
+        Color healthBarColor = Color.Lerp(surveillanceSettings.sliderColors[1], surveillanceSettings.sliderColors[0], sliderTimeAlert.value / sliderTimeAlert.maxValue);
+        fillImage.color = healthBarColor;
+    }
+
     void SphereScanner()
     {
-        var colliders = Physics.SphereCastAll(transform.position, radiusRange, Vector3.zero);
-        foreach(var col in colliders)
+        var colliders = Physics.OverlapSphere(transform.position + surveillanceSettings.center, surveillanceSettings.radiusSignRange, surveillanceSettings.isEnemy);
+        foreach (var col in colliders)
         {
-            if (col.transform.gameObject.CompareTag("Enemy"))
-                enemysAround.Add(col.transform.gameObject);
+            var baseEnemy = col.gameObject.GetComponentInParent<BaseEnemyController>();
+            if (baseEnemy != null && !enemysAround.Contains(baseEnemy))
+            {
+                enemysAround.Add(baseEnemy);
+            }
         }
-       
+    }
+
+    void SendSingAlert()
+    {
+        foreach(var enemyAlly in enemysAround)
+        {
+            enemyAlly.OnAlert = true;
+        }
     }
 
     void SurveillanceCamFuntion()
@@ -65,74 +90,109 @@ public class SurveillanceCamResponse : MonoBehaviour
         if (onAlert)
         {
             animator.SetBool("OnAlert", true);
-            rigController.enabled = false;
-            aimConstraint.weight = Mathf.Lerp(aimConstraint.weight, 1f, lerpAimWeight * Time.deltaTime);
-            color = Color.Lerp(Color.red, Color.green, Mathf.Clamp(startTime, 0, timeToStartAlert) / timeToStartAlert);
-            glassCam.SetColor("_EmissionColor", color);
+            searchAimRig.weight = Mathf.Lerp(searchAimRig.weight, 0f, surveillanceSettings.lerpAimWeight * Time.deltaTime);
+            playerAimRig.weight = Mathf.Lerp(playerAimRig.weight, 1f, surveillanceSettings.lerpAimWeight * Time.deltaTime);
+            color = Color.Lerp(color, Color.red, Mathf.Clamp(timeEndAlert, 0, surveillanceSettings.lerpTransitionColor * Time.deltaTime));
+            surveillanceSettings.glassCam.SetColor("_EmissionColor", color);
+            SendSingAlert();
+            searchTime = 0;
         }
         else
         {
             animator.SetBool("OnAlert", false);
-            aimConstraint.weight = Mathf.Lerp(aimConstraint.weight, 0f, lerpAimWeight * Time.deltaTime);
-            rigController.enabled = true;
-            color = Color.Lerp(Color.green, Color.red, Mathf.Clamp(startTime, 0, timeToStartAlert) / timeToStartAlert);
-            glassCam.SetColor("_EmissionColor", color);
+            searchAimRig.weight = Mathf.Lerp(searchAimRig.weight, 1f, surveillanceSettings.lerpAimWeight * Time.deltaTime);
+            playerAimRig.weight = Mathf.Lerp(playerAimRig.weight, 0f, surveillanceSettings.lerpAimWeight * Time.deltaTime);
+            color = Color.Lerp(color, Color.green, Mathf.Clamp(timeStartAlert, 0, surveillanceSettings.lerpTransitionColor * Time.deltaTime));
+            surveillanceSettings.glassCam.SetColor("_EmissionColor", color);
+
+            searchTime += Time.deltaTime;
+
+            if (searchTime >= surveillanceSettings.timeToSearchPos)
+            {
+                searchTime = 0;
+                searchTargetPos.y = transform.position.y + UnityEngine.Random.Range(0.0f, surveillanceSettings.searchYlimit);
+                searchTargetPos.z = transform.position.z + UnityEngine.Random.Range(-surveillanceSettings.alertDistance, surveillanceSettings.alertDistance);
+            }
+
+            searchTarget.position = Vector3.Lerp(searchTarget.position, searchTargetPos, surveillanceSettings.lerpSearchPosTarget * Time.deltaTime);
         }
         
     }
 
-    void TimingAlert()
+    void TimingDistanceAlertManager()
     {
-        if (startAlert)
+        currentDistance = Vector3.Distance(transform.position, playerTarget.position);
+        if (onAlert)
         {
-            startTime += Time.deltaTime;
-            if (startTime >= timeToStartAlert)
+            if (!audioSource.isPlaying)
             {
-                onAlert = true;
+                audioSource.clip = surveillanceSettings.audioClips[0];
+                audioSource.loop = true;
+                audioSource.Play();
             }
+
+            sliderTimeAlert.gameObject.SetActive(true);
+            
+            if (currentDistance <= surveillanceSettings.alertDistance)
+            {
+                sliderTimeAlert.maxValue = surveillanceSettings.timeToEndAlert;
+                sliderTimeAlert.value = sliderTimeAlert.maxValue;
+                if (timeEndAlert >= surveillanceSettings.timeToEndAlert) return;
+                    timeEndAlert += Time.deltaTime;
+            }
+            else
+            {
+                if (timeEndAlert <= 0)
+                {
+                    onAlert = false;
+                    sliderTimeAlert.maxValue = surveillanceSettings.timeToStartAlert;
+                    sliderTimeAlert.value = sliderTimeAlert.maxValue;
+                    return;
+                }
+                timeEndAlert -= Time.deltaTime;
+            }
+            sliderTimeAlert.value = Mathf.Lerp(sliderTimeAlert.value, Mathf.Clamp(timeEndAlert, 0, surveillanceSettings.timeToEndAlert), sliderTimeAlert.value/ sliderTimeAlert.maxValue);
         }
         else
         {
-            startTime += Time.deltaTime;
-            if (startTime >= timeToAlertEnd)
+            if (audioSource.isPlaying)
             {
-                onAlert = false;
+                audioSource.loop = false;
+                audioSource.Stop();
             }
-        }
-    }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        GameObject target = other.gameObject;
-        if (target.CompareTag("Player"))
-        {
-            startAlert = true;
-            startTime = 0;
-        }
-    }
-
-    private void OnTriggerStay(Collider other)
-    {
-        GameObject target = other.gameObject;
-        if (target.CompareTag("Player")) 
-        {
-            
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        GameObject target = other.gameObject;
-        if (target.CompareTag("Player"))
-        {
-            startAlert = false;
-            startTime = 0;
+            if (currentDistance <= surveillanceSettings.alertDistance)
+            {
+                sliderTimeAlert.gameObject.SetActive(true);
+                timeStartAlert += Time.deltaTime;
+                
+                if (timeStartAlert >= surveillanceSettings.timeToStartAlert)
+                {
+                    timeStartAlert = 0;
+                    onAlert = true;
+                    timeEndAlert = surveillanceSettings.timeToEndAlert;
+                    sliderTimeAlert.maxValue = surveillanceSettings.timeToEndAlert;
+                    sliderTimeAlert.value = sliderTimeAlert.maxValue;
+                }
+               
+            }
+            else
+            {
+                timeStartAlert -= Time.deltaTime;
+                if (timeStartAlert <= 0)
+                {
+                    sliderTimeAlert.gameObject.SetActive(false);
+                    timeStartAlert = 0;
+                }
+               
+            }
+            sliderTimeAlert.value = Mathf.Lerp(sliderTimeAlert.value, Mathf.Clamp(timeStartAlert, 0, surveillanceSettings.timeToStartAlert), surveillanceSettings.lerpTransitionSlider);
         }
     }
 
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, radiusRange);
+        Gizmos.DrawWireSphere(transform.position + surveillanceSettings.center, surveillanceSettings.radiusSignRange);
     }
 }

@@ -19,18 +19,20 @@ public class LevelUIManager : MonoBehaviour
     public StatesGameLoop stateGame = StatesGameLoop.Game;
 
     public int level;
+    [SerializeField] private float delayToRestart;
     [SerializeField] private UISettings uISettings;
     [SerializeField] private List<GameObject> uIObjectList = new List<GameObject>();
     [SerializeField] private List<AudioClip> audioClips = new List<AudioClip>();
 
-    [SerializeField] public bool lose, win, joystick, pause, pausePanel, pauseButton, healthBar, dashButton, dashBar, switchWeaponButton, weaponBar, score, flyTransition;
+    [SerializeField] public bool lose, win, joystick, pause, pausePanel, pauseButton, healthBar, dashButton, dashBar, switchWeaponButton, weaponBar, score, flagTransition;
 
     private Joystick leftJoystick, rightJoystick;
     private AudioSource camUIAudioSource;
+   
 
     private void Start()
     {
-        camUIAudioSource = GameObject.Find("Camera").GetComponent<AudioSource>();
+        camUIAudioSource = GameObject.Find("Main Camera").GetComponent<AudioSource>();
         camUIAudioSource.spatialBlend = 0.5f;
         camUIAudioSource.volume = 1f;
         Instance = this;
@@ -52,7 +54,7 @@ public class LevelUIManager : MonoBehaviour
     private void DisabledPanelTransition()
     {
         TransitionUIPanel.Instance.transform.gameObject.SetActive(false);
-        flyTransition = true;
+        flagTransition = true;
     }
 
     private void Update()
@@ -110,6 +112,7 @@ public class LevelUIManager : MonoBehaviour
 
         if (pause)
         {
+           
             stateGame = StatesGameLoop.Pause;
 
             leftJoystick.ResetJoysticks();
@@ -126,7 +129,7 @@ public class LevelUIManager : MonoBehaviour
             score = false;
             ActionShootWeaponTrigger?.Invoke(stateGame);
         }
-        else if (!pause && flyTransition)
+        else if (!pause && flagTransition)
         {
             stateGame = StatesGameLoop.Game;
 
@@ -171,9 +174,11 @@ public class LevelUIManager : MonoBehaviour
 
     public void ResetTheLevel()
     {
+        camUIAudioSource.PlayOneShot(uISettings.uICanvasClips[0]);
         TransitionUIPanel.Instance.transform.gameObject.SetActive(true);
+        TransitionUIPanel.Instance.animator.SetBool("Flag", true);
         TransitionUIPanel.Instance.FadeOut();
-        Invoke(nameof(DelayReset), 3f);
+        Invoke(nameof(DelayReset), delayToRestart);
     }
     void DelayReset()
     {
@@ -183,10 +188,12 @@ public class LevelUIManager : MonoBehaviour
     public void PauseTheGame()
     {
         pause = true;
+        camUIAudioSource.PlayOneShot(uISettings.uICanvasClips[1]);
     }
     public void ContinueTheGame()
     {
         pause = false;
+        camUIAudioSource.PlayOneShot(uISettings.uICanvasClips[2]);
     }
 
     public void QuitApplication()

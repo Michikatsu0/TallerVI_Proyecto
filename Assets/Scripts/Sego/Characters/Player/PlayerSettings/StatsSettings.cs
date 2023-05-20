@@ -20,6 +20,8 @@ public class StatsSettings : ScriptableObject, ISerializationCallbackReceiver
     [SerializeField] public float blinkIntensity, blinkDuration;
     [SerializeField] public List<Color> armatureColorsMaterial;
     [SerializeField] public List<Material> armatureHelmetMaterials;
+
+    [SerializeField] public float lerpAudioTransition;
     [SerializeField] public List<AudioClip> deathClips;
 
     public void Init()

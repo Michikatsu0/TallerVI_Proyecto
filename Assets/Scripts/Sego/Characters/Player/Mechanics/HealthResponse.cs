@@ -14,15 +14,16 @@ public class HealthResponse : MonoBehaviour
 
     public float currentHealth;
 
-    private float blinkTimer, intensity, tmpTimeToRegenerate,regenerateValue = 0;
+    private float blinkTimer, intensity, tmpTimeToRegenerate,regenerateValue = 0, currentVolumen;
     private SkinnedMeshRenderer skinnedMeshRenderer;
     private CharacterController characterController;
+    private AudioSource audioSource;  
     private RagdollResponse ragdoll;
     private Slider healthSlider;
     private Image fillImage, playerImage;
     private TextMeshProUGUI textMeshPro;
-    private bool canRegenerate = true, isRegenerating, deathScript;
-
+    private bool canRegenerate = true, isRegenerating, deathScript, audioBlowFlag = true, audioRegeFlag = true;
+    
     private void Start()
     {
         skinnedMeshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
@@ -51,6 +52,10 @@ public class HealthResponse : MonoBehaviour
             hitbox.healthResponse = this;
         }
 
+        audioSource = GetComponent<AudioSource>();
+        audioSource.volume = 0.5f;
+        audioSource.spatialBlend = 0.5f;
+        audioSource.loop = false;
     }
 
     private void Update()
@@ -80,26 +85,46 @@ public class HealthResponse : MonoBehaviour
 
         if (currentHealth < 10.0f && !isRegenerating && canRegenerate)
         {
+            audioSource.PlayOneShot(statsSettings.deathClips[4], 1f);
             Invoke(nameof(DelayRegeneration), tmpTimeToRegenerate);
             canRegenerate = false;
         }
 
         if (isRegenerating)
         {
+            currentVolumen = 1.0f;
+            if (!audioSource.isPlaying)
+            {
+                audioSource.clip = statsSettings.deathClips[5];
+                audioSource.Play();
+            }
             playerImage.color = Color.green * 1;
             regenerateValue += Time.deltaTime; 
             currentHealth = regenerateValue * statsSettings.regenerationSpeed;
 
             if (healthSlider.value >= 10.0f)
             {
+                if (audioSource.isPlaying)
+                    currentVolumen = 0.0f;
+                audioRegeFlag = true;
                 canRegenerate = true;
                 isRegenerating = false;
                 regenerateValue = 0;
                 tmpTimeToRegenerate = statsSettings.timeToRegenerate;
             }
+
+
+        }
+        else
+        {
+            if (audioSource.isPlaying)
+            {
+                currentVolumen = 1.0f;
+            }
+            currentVolumen = 0f;
         }
 
-
+        audioSource.volume = Mathf.Lerp(audioSource.volume, currentVolumen, statsSettings.lerpAudioTransition * Time.deltaTime);
     }
 
     void BlinkColorChanger()
@@ -144,6 +169,7 @@ public class HealthResponse : MonoBehaviour
 
     IEnumerator DeathCoroutine() //waits for the destruction of the player, use and adjust the time for a death animation
     {
+        audioSource.PlayOneShot(statsSettings.deathClips[UnityEngine.Random.Range(0, 4)],0.5f);
         deathScript = true;
         ragdoll.ActivateRagdolls();
         characterController.enabled = false;
