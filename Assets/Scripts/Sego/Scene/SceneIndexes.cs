@@ -1,1 +1,1 @@
-﻿public enum SceneIndexes { TITLE, LOBBY, LOADING, PROTO }
+﻿public enum SceneIndexes { TITLE, LOBBY, LOADING, PROTO , DEATH }

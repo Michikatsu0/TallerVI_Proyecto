@@ -3,7 +3,10 @@ guid: 193f91f2322ea544692df8a450d15c09
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - playerSettings: {fileID: 11400000, guid: 9620ffd533bebfe44bfee090cfa23f9e, type: 2}
+  - leftJoystick: {instanceID: 0}
+  - rightJoystick: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

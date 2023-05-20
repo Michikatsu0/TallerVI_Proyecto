@@ -2,33 +2,35 @@ using UnityEngine;
 using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.UI;
-using UnityEngine.Events;
-using System;
-using UnityEditor;
-using UnityEngine.InputSystem;
+using UnityEditor.Animations;
+using UnityEngine.Animations.Rigging;
 
 public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 {
     [Header("Player Settings")]
     [SerializeField] public PlayerSettings playerSettings;
 
-    private CinemachineFramingTransposer framingTransposer;
-    private CinemachineVirtualCamera virtualCamera;
     private CharacterController characterController;
     private Animator animator;
-    private Slider slider;
-
 
     void Start()
     {
+        animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
 
-        aimRayCrossHair = GameObject.Find("Aim CrossHair").transform;
+        rigController = GameObject.Find("____RigLayers____").GetComponent<Animator>();
 
-        slider = GameObject.Find("CoolDown Dash Bar Button").GetComponentInChildren<Slider>();
+        multiAimWeaponRigPose = GameObject.Find("WeaponPose_Aiming").GetComponent<MultiAimConstraint>();
 
-        animator = GetComponent<Animator>();
+        weaponParent = GameObject.Find("Primary_Weapon").GetComponent<Transform>();
+        weaponLeftGrip = GameObject.Find("| Weapon | LeftHand IK").GetComponent<Transform>();
+        weaponRightGrip = GameObject.Find("| Weapon | RightHand IK").GetComponent<Transform>();
+        
+        aimRayCrossHair = GameObject.Find("Aim_CrossHair").transform;
+
+        WeaponResponse existingWeapon = GetComponentInChildren<WeaponResponse>();
+        if (existingWeapon)
+            Equip(existingWeapon);
 
         virtualCamera = GameObject.Find("CM vcam1").GetComponent<CinemachineVirtualCamera>();
         framingTransposer = virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
@@ -43,16 +45,21 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         trailRenderer.startWidth = 1.3f;
         trailRenderer.endWidth = 1;
         trailRenderer.time = playerSettings.dashDuration;
+
+        audioSource = GetComponent<AudioSource>();
     }
 
     void Update()
     {
         JoystickUpdate();
         SetVelocitys();
+        AimingDownUpdate();
     }
 
     #region Camara 
 
+    private CinemachineFramingTransposer framingTransposer;
+    private CinemachineVirtualCamera virtualCamera;
     private Vector3 currentCamPos;
     private float currentCamCrouchTime;
 
@@ -61,12 +68,12 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         if (isFalling)
         {
             currentCamPos.y = playerSettings.jumpCamPos;
-            framingTransposer.m_DeadZoneHeight = Mathf.Lerp(framingTransposer.m_DeadZoneHeight, playerSettings.deadCamZone, 0.5f);
+            framingTransposer.m_DeadZoneHeight = Mathf.Lerp(framingTransposer.m_DeadZoneHeight, playerSettings.deadCamZone, playerSettings.lerpDeadZoneHeight * Time.deltaTime);
         }
         else
         {
             currentCamPos.y = playerSettings.baseCamPos;
-            framingTransposer.m_DeadZoneHeight = Mathf.Lerp(framingTransposer.m_DeadZoneHeight, 0, 0.5f);
+            framingTransposer.m_DeadZoneHeight = Mathf.Lerp(framingTransposer.m_DeadZoneHeight, 0, playerSettings.lerpDeadZoneHeight * Time.deltaTime);
 
             if (leftJoystickYCrouchLimit)
             {
@@ -80,7 +87,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
                     currentCamCrouchTime = 0;
             }
         }
-        framingTransposer.m_TrackedObjectOffset = currentCamPos;
+        framingTransposer.m_TrackedObjectOffset = Vector3.Lerp(framingTransposer.m_TrackedObjectOffset, currentCamPos, playerSettings.lerpCamMoveVelocity * Time.deltaTime);
     }
 
     #endregion
@@ -278,7 +285,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     public void ButtonDash()
     {
-        if (canDash && (leftJoystick.Horizontal != 0 || leftJoystick.Vertical != 0))
+        if (canDash && (leftJoystick.Horizontal != 0 || leftJoystick.Vertical != 0) )
             StartCoroutine(DashRoutine());
     }
 
@@ -289,8 +296,10 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
         while (Time.time < dashTime + playerSettings.dashDuration)
         {
+
             joystickDashDirection.z = leftJoystick.Horizontal;
             joystickDashDirection.y = leftJoystick.Vertical;
+
             currentDirection = joystickDashDirection.normalized;
             isDashing = true;
             characterController.Move(currentDirection * dashPercent * Time.deltaTime);
@@ -492,46 +501,137 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     #endregion
 
-    #region Aim
+    #region Aim & Rotation Movement
 
-    private float aimSpeedPercent, currentAimLayerAnim;  //
+    private float aimSpeedPercent, aimingAllowedAngle, refVelocity, multiWeaponPoseOffset;
+    private Vector3 aimWeaponRotation;
+    private MultiAimConstraint multiAimWeaponRigPose;
+
+    public void AimingDownUpdate()
+    {
+        aimingAllowedAngle = Mathf.Atan2(rightJoystick.Vertical, rightJoystick.Horizontal) * Mathf.Rad2Deg;
+
+        if (aimingAllowedAngle >= -125 && aimingAllowedAngle <= -55 || aimingAllowedAngle >= 235 && aimingAllowedAngle <= 305)
+            multiWeaponPoseOffset = playerSettings.weaponMultiAimRotation * (1 - Mathf.Abs(rightJoystick.Horizontal));
+        else
+            multiWeaponPoseOffset = 0;
+
+        aimWeaponRotation.z = Mathf.SmoothDamp(aimWeaponRotation.z, multiWeaponPoseOffset, ref refVelocity, 0.04f);
+
+        multiAimWeaponRigPose.data.offset = aimWeaponRotation;
+    }
 
     public void AimAnimationMovement()
     {
         aimSpeedPercent = (playerSettings.aimSpeed * playerSettings.aimSpeedMultiplier) / 100;
 
-        // Setting Animation & Animation Weights
-        if (rightJoystickXYAimLimit)
-            animator.SetBool("IsAiming", rightJoystickXYAimLimit);
-        else
-            animator.SetBool("IsAiming", rightJoystickXYAimLimit);
-
-        if (leftJoystickXMovementLimits && !rightJoystickXYAimLimit)
-        {
-            animator.SetFloat("MoveX", leftJoystick.Horizontal);
-            currentAimLayerAnim = 0;
-        }
-        else if (rightJoystickXYAimLimit)
-            currentAimLayerAnim = 1;
-
-        float aimLlayerWeight = Mathf.Lerp(animator.GetLayerWeight(1), currentAimLayerAnim, playerSettings.aimLayerSmoothTime);
-        animator.SetLayerWeight(1, aimLlayerWeight);
-
-        // Rotation & Inverse Animation 
         if (playerSettings.rightDeathZoneAimXY <= rightJoystick.Horizontal)
         {
             currentRotation = positiveRotation;
+            if (isDashing)
+            {
+                if (joystickDashDirection.z > 0)
+                    currentRotation = positiveRotation;
+                else if (joystickDashDirection.z < 0)
+                    currentRotation = negativeRotation;
+            } 
+                
             animator.SetFloat("MoveX", leftJoystick.Horizontal);
         }
         else if (-playerSettings.rightDeathZoneAimXY >= rightJoystick.Horizontal)
         {
             currentRotation = negativeRotation;
+            if (isDashing)
+            {
+                if (joystickDashDirection.z > 0)
+                    currentRotation = positiveRotation;
+                else if (joystickDashDirection.z < 0)
+                    currentRotation = negativeRotation;
+            }
             animator.SetFloat("MoveX", -leftJoystick.Horizontal);
         }
 
-        float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, currentRotation, ref turnSmoothVelocity, playerSettings.turnAimSmoothTime);
+        float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, currentRotation, ref turnSmoothVelocity, playerSettings.turnLookRotationSmoothTime);
         transform.rotation = Quaternion.Euler(0f, angle, 0f);
+
     }
+
+    #endregion
+
+    #region WeaponActive
+
+    private float animatorLayer1, animatorLayer2, animatorLayer3;
+
+    private Animator rigController;
+    private WeaponResponse currentWeapon;
+    private Transform weaponParent;
+    private Transform weaponLeftGrip;
+    private Transform weaponRightGrip;
+
+    public void TriggerWeapon()
+    {
+        if (currentWeapon)
+        {
+            animatorLayer1 = Mathf.Lerp(animator.GetLayerWeight(1), 0, playerSettings.aimAnimatorLayerSmoothTime * Time.deltaTime);
+
+            PlayerActionsResponse.ActionShootWeaponTrigger?.Invoke(rightJoystickXYAimLimit);
+
+            if (rightJoystickXYAimLimit)
+            {
+                animatorLayer2 = Mathf.Lerp(animator.GetLayerWeight(2), 1, playerSettings.aimAnimatorLayerSmoothTime * Time.deltaTime);
+                
+            }
+            else
+            {
+                animatorLayer2 = Mathf.Lerp(animator.GetLayerWeight(2), 0, playerSettings.aimAnimatorLayerSmoothTime * Time.deltaTime);
+
+
+                if (leftJoystickXMovementLimits)
+                    animator.SetFloat("MoveX", leftJoystick.Horizontal);
+            }
+            animator.SetLayerWeight(1, animatorLayer1);
+            animator.SetLayerWeight(2, animatorLayer2);
+
+        }
+        else
+        {
+
+            animatorLayer2 = Mathf.Lerp(animator.GetLayerWeight(2), 0, playerSettings.aimAnimatorLayerSmoothTime * Time.deltaTime);
+           
+
+            if (rightJoystickXYAimLimit)
+            {
+                animatorLayer1 = Mathf.Lerp(animator.GetLayerWeight(1), 1, playerSettings.aimAnimatorLayerSmoothTime * Time.deltaTime);
+               
+            }
+            else
+            {
+                animatorLayer1 = Mathf.Lerp(animator.GetLayerWeight(1), 0, playerSettings.aimAnimatorLayerSmoothTime * Time.deltaTime);
+
+
+                if (leftJoystickXMovementLimits)
+                    animator.SetFloat("MoveX", leftJoystick.Horizontal);
+
+            }
+            animator.SetLayerWeight(1, animatorLayer1);
+            animator.SetLayerWeight(2, animatorLayer2);
+        }
+    }
+
+    public void Equip(WeaponResponse nextWeapon)
+    {
+        if (currentWeapon) { 
+            Destroy(currentWeapon.gameObject);
+        }
+        currentWeapon = nextWeapon;
+        currentWeapon.raycastDestination = aimRayCrossHair;
+        currentWeapon.transform.SetParent(weaponParent);
+        currentWeapon.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+    }
+
+    #endregion
+
+    #region Aim Raycast
 
     private Vector3 aimDirection, displacement;
     private Ray aimRay;
@@ -548,17 +648,65 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
         if (Physics.Raycast(aimRay, out aimHit, playerSettings.aimRayMaxDistance))
         {
-            Debug.DrawRay(aimRay.origin, aimRay.direction * aimHit.distance, Color.red);
-            aimRayCrossHair.transform.position = aimHit.point;
+            if (aimHit.collider.gameObject.layer == LayerMask.NameToLayer("IsGround") || aimHit.collider.gameObject.layer == LayerMask.NameToLayer("IsEnemy"))
+            {
+                Debug.DrawRay(aimRay.origin, aimRay.direction * aimHit.distance, Color.red);
+                aimRayCrossHair.transform.position = aimHit.point;
+            }
         }
         else
         {
             Debug.DrawRay(aimRay.origin, aimRay.direction * playerSettings.aimRayMaxDistance, Color.red);
-            displacement = aimRay.direction.normalized * playerSettings.aimRayMaxDistance;
+
+            if (aimRay.direction.magnitude != 0)
+                displacement = aimRay.direction.normalized * playerSettings.aimRayMaxDistance;
+            else
+            {
+                if (currentRotation == positiveRotation)
+                    displacement = Vector3.forward * playerSettings.aimRayMaxDistance / 10f;
+                else
+                    displacement = -Vector3.forward * playerSettings.aimRayMaxDistance / 10f;
+            }
             aimRayCrossHair.transform.position = transform.position + displacement;
         }
-
     }
+
+    #endregion
+
+    #region Audio 
+
+    private AudioSource audioSource;
+    private float currentVolumen;
+   
+
+    private void OnFootStep(AnimationEvent animationEvent)
+    {
+        if (animationEvent.animatorClipInfo.weight > 0.5f)
+        {
+            if (playerSettings.footStepAudioClips.Count > 0)
+            {
+                var index = Random.Range(0, playerSettings.footStepAudioClips.Count);
+                if (animationEvent.intParameter == 0)
+                    currentVolumen = 0.25f;
+                else if (animationEvent.intParameter == 1)
+                    currentVolumen = 0.4f;
+                else if (animationEvent.intParameter == 2)
+                    currentVolumen = 0.7f;
+                else
+                    currentVolumen = 0.15f;
+                AudioSource.PlayClipAtPoint(playerSettings.footStepAudioClips[index], transform.TransformPoint(new Vector3(0.0f, characterController.center.y - characterController.height / 2, 0.0f)), currentVolumen);
+            }
+        }
+    }
+
+    //private void OnLand(AnimationEvent animationEvent)
+    //{
+    //    if (animationEvent.animatorClipInfo.weight > 0.5f)
+    //    {
+    //        AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_controller.center), FootstepAudioVolume);
+    //    }
+    //}
+
     #endregion
 
     #region Collider Character Controller
