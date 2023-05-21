@@ -23,11 +23,11 @@ public class SurveillanceCamResponse : MonoBehaviour
     [SerializeField] private Image fillImage;
     [SerializeField] private Rig playerAimRig;
     [SerializeField] private Rig searchAimRig;
+    [SerializeField] private Slider sliderTimeAlert;
 
     private List<BaseEnemyController> enemysAround = new List<BaseEnemyController>();
     private Color color;
     private Vector3 searchTargetPos;
-    private Slider sliderTimeAlert;
     private Animator animator;
     
     private float timeStartAlert, timeEndAlert, searchTime, currentDistance;
@@ -44,18 +44,17 @@ public class SurveillanceCamResponse : MonoBehaviour
         searchTargetPos.z = transform.position.z;
         SphereScanner();
         animator = GetComponent<Animator>();
-        searchTarget = GameObject.Find("Search_Target_Cam").transform;
         playerTarget = GameObject.Find("Player_Armature_CharacterController").transform;
-        sliderTimeAlert = GameObject.Find("Alert_Bar").GetComponent<Slider>();
         sliderTimeAlert.maxValue = surveillanceSettings.timeToStartAlert;
         sliderTimeAlert.value = timeStartAlert;
     }
 
     void Update()
     {
+        ColorChanger();
         TimingDistanceAlertManager();
         SurveillanceCamFuntion();
-        ColorChanger();
+        
     }
 
     void ColorChanger()
@@ -92,7 +91,7 @@ public class SurveillanceCamResponse : MonoBehaviour
             animator.SetBool("OnAlert", true);
             searchAimRig.weight = Mathf.Lerp(searchAimRig.weight, 0f, surveillanceSettings.lerpAimWeight * Time.deltaTime);
             playerAimRig.weight = Mathf.Lerp(playerAimRig.weight, 1f, surveillanceSettings.lerpAimWeight * Time.deltaTime);
-            color = Color.Lerp(color, Color.red, Mathf.Clamp(timeEndAlert, 0, surveillanceSettings.lerpTransitionColor * Time.deltaTime));
+            color = Color.Lerp(color, Color.red, surveillanceSettings.lerpTransitionColor * Time.deltaTime);
             surveillanceSettings.glassCam.SetColor("_EmissionColor", color);
             SendSingAlert();
             searchTime = 0;
@@ -102,7 +101,7 @@ public class SurveillanceCamResponse : MonoBehaviour
             animator.SetBool("OnAlert", false);
             searchAimRig.weight = Mathf.Lerp(searchAimRig.weight, 1f, surveillanceSettings.lerpAimWeight * Time.deltaTime);
             playerAimRig.weight = Mathf.Lerp(playerAimRig.weight, 0f, surveillanceSettings.lerpAimWeight * Time.deltaTime);
-            color = Color.Lerp(color, Color.green, Mathf.Clamp(timeStartAlert, 0, surveillanceSettings.lerpTransitionColor * Time.deltaTime));
+            color = Color.Lerp(color, Color.green, surveillanceSettings.lerpTransitionColor * Time.deltaTime);
             surveillanceSettings.glassCam.SetColor("_EmissionColor", color);
 
             searchTime += Time.deltaTime;

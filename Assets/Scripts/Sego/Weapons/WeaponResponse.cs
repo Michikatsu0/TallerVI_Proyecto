@@ -20,7 +20,7 @@ public class WeaponResponse : MonoBehaviour
     [SerializeField] private ParticleSystem hitEffect;
     [SerializeField] private Transform raycastOrigin;
 
-    public AnimationClip weaponAnimation;
+    public string weaponName;
     private float accumulatedTime, fireInterval;
     private Ray ray;
     private RaycastHit hit;
