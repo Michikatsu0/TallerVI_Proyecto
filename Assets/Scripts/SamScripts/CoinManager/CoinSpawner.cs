@@ -13,7 +13,7 @@ public class CoinSpawner : MonoBehaviour
     {   coinsSpawned = Random.Range(lowerLimit, upperLimit);
         for (int i = 0; i < coinsSpawned; i++)
         {
-            GameObject CoinSpawner = Instantiate(scfiCoin, transform.position + new Vector3(i,0,0), Quaternion.identity);
+            GameObject CoinSpawner = Instantiate(scfiCoin, transform.position + new Vector3(i,1,0), Quaternion.identity);
         }   
     }
 }

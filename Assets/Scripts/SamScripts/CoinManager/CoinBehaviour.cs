@@ -5,11 +5,11 @@ using UnityEngine;
 public class CoinBehaviour : MonoBehaviour
 {
     [SerializeField] float speed;
-    [SerializeField] GameObject playerPosition;
+     GameObject playerPosition;
     // Start is called before the first frame update
     void Start()
     {
-        
+        playerPosition = GameObject.Find("Player_Armature_CharacterController");
     }
 
     // Update is called once per frame
