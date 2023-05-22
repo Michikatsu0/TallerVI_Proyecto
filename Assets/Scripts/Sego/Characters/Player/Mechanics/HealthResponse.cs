@@ -38,7 +38,7 @@ public class HealthResponse : MonoBehaviour
         ragdoll = GetComponentInChildren<RagdollResponse>();
         characterController = GetComponent<CharacterController>();
 
-        currentHealth = statsSettings.maxHealth;
+        currentHealth = statsSettings.maxHealth; //heres max health, we will change this with the modifier
 
         healthSlider.maxValue = statsSettings.maxHealth;
         healthSlider.value = currentHealth;
@@ -94,7 +94,7 @@ public class HealthResponse : MonoBehaviour
                 canRegenerate = true;
                 isRegenerating = false;
                 regenerateValue = 0;
-                tmpTimeToRegenerate = statsSettings.timeToRegenerate;
+                tmpTimeToRegenerate = statsSettings.timeToRegenerate; //here we will change the time to regenerate
             }
         }
 
@@ -145,7 +145,7 @@ public class HealthResponse : MonoBehaviour
     {
         statsManager.muertes++; //añade uno al contador de muertes
         statsManager.OnGameOver();
-        upgradesManager.OnGameOver();
+        upgradesManager.SaveGame();
 
         deathScript = true;
         ragdoll.ActivateRagdolls();

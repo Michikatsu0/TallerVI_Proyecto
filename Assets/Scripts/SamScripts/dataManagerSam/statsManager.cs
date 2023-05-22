@@ -11,16 +11,17 @@ public class statsManager : MonoBehaviour
     public static int dashesDados;//DashesPrefs
     public static int dañoHecho;//DañoPrefs
     public static int enemigosDerrotados;//EnemigosPrefs
-    public static int balasDisparadas;
+    public static int balasDisparadas;//balasDisparadasPref
+   
 
     void Awake()
     {
-        PlayerPrefs.GetInt("MuertesPrefs", muertes);
-        PlayerPrefs.GetInt("SaltosPrefs", saltosDados);
-        PlayerPrefs.GetInt("DashesPrefs", dashesDados);
-        PlayerPrefs.GetInt("DañoPrefs", dañoHecho);
-        PlayerPrefs.GetInt("EnemigosPrefs", enemigosDerrotados);
-        PlayerPrefs.GetInt("balasDisparadasPref", balasDisparadas);
+        muertes = PlayerPrefs.GetInt("MuertesPrefs", muertes);
+        saltosDados = PlayerPrefs.GetInt("SaltosPrefs", saltosDados);
+        dashesDados = PlayerPrefs.GetInt("DashesPrefs", dashesDados);
+        dañoHecho = PlayerPrefs.GetInt("DañoPrefs", dañoHecho);
+        enemigosDerrotados =PlayerPrefs.GetInt("EnemigosPrefs", enemigosDerrotados);
+        balasDisparadas =PlayerPrefs.GetInt("balasDisparadasPref", balasDisparadas);
 
     }
 
