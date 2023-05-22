@@ -8,7 +8,13 @@ public class storeManager : MonoBehaviour
     [SerializeField] string upgradeName;
     [SerializeField] int Price;
     [SerializeField] int PriceScalling;
+
+
     [SerializeField] Button activeButton;
+
+    [SerializeField] Canvas targetCanvas;
+    [SerializeField] Canvas OwnCanvas;
+
     int numberOfUpgrade;
     void Start()
     {
@@ -17,9 +23,7 @@ public class storeManager : MonoBehaviour
             activeButton.enabled = false;
         } 
     }
-
-
-    public void OnDestroy() { }
+    #region buyFunctions
     public void BuyMaxLife()
     {
         if (upgradesManager.CoinQuantity > Price*PriceScalling)
@@ -148,5 +152,12 @@ public class storeManager : MonoBehaviour
                 activeButton.enabled = false;
             }
         }
+    }
+    #endregion
+
+    public void ChangeCanvas()
+    {
+        targetCanvas.enabled = true;
+        OwnCanvas.enabled = false;
     }
 }

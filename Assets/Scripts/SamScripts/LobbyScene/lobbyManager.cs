@@ -4,18 +4,15 @@ using UnityEngine;
 
 public class lobbyManager : MonoBehaviour
 {
-    [SerializeField] Camera _camera;
-    [SerializeField] GameObject laCamara;
-    [SerializeField] Canvas Elcanvas;
+    [SerializeField] Canvas LevelCanvas;
+    [SerializeField] Canvas UpgradesCanvas;
+    [SerializeField] Canvas ArmoryCanvas;
+
     // Start is called before the first frame update
     void Start()
     {
-        Elcanvas.enabled = false;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        LevelCanvas.enabled = false;
+        UpgradesCanvas.enabled = false;
+        ArmoryCanvas.enabled = false;
     }
 }
