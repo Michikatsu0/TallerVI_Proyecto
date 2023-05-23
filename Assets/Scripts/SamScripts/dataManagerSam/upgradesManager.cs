@@ -8,43 +8,43 @@ using UnityEngine;
 /// </summary>
 public class upgradesManager : MonoBehaviour
 {
-    // Start is called before the first frame update
+    //vidaMáxima, total saltos, velocidad regeneración, Tiempo para regenerarar, enfriamiento del dash, fuerza del dash, fuerza del salto, vida regenerable
 
-     public static int ThemaxTimeInvincible,  ThetimeToRegenerate, TheregenerationSpeed, RegularMovementSpeed, TheCrouchedSpeed,  TheDashStrenght, TheDashCoolDown, ThemaxHealth, jumpQuantity;
+     public static int RegenerableLife,  ThetimeToRegenerate, TheregenerationSpeed,  TheDashStrenght, TheDashCoolDown, ThemaxHealth, jumpQuantity, JumpStrenght;
 
     //UpgradePricesScaleLineally
 
-    [SerializeField] public float TimeInvMod, TimeRegenMod, RegenSpeedMod, MovementSpeedMod, CrouchSpeedMod, DashStrenghtMod, DashCDMod, MaxHealthMod, JumpQuantityMod;
-    public static float TimeInvChange, TimeRegenChange, RegenSpeedChange, MovementSpeedChange, CrouchSpeedChange, DashStrenghtChange, DashCDChange, MaxHealthChange, JumpQuantityChange;
+    [SerializeField] public float RegenerableLifeMod, TimeRegenMod, RegenSpeedMod, DashStrenghtMod, DashCDMod, MaxHealthMod, JumpQuantityMod, jumpStrenghtMod;
+    public static float RegenerableLifeChange, TimeRegenChange, RegenSpeedChange, DashStrenghtChange, DashCDChange, MaxHealthChange, JumpQuantityChange, jumpStrenghtChange;
 
     public static int levelCounter; //total accesive levels
     public static int CoinQuantity; //coinsPref
 
     private void Awake()
     {
+        DontDestroyOnLoad(this);
         #region initializeUpgradesLvl
-        TimeInvChange = TimeInvMod*ThemaxTimeInvincible;
+        RegenerableLifeChange = RegenerableLifeMod * RegenerableLife;
         TimeRegenChange = TimeRegenMod * ThetimeToRegenerate;
         RegenSpeedChange = RegenSpeedMod * TheregenerationSpeed;
-        MovementSpeedChange = MovementSpeedMod * RegularMovementSpeed;
-        CrouchSpeedChange = CrouchSpeedMod * TheCrouchedSpeed;
         DashStrenghtChange = DashStrenghtMod * TheDashStrenght;
         DashCDChange = DashCDMod * TheDashCoolDown;
         MaxHealthChange = MaxHealthMod * ThemaxHealth;
         JumpQuantityChange = JumpQuantityMod * jumpQuantity;
+        jumpStrenghtChange = jumpStrenghtMod * JumpStrenght;
 
         #endregion
 
         #region initializePrefs
         CoinQuantity = PlayerPrefs.GetInt("CoinsPref", CoinQuantity);
 
-        RegularMovementSpeed = PlayerPrefs.GetInt("MovementSpeedPref", RegularMovementSpeed);
-        TheCrouchedSpeed= PlayerPrefs.GetInt("CrouchSpeedPref", TheCrouchedSpeed);
+
 
         TheDashStrenght = PlayerPrefs.GetInt("DashStrenghtPref", TheDashStrenght);
         TheDashCoolDown = PlayerPrefs.GetInt("DashCoolDownPref", TheDashCoolDown);
 
-        ThemaxTimeInvincible = PlayerPrefs.GetInt("MaxTimeInvinviblePref", ThemaxTimeInvincible);
+        RegenerableLife = PlayerPrefs.GetInt("MaxTimeInvinviblePref", RegenerableLife);
+        JumpStrenght = PlayerPrefs.GetInt("JumpStrenghtPref", JumpStrenght);
 
         ThetimeToRegenerate = PlayerPrefs.GetInt("TimeToRegeneratePref", ThetimeToRegenerate);
         TheregenerationSpeed = PlayerPrefs.GetInt("RegenerationSpeedPref", TheregenerationSpeed);
@@ -62,16 +62,12 @@ public class upgradesManager : MonoBehaviour
     {
         PlayerPrefs.SetInt("CoinsPref", CoinQuantity);
 
-        PlayerPrefs.SetFloat("MovementSpeedPref", RegularMovementSpeed);
-        PlayerPrefs.SetFloat("CrouchSpeedPref", TheCrouchedSpeed);
-
-        PlayerPrefs.SetFloat("DashStrenghtPref", TheDashStrenght);
-        PlayerPrefs.SetFloat("DashCoolDownPref", TheDashCoolDown);
-        PlayerPrefs.SetFloat("MaxTimeInvinviblePref", ThemaxTimeInvincible);
-
-        PlayerPrefs.SetFloat("TimeToRegeneratePref", ThetimeToRegenerate);
-        PlayerPrefs.SetFloat("RegenerationSpeedPref", TheregenerationSpeed);
-
+        PlayerPrefs.SetInt("DashStrenghtPref", TheDashStrenght);
+        PlayerPrefs.SetInt("DashCoolDownPref", TheDashCoolDown);
+        PlayerPrefs.SetInt("RegenerableLifePref", RegenerableLife);
+        PlayerPrefs.SetInt("TimeToRegeneratePref", ThetimeToRegenerate);
+        PlayerPrefs.SetInt("RegenerationSpeedPref", TheregenerationSpeed);
+        PlayerPrefs.SetInt("JumpStrenghtPref", JumpStrenght);
         PlayerPrefs.SetInt("jumpQuantityPrefs", jumpQuantity);
         PlayerPrefs.SetInt("maxHealthPrefs", ThemaxHealth);
 

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class statsManager : MonoBehaviour
@@ -12,7 +13,17 @@ public class statsManager : MonoBehaviour
     public static int dañoHecho;//DañoPrefs
     public static int enemigosDerrotados;//EnemigosPrefs
     public static int balasDisparadas;//balasDisparadasPref
-   
+
+    [SerializeField] Canvas statsCanvas;
+    [SerializeField] TMP_Text Jumps;
+    [SerializeField] TMP_Text Deaths;
+    [SerializeField] TMP_Text Dashes;
+    [SerializeField] TMP_Text Damage;
+    [SerializeField] TMP_Text EnemiesKilled;
+    [SerializeField] TMP_Text BulletsShot;
+
+
+
 
     void Awake()
     {
@@ -24,12 +35,11 @@ public class statsManager : MonoBehaviour
         balasDisparadas =PlayerPrefs.GetInt("balasDisparadasPref", balasDisparadas);
 
     }
-
-    // Update is called once per frame
-    void Update()
+    private void Start()
     {
-        
+        statsCanvas.enabled = false;
     }
+
     public static void OnGameOver()
     {
         PlayerPrefs.SetInt("MuertesPrefs",muertes);
@@ -39,6 +49,17 @@ public class statsManager : MonoBehaviour
         PlayerPrefs.SetInt("EnemigosPrefs", enemigosDerrotados);
         PlayerPrefs.SetInt("balasDisparadasPref", balasDisparadas);
         PlayerPrefs.Save();
+    }
+
+    public void showStats()
+    {
+        statsCanvas.enabled = true;
+        Jumps.text = saltosDados.ToString()+" Time jumped";
+        Deaths.text  = muertes.ToString()+" Deaths";
+        Dashes.text = dashesDados.ToString() + " Dashes performed";
+        Damage.text = dañoHecho.ToString() + " Damage done";
+        EnemiesKilled.text = enemigosDerrotados.ToString() + " Enemies taken down";
+        BulletsShot.text = balasDisparadas.ToString() + " Bullets shot";
     }
 
 }
