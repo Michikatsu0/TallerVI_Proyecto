@@ -4,7 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(PlayerMechanicResponse))]
-[RequireComponent(typeof(HealthResponse))]
+[RequireComponent(typeof(PlayerHealthResponse))]
 
 public class PlayerController : MonoBehaviour
 {
@@ -15,7 +15,7 @@ public class PlayerController : MonoBehaviour
     }
 
     private IPlayerMechanicProvider playerMechanicsProvider;
-    private HealthResponse healthResponse;
+    private PlayerHealthResponse healthResponse;
     private CharacterController characterController;
     private Animator animator;
     private RagdollResponse ragdollResponse;
@@ -24,7 +24,7 @@ public class PlayerController : MonoBehaviour
         ragdollResponse = GetComponent<RagdollResponse>();
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
-        healthResponse = GetComponent<HealthResponse>();
+        healthResponse = GetComponent<PlayerHealthResponse>();
         playerMechanicsProvider = GetComponent<IPlayerMechanicProvider>();
     }
 

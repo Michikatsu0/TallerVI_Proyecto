@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,9 +9,10 @@ using UnityEngine;
 public abstract class BaseEnemyController : MonoBehaviour
 {
     [SerializeField] protected BaseEnemySettings baseEnemySettings;
+    
+    [SerializeField] protected Transform playerTarget;
+    protected float startAlertTime, endAlertTime, currentDistance, currentMaxDistance;
 
-    protected Transform playerTarget;
-    protected float startTime, currentDistance;
     public bool onAlert;
 
     public bool OnAlert { get => onAlert; set => onAlert = value; }
@@ -21,17 +23,31 @@ public abstract class BaseEnemyController : MonoBehaviour
         currentDistance = Vector3.Distance(transform.position, playerTarget.position);
         if (currentDistance <= baseEnemySettings.alertDistance)
         {
-            startTime += Time.deltaTime;
-            if (startTime >= baseEnemySettings.timeToStartAlert)
+            startAlertTime += Time.deltaTime;
+            if (startAlertTime >= baseEnemySettings.timeToStartAlert)
             {
                 onAlert = true;
+                endAlertTime = baseEnemySettings.timeToEndAlert;
             }
         }
         else
         {
-            startTime = 0;
+            startAlertTime = 0;
+        }
+
+        currentMaxDistance = Vector3.Distance(transform.position, playerTarget.position);
+
+
+        if (currentMaxDistance >= baseEnemySettings.maxAlertDistance)
+        {
+            endAlertTime -= Time.deltaTime;
+            if (endAlertTime <= 0)
+            {
+                onAlert = false;
+            }
         }
     }
 
+   
 }
 
