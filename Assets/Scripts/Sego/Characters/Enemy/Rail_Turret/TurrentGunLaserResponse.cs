@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.Animations.Rigging;
+using static WeaponResponse;
 
 public class TurrentGunLaserResponse : BaseEnemyController
 {
@@ -8,15 +9,20 @@ public class TurrentGunLaserResponse : BaseEnemyController
     [SerializeField] private Rig playerAimRig;
     [SerializeField] private Rig searchAimRig;
     [SerializeField] private Transform searchTarget;
+
     private Vector3 searchTargetPos;
-    private float searchTime;
+    private float searchTime, accumulatedTime, fireInterval;
     private bool flagOnDeath = true;
 
     private HealthEnemyResponse healthEnemyResponse;
     private Rigidbody searchRigidbody;
     private AudioSource audioSource;
+    private WeaponResponse weaponResponse;
     void Start()
     {
+
+        weaponResponse = GetComponent<WeaponResponse>();
+        weaponResponse.weaponSettings.isFiring = false;
         audioSource = GetComponent<AudioSource>();
         audioSource.spatialBlend = 0.5f;
         audioSource.volume = 0.25f;
@@ -35,6 +41,7 @@ public class TurrentGunLaserResponse : BaseEnemyController
             searchAimRig.weight = Mathf.Lerp(searchAimRig.weight, 1f, turretGunSettings.lerpAimWeight * Time.deltaTime);
             playerAimRig.weight = Mathf.Lerp(playerAimRig.weight, 0f, turretGunSettings.lerpAimWeight * Time.deltaTime);
             onAlert = false;
+            weaponResponse.weaponSettings.isFiring = false;
             if (flagOnDeath)
             {
                 flagOnDeath = false;
@@ -42,8 +49,6 @@ public class TurrentGunLaserResponse : BaseEnemyController
                 searchTargetPos.z = playerTarget.position.z;
             }
             searchRigidbody.MovePosition(Vector3.Lerp(searchTarget.position, searchTargetPos, baseEnemySettings.lerpSearchPosTarget * Time.deltaTime * 10f));
-
-            audioSource.volume = Mathf.Lerp(audioSource.volume, 0f, 0.1f * Time.deltaTime * 2f);
             Invoke(nameof(DelayAimDeath), 1f);
             return;
         }
@@ -58,9 +63,12 @@ public class TurrentGunLaserResponse : BaseEnemyController
             searchTargetPos.z = playerTarget.position.z;
             searchRigidbody.MovePosition(Vector3.Lerp(searchTarget.position, searchTargetPos, baseEnemySettings.lerpSearchPosTarget * Time.deltaTime * 10f));
 
+
+            weaponResponse.weaponSettings.isFiring = true;
         }
         else
         {
+            
             turretGunSettings.emissionMaterial.SetColor("_EmissionColor", turretGunSettings.turrentColors[0]);
             searchAimRig.weight = Mathf.Lerp(searchAimRig.weight, 1f, turretGunSettings.lerpAimWeight * Time.deltaTime);
             playerAimRig.weight = Mathf.Lerp(playerAimRig.weight, 0f, turretGunSettings.lerpAimWeight * Time.deltaTime);
@@ -80,7 +88,7 @@ public class TurrentGunLaserResponse : BaseEnemyController
     void DelayAimDeath()
     {
         turretGunSettings.emissionMaterial.SetColor("_EmissionColor", Color.black);
-    } 
-
+    }
+  
 }
 

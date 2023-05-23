@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class WeaponResponse : MonoBehaviour
 {
+    public bool weaponEnemy;
     public enum WeaponSlots { Primary, Secundary }
     public class Bullet
     {
@@ -35,15 +36,17 @@ public class WeaponResponse : MonoBehaviour
 
     void Start()
     {
-        rgbd = GetComponent<Rigidbody>();
-        rgbd.useGravity = false;
-        rgbd.isKinematic = true;
-        rgbd.detectCollisions = false;
-        boxColliders = GetComponents<Collider>();
+        if (!weaponEnemy)
+        {
+            rgbd = GetComponent<Rigidbody>();
+            rgbd.useGravity = false;
+            rgbd.isKinematic = true;
+            rgbd.detectCollisions = false;
+            boxColliders = GetComponents<Collider>();
+            foreach (Collider collider in boxColliders)
+                collider.enabled = false;
+        }
 
-        foreach (Collider collider in boxColliders)
-            collider.enabled = false;
-        
         foreach (var particleSystem in muzzleEffects)
         {
             ParticleSystem.MainModule ps = particleSystem.GetComponent<ParticleSystem>().main;
@@ -51,7 +54,10 @@ public class WeaponResponse : MonoBehaviour
         }
         PlayerActionsResponse.ActionWeaponDeath += OnDeathWeapon;
         PlayerActionsResponse.ActionShootWeaponTrigger += OnFiringWeapon;
-        raycastDestination = GameObject.Find("Aim_CrossHair").transform;
+        if (!weaponEnemy)
+            raycastDestination = GameObject.Find("Aim_CrossHair").transform;
+        else
+            raycastDestination = GameObject.Find("Player_Armature_CharacterController").transform;
         audioSource = GetComponent<AudioSource>();
     }
 
@@ -180,18 +186,23 @@ public class WeaponResponse : MonoBehaviour
                 }
             }
 
-            var enemyHitBox = hit.collider.gameObject.GetComponent<EnemyHitboxResponse>();
-            if (enemyHitBox)
-                enemyHitBox.TakeHitBoxDamage(this, ray.direction);
-
-            //var playerHealth = hit.collider.gameObject.GetComponent<HealthResponse>();
-            //if (playerHealth)
-            //{
-            //    if (hit.collider.gameObject.CompareTag("Player"))
-            //    {
-            //        playerHealth.TakeDamage(weaponSettings.damage);
-            //    }
-            //}
+            if (!weaponEnemy)
+            {
+                var enemyHitBox = hit.collider.gameObject.GetComponent<EnemyHitboxResponse>();
+                if (enemyHitBox)
+                    enemyHitBox.TakeHitBoxDamage(this, ray.direction);
+            }
+            else
+            {
+                var playerHealth = hit.collider.gameObject.GetComponent<PlayerHealthResponse>();
+                if (playerHealth)
+                {
+                    if (hit.collider.gameObject.CompareTag("Player"))
+                    {
+                        playerHealth.TakeDamage(weaponSettings.damage);
+                    }
+                }
+            }
         }
         else
         {

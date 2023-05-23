@@ -9,6 +9,9 @@ public class TurretGunLaserSettings : ScriptableObject, ISerializationCallbackRe
     [Header("Aim Settings")]
     [SerializeField] public float lerpAimWeight;
 
+    [Header("Shoot Settings")]
+    [SerializeField] public float fireRate;
+
     [Header("Render Settings")]
     [SerializeField] public Material emissionMaterial;
     [SerializeField] public List<Color> turrentColors;

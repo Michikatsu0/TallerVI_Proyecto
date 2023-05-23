@@ -62,7 +62,7 @@ public class PlayerHealthResponse : MonoBehaviour
         else
             playerImage.color = Color.red * intensity;
 
-        if (blinkTimer > -0.01f)
+        if (blinkTimer > -0.05f)
             BlinkColorChanger();
 
         healthSlider.value = Mathf.Lerp(healthSlider.value, currentHealth, statsSettings.transitionDamageLerp * Time.deltaTime);

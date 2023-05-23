@@ -19,7 +19,7 @@ public class HealthEnemyResponse : MonoBehaviour
         maxHealth = statsEnemySettings.maxHealth;
         currentHealth = maxHealth;
         healthSlider.maxValue= maxHealth;
-        healthSlider.minValue=0;
+        healthSlider.minValue = 0;
         healthSlider.value = maxHealth;
         fillImage = healthSlider.fillRect.gameObject.GetComponent<Image>();
     }
@@ -28,7 +28,7 @@ public class HealthEnemyResponse : MonoBehaviour
     {
         blinkTimer -= Time.deltaTime;
         intensity = (Mathf.Clamp01(blinkTimer / statsEnemySettings.blinkDuration) * statsEnemySettings.blinkIntensity) + 1.0f;
-        if (blinkTimer > -0.01f)
+        if (blinkTimer > -0.05f)
             BlinkColorChanger();
         healthSlider.value = Mathf.Lerp(healthSlider.value, currentHealth, statsEnemySettings.transitionDamageLerp * Time.deltaTime);
         if (deathScript) return;
@@ -65,7 +65,7 @@ public class HealthEnemyResponse : MonoBehaviour
     {
         audioSource.PlayOneShot(statsEnemySettings.deathClips[UnityEngine.Random.Range(0, 5)], 1f);
         deathScript = true;
-        
+        healthSlider.gameObject.SetActive(false);
         
         yield return new WaitForSeconds(statsEnemySettings.deathTime);
           
