@@ -42,7 +42,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         trailRenderer.material = playerSettings.dashTrailMaterial;
         trailRenderer.startWidth = 1.3f;
         trailRenderer.endWidth = 1;
-        trailRenderer.time = playerSettings.dashDuration;
+        trailRenderer.time = playerSettings.dashDuration; //here is dash duration
 
         audioSource = GetComponent<AudioSource>();
     }
@@ -324,7 +324,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         else
             this.maxNumberofJumps = playerSettings.maxNumberOfJumps;
 
-        jumpPercent = (playerSettings.jumpForce * playerSettings.jumpForceMultiplier) / 100;
+        jumpPercent = (playerSettings.jumpForce * playerSettings.jumpForceMultiplier) / 100; //here are the jump settings to change
         jumpSpeedPercent = (playerSettings.jumpSpeed * playerSettings.jumpSpeedMultiplier) / 100;
         
         CoyoteTime();
@@ -341,7 +341,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         {
             joystickJumpReady = false;
         }
-
+        statsManager.saltosDados++; //cada que salta añade uno al contador
     }
 
     private void CoyoteTime()
