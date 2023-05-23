@@ -9,7 +9,7 @@ using UnityEngine;
 public class StatsSettings : ScriptableObject, ISerializationCallbackReceiver
 {
     [Header("Health Settings")]
-    [SerializeField] public int maxHealth;
+    [SerializeField] public int maxHealth; //change here
     [SerializeField] public float maxTimeInvincible, deathTime, timeToRegenerate, regenerationSpeed;
     
     [Header("Health Slider Settings")]

@@ -10,7 +10,7 @@ public class upgradesManager : MonoBehaviour
 {
     //vidaMáxima, total saltos, velocidad regeneración, Tiempo para regenerarar, enfriamiento del dash, fuerza del dash, fuerza del salto, vida regenerable
 
-     public static int RegenerableLife,  ThetimeToRegenerate, TheregenerationSpeed,  TheDashStrenght, TheDashCoolDown, ThemaxHealth, jumpQuantity, JumpStrenght;
+     public static int RegenerableLife=0,  ThetimeToRegenerate = 0, TheregenerationSpeed = 0,  TheDashStrenght = 0, TheDashCoolDown = 0, ThemaxHealth = 0, jumpQuantity = 0, JumpStrenght = 0;
 
     //UpgradePricesScaleLineally
 

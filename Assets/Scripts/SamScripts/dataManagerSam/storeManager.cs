@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using TMPro;
+using DG.Tweening;  
+
 
 
 public class storeManager : MonoBehaviour
@@ -10,6 +13,7 @@ public class storeManager : MonoBehaviour
     [SerializeField] string upgradeName;
     [SerializeField] int Price;
     [SerializeField] int PriceScalling;
+    [SerializeField] TMP_Text priceText;
 
 
     [SerializeField] Button activeButton;
@@ -17,15 +21,25 @@ public class storeManager : MonoBehaviour
     [SerializeField] Canvas targetCanvas;
     [SerializeField] Canvas OwnCanvas;
 
+    private CanvasGroup myCanvasGroup;
+    private CanvasGroup otherCanvas;
+
     [SerializeField] int targetScene;
 
     int numberOfUpgrade;
     void Start()
     {
+        otherCanvas = targetCanvas.GetComponent<CanvasGroup>();
+        myCanvasGroup = OwnCanvas.GetComponent<CanvasGroup>();
+
         if (PlayerPrefs.GetInt(upgradeName, 0) >= 4)
         {
             activeButton.enabled = false;
         } 
+        PriceScalling = PriceScalling*PlayerPrefs.GetInt(upgradeName, 0);
+        priceText.text = (Price+Price*PriceScalling*PlayerPrefs.GetInt(upgradeName, 0)).ToString();
+        DOTween.Init();
+            
     }
     #region buyFunctions
     public void BuyMaxLife()
@@ -36,6 +50,7 @@ public class storeManager : MonoBehaviour
             upgradesManager.ThemaxHealth++;
             upgradesManager.SaveGame();
             PriceScalling = PriceScalling * upgradesManager.ThemaxHealth;
+            priceText.text = Price + PriceScalling.ToString();
             if (PlayerPrefs.GetInt(upgradeName, 0) >= 4)
             {
                 activeButton.enabled = false;
@@ -50,6 +65,8 @@ public class storeManager : MonoBehaviour
             upgradesManager.jumpQuantity++;
             upgradesManager.SaveGame();
             PriceScalling = PriceScalling * upgradesManager.jumpQuantity;
+            priceText.text = Price + PriceScalling.ToString();
+
             if (PlayerPrefs.GetInt(upgradeName, 0) >= 4)
             {
                 activeButton.enabled = false;
@@ -64,6 +81,8 @@ public class storeManager : MonoBehaviour
             upgradesManager.TheregenerationSpeed++;
             upgradesManager.SaveGame();
             PriceScalling = PriceScalling * upgradesManager.TheregenerationSpeed;
+            priceText.text = Price + PriceScalling.ToString();
+
             if (PlayerPrefs.GetInt(upgradeName, 0) >= 4)
             {
                 activeButton.enabled = false;
@@ -79,6 +98,8 @@ public class storeManager : MonoBehaviour
             upgradesManager.ThetimeToRegenerate++;
             upgradesManager.SaveGame();
             PriceScalling = PriceScalling * upgradesManager.ThetimeToRegenerate;
+            priceText.text = Price + PriceScalling.ToString();
+
         }
         if (PlayerPrefs.GetInt(upgradeName, 0) >= 4)
         {
@@ -93,6 +114,8 @@ public class storeManager : MonoBehaviour
             upgradesManager.RegenerableLife++;
             upgradesManager.SaveGame();
             PriceScalling = PriceScalling * upgradesManager.RegenerableLife;
+            priceText.text = Price + PriceScalling.ToString();
+
             if (PlayerPrefs.GetInt(upgradeName, 0) >= 4)
             {
                 activeButton.enabled = false;
@@ -108,6 +131,8 @@ public class storeManager : MonoBehaviour
             upgradesManager.TheDashCoolDown++;
             upgradesManager.SaveGame();
             PriceScalling = PriceScalling * upgradesManager.TheDashCoolDown;
+            priceText.text = Price + PriceScalling.ToString();
+
             if (PlayerPrefs.GetInt(upgradeName, 0) >= 4)
             {
                 activeButton.enabled = false;
@@ -122,6 +147,8 @@ public class storeManager : MonoBehaviour
             upgradesManager.TheDashStrenght++;
             upgradesManager.SaveGame();
             PriceScalling = PriceScalling * upgradesManager.TheDashStrenght;
+            priceText.text = Price + PriceScalling.ToString();
+
             if (PlayerPrefs.GetInt(upgradeName, 0) >= 4)
             {
                 activeButton.enabled = false;
@@ -136,6 +163,8 @@ public class storeManager : MonoBehaviour
             upgradesManager.JumpStrenght++;
             upgradesManager.SaveGame();
             PriceScalling = PriceScalling * upgradesManager.JumpStrenght;
+            priceText.text = Price + PriceScalling.ToString();
+
             if (PlayerPrefs.GetInt(upgradeName, 0) >= 4)
             {
                 activeButton.enabled = false;
@@ -148,6 +177,8 @@ public class storeManager : MonoBehaviour
     public void ChangeCanvas()
     {
         targetCanvas.enabled = true;
+        otherCanvas.DOFade(1, 1); //targetCanvas
+        myCanvasGroup.DOFade(0,1);  //mine
         OwnCanvas.enabled = false;
     }
     public void ChangeScene()

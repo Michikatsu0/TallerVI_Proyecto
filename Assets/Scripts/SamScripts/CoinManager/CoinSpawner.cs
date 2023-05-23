@@ -9,7 +9,7 @@ public class CoinSpawner : MonoBehaviour
     [SerializeField] int upperLimit;
     int coinsSpawned;
 
-    private void OnDestroy()
+    public void SpawnCoins()
     {   coinsSpawned = Random.Range(lowerLimit, upperLimit);
         for (int i = 0; i < coinsSpawned; i++)
         {

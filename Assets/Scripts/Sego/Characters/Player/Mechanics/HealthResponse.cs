@@ -27,8 +27,18 @@ public class HealthResponse : MonoBehaviour
     private TextMeshProUGUI textMeshPro;
     private bool canRegenerate = true, isRegenerating, deathScript;
 
+    float FinalMaxHealth;
+    float FinalRegenerableHealth;
+    float FinalRegenTime;
+    float FinalRegenSpeed;
+
     private void Start()
     {
+        FinalMaxHealth = statsSettings.maxHealth+upgradesManager.MaxHealthChange;
+        FinalRegenerableHealth = regenerateValue+upgradesManager.RegenerableLifeChange;
+        FinalRegenTime = statsSettings.timeToRegenerate + upgradesManager.TimeRegenChange;
+        FinalRegenSpeed = statsSettings.regenerationSpeed + upgradesManager.RegenSpeedChange; //here we changing things
+        
         skinnedMeshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
 
         healthSlider = GameObject.Find("Health_Bar").GetComponent<Slider>();
@@ -42,9 +52,9 @@ public class HealthResponse : MonoBehaviour
         ragdoll = GetComponentInChildren<RagdollResponse>();
         characterController = GetComponent<CharacterController>();
 
-        currentHealth = statsSettings.maxHealth; //Here we change the initial max health with the modifier
+        currentHealth = FinalMaxHealth; //max health changed
 
-        healthSlider.maxValue = statsSettings.maxHealth; //here too
+        healthSlider.maxValue = FinalMaxHealth; //here too
         healthSlider.value = currentHealth;
 
         var rigidBodies = GetComponentsInChildren<Rigidbody>();
@@ -91,14 +101,14 @@ public class HealthResponse : MonoBehaviour
         {
             playerImage.color = Color.green * 1;
             regenerateValue += Time.deltaTime; 
-            currentHealth = regenerateValue * statsSettings.regenerationSpeed; //regeneration speed changed
+            currentHealth = regenerateValue * FinalRegenSpeed; //regeneration speed changed
 
             if (healthSlider.value >= 10.0f)
             {
                 canRegenerate = true;
                 isRegenerating = false;
                 regenerateValue = 0;
-                tmpTimeToRegenerate = statsSettings.timeToRegenerate; //here we will change the time to regenerate
+                tmpTimeToRegenerate = FinalRegenTime; //here we will change the time to regenerate
             }
         }
 
@@ -124,7 +134,7 @@ public class HealthResponse : MonoBehaviour
     public void TakeDamage(int amount) //Changes the current Health, public so enemydamage can access it. When damaged, starts the timer for invencibility
     {
         currentHealth -= amount;
-        currentHealth = Mathf.Clamp(currentHealth, 0, statsSettings.maxHealth);
+        currentHealth = Mathf.Clamp(currentHealth, 0, FinalMaxHealth);
         blinkTimer = statsSettings.blinkDuration;
         isRegenerating = false;
         canRegenerate = true;
