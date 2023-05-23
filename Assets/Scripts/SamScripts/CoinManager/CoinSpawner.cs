@@ -4,16 +4,19 @@ using UnityEngine;
 
 public class CoinSpawner : MonoBehaviour
 {
-    [SerializeField] GameObject scfiCoin;
+    [SerializeField] GameObject scifiCoin;
     [SerializeField] int lowerLimit;
     [SerializeField] int upperLimit;
-    int coinsSpawned;
+    int coinsNumber;
 
-    private void OnDestroy()
-    {   coinsSpawned = Random.Range(lowerLimit, upperLimit);
-        for (int i = 0; i < coinsSpawned; i++)
+    public void SpawnCoins()
+    {
+        coinsNumber = Random.Range(lowerLimit, upperLimit);
+        for (int i = 0; i < coinsNumber; i++)
         {
-            GameObject CoinSpawner = Instantiate(scfiCoin, transform.position + new Vector3(i,1,0), Quaternion.identity);
-        }   
+            Vector2 ramdonPointSphere = Random.insideUnitCircle / 2;
+            GameObject coinSpawner = Instantiate(scifiCoin, transform.position + (Vector3)ramdonPointSphere, Quaternion.identity);
+            coinSpawner.GetComponent<CoinBehaviour>().inEnemy = true;
+        }
     }
 }

@@ -68,7 +68,7 @@ public class WeaponResponse : MonoBehaviour
             UpdateFiring(Time.deltaTime);
         UpdateBullets(Time.deltaTime);
 
-        if (isDeath)
+        if (isDeath && !weaponEnemy)
         {
             isDeath = false;
             rgbd.useGravity = true;

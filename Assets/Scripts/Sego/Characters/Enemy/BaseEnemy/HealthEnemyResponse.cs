@@ -11,7 +11,7 @@ public class HealthEnemyResponse : MonoBehaviour
     private Image fillImage;
     [HideInInspector] public float currentHealth, maxHealth;
     private float blinkTimer, intensity;
-    [HideInInspector] public bool deathScript;
+    [HideInInspector] public bool deathScript, onHit;
 
     void Start()
     {
@@ -36,16 +36,17 @@ public class HealthEnemyResponse : MonoBehaviour
         UIColorChanger();
     }
 
-    public void TakeDamage(float amount, Vector3 direction) //Changes the current Health, public so enemydamage can access it. When damaged, starts the timer for invencibility
+    public void TakeDamage(float amount, Vector3 direction) 
     {
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         blinkTimer = statsEnemySettings.blinkDuration;
+        onHit = true;
     }
 
     void BlinkColorChanger()
     {
-        statsEnemySettings.turretMaterial.color = Color.white * intensity;
+        statsEnemySettings.effectMaterial[0].color = Color.white * intensity;
     }
 
     void UIColorChanger()
@@ -61,7 +62,7 @@ public class HealthEnemyResponse : MonoBehaviour
     }
 
 
-    IEnumerator DeathCoroutine() //waits for the destruction of the player, use and adjust the time for a death animation
+    IEnumerator DeathCoroutine() 
     {
         audioSource.PlayOneShot(statsEnemySettings.deathClips[UnityEngine.Random.Range(0, 5)], 1f);
         deathScript = true;

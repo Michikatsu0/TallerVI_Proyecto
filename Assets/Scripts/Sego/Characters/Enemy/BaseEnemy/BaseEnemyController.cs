@@ -10,7 +10,7 @@ public abstract class BaseEnemyController : MonoBehaviour
 {
     [SerializeField] protected BaseEnemySettings baseEnemySettings;
     
-    [SerializeField] protected Transform playerTarget;
+    protected Transform playerTarget;
     protected float startAlertTime, endAlertTime, currentDistance, currentMaxDistance;
 
     public bool onAlert;

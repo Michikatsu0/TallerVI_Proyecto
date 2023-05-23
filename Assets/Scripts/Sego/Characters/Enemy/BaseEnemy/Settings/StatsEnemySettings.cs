@@ -13,9 +13,10 @@ public class StatsEnemySettings : ScriptableObject, ISerializationCallbackReceiv
     [SerializeField] public float blinkDuration;
 
     [Header("Hit Effect Settings")]
+    [SerializeField] public List<Material> effectMaterial;
+    [SerializeField] public List<Color> enemyColors;
     [SerializeField] public List<Color> sliderColors;
     [SerializeField] public float transitionDamageLerp;
-    [SerializeField] public Material turretMaterial;
 
     [Header("Audio Settings")]
     [SerializeField] public List<AudioClip> deathClips;

@@ -9,18 +9,18 @@ public class TurrentGunLaserResponse : BaseEnemyController
     [SerializeField] private Rig playerAimRig;
     [SerializeField] private Rig searchAimRig;
     [SerializeField] private Transform searchTarget;
-
+    [SerializeField] private bool horizontal;
     private Vector3 searchTargetPos;
     private float searchTime, accumulatedTime, fireInterval;
     private bool flagOnDeath = true;
-
+    
     private HealthEnemyResponse healthEnemyResponse;
     private Rigidbody searchRigidbody;
     private AudioSource audioSource;
     private WeaponResponse weaponResponse;
     void Start()
     {
-
+        playerTarget = GameObject.Find("Player_Armature_CharacterController").transform;
         weaponResponse = GetComponent<WeaponResponse>();
         weaponResponse.weaponSettings.isFiring = false;
         audioSource = GetComponent<AudioSource>();
@@ -35,6 +35,8 @@ public class TurrentGunLaserResponse : BaseEnemyController
 
     private void Update()
     {
+        if (healthEnemyResponse.onHit)
+            onAlert = true;
 
         if (healthEnemyResponse.currentHealth <= 0)
         {
@@ -78,7 +80,10 @@ public class TurrentGunLaserResponse : BaseEnemyController
             {
                 searchTime = 0;
                 searchTargetPos.y = transform.position.y + UnityEngine.Random.Range(0.0f, baseEnemySettings.searchYlimit);
-                searchTargetPos.z = transform.position.z + UnityEngine.Random.Range(-baseEnemySettings.alertDistance, baseEnemySettings.alertDistance);
+                if (!horizontal)
+                    searchTargetPos.z = transform.position.z + UnityEngine.Random.Range(-baseEnemySettings.alertDistance, baseEnemySettings.alertDistance);
+                else
+                    searchTargetPos.z = transform.position.z + UnityEngine.Random.Range(-baseEnemySettings.alertDistance, 0);
             }
 
             searchRigidbody.MovePosition(Vector3.Lerp(searchTarget.position, searchTargetPos, baseEnemySettings.lerpSearchPosTarget * Time.deltaTime* 2f));
