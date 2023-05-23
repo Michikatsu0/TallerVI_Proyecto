@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class WeaponResponse : MonoBehaviour
 {
+    public enum WeaponSlots { Primary, Secundary }
     public class Bullet
     {
         public int bounce;
@@ -15,11 +16,11 @@ public class WeaponResponse : MonoBehaviour
         public TrailRenderer tracer;
     }
 
-    [SerializeField] private WeaponSettings weaponSettings;
+    [SerializeField] public WeaponSettings weaponSettings;
     [SerializeField] private ParticleSystem[] muzzleEffects;
     [SerializeField] private ParticleSystem hitEffect;
     [SerializeField] private Transform raycastOrigin;
-
+    public WeaponSlots weaponSlot;
     public string weaponName;
     private float accumulatedTime, fireInterval;
     private Ray ray;
@@ -166,13 +167,10 @@ public class WeaponResponse : MonoBehaviour
             }
 
             var rgbd = hit.collider.GetComponent<Rigidbody>();
+
             if (rgbd && !rgbd.isKinematic)
             {
-                if (hit.collider.gameObject.CompareTag("Enemy"))
-                {
-                    //enemy Reciver funtion script
-                }
-                else if (hit.collider.gameObject.CompareTag("Probs"))
+                if (hit.collider.gameObject.CompareTag("Probs"))
                 {
                     rgbd.AddForceAtPosition(ray.direction * 5, hit.point, ForceMode.Impulse);
                 }
@@ -182,14 +180,18 @@ public class WeaponResponse : MonoBehaviour
                 }
             }
 
-            var playerHealth = hit.collider.gameObject.GetComponent<HealthResponse>();
-            if (playerHealth)
-            {
-                if (hit.collider.gameObject.CompareTag("Player"))
-                {
-                    playerHealth.TakeDamage(weaponSettings.damage);
-                }
-            }
+            var enemyHitBox = hit.collider.gameObject.GetComponent<EnemyHitboxResponse>();
+            if (enemyHitBox)
+                enemyHitBox.TakeHitBoxDamage(this, ray.direction);
+
+            //var playerHealth = hit.collider.gameObject.GetComponent<HealthResponse>();
+            //if (playerHealth)
+            //{
+            //    if (hit.collider.gameObject.CompareTag("Player"))
+            //    {
+            //        playerHealth.TakeDamage(weaponSettings.damage);
+            //    }
+            //}
         }
         else
         {

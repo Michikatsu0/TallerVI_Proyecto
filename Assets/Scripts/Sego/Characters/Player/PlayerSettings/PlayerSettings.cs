@@ -86,6 +86,7 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
 
     [Header("Audio Settings")]
     [SerializeField] public List<AudioClip> footStepAudioClips = new List<AudioClip>();
+    [SerializeField] public AudioClip landingAudioClip;
     public void Init()
     {
 

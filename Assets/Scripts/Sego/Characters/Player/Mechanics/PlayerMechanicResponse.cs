@@ -2,8 +2,8 @@ using UnityEngine;
 using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Animations;
 using UnityEngine.Animations.Rigging;
+using static WeaponResponse;
 
 public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 {
@@ -18,9 +18,9 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
 
+
         multiAimWeaponRigPose = GameObject.Find("WeaponPose_Aiming").GetComponent<MultiAimConstraint>();
 
-        weaponParent = GameObject.Find("WeaponPivot").GetComponent<Transform>();
         weaponLeftGrip = GameObject.Find("| Weapon | LeftHand IK").GetComponent<Transform>();
         weaponRightGrip = GameObject.Find("| Weapon | RightHand IK").GetComponent<Transform>();
         
@@ -559,75 +559,141 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     #region WeaponActive
 
     private float animatorLayer1, animatorLayer2, animatorLayer3;
-    
-    private WeaponResponse currentWeapon;
-    private Transform weaponParent;
+    private int activeWeaponIndex;
+    [SerializeField] private List<WeaponResponse> equippedWeapons = new List<WeaponResponse>();
+    [SerializeField] private List<Transform> weaponSlots = new List<Transform>();
     private Transform weaponLeftGrip;
     private Transform weaponRightGrip;
 
     public void TriggerWeapon()
     {
+        var currentWeapon = GetWeapon(activeWeaponIndex);
         if (currentWeapon)
         {
             animatorLayer1 = Mathf.Lerp(animator.GetLayerWeight(1), 0, playerSettings.aimAnimatorLayerSmoothTime * Time.deltaTime);
 
-            PlayerActionsResponse.ActionShootWeaponTrigger?.Invoke(rightJoystickXYAimLimit);
+
+            currentWeapon.weaponSettings.isFiring = rightJoystickXYAimLimit;
+
             animator.SetBool("IsAiming", rightJoystickXYAimLimit);
+            //ToggleActiveWeapon();
 
             if (rightJoystickXYAimLimit)
-            {
                 animatorLayer2 = Mathf.Lerp(animator.GetLayerWeight(2), 1, playerSettings.aimAnimatorLayerSmoothTime * Time.deltaTime);
-                
-            }
             else
             {
                 animatorLayer2 = Mathf.Lerp(animator.GetLayerWeight(2), 0, playerSettings.aimAnimatorLayerSmoothTime * Time.deltaTime);
 
-
                 if (leftJoystickXMovementLimits)
                     animator.SetFloat("MoveX", leftJoystick.Horizontal);
             }
             animator.SetLayerWeight(1, animatorLayer1);
             animator.SetLayerWeight(2, animatorLayer2);
-
         }
         else
         {
-
-            animatorLayer2 = Mathf.Lerp(animator.GetLayerWeight(2), 0, playerSettings.aimAnimatorLayerSmoothTime * Time.deltaTime);
-           
+            animatorLayer2 = Mathf.Lerp(animator.GetLayerWeight(2), 0, playerSettings.aimAnimatorLayerSmoothTime * Time.deltaTime);     
 
             if (rightJoystickXYAimLimit)
-            {
-                animatorLayer1 = Mathf.Lerp(animator.GetLayerWeight(1), 1, playerSettings.aimAnimatorLayerSmoothTime * Time.deltaTime);
-               
-            }
+                animatorLayer1 = Mathf.Lerp(animator.GetLayerWeight(1), 1, playerSettings.aimAnimatorLayerSmoothTime * Time.deltaTime);                        
             else
             {
                 animatorLayer1 = Mathf.Lerp(animator.GetLayerWeight(1), 0, playerSettings.aimAnimatorLayerSmoothTime * Time.deltaTime);
 
-
                 if (leftJoystickXMovementLimits)
                     animator.SetFloat("MoveX", leftJoystick.Horizontal);
-
             }
             animator.SetLayerWeight(1, animatorLayer1);
             animator.SetLayerWeight(2, animatorLayer2);
         }
     }
 
-    public void Equip(WeaponResponse nextWeapon)
+    private WeaponResponse GetWeapon(int index)
     {
-        if (currentWeapon) { 
-            Destroy(currentWeapon.gameObject);
+        if (index < 0 || index >= equippedWeapons.Count)
+            return null;
+        return equippedWeapons[index];
+    } 
+
+    public void Equip(WeaponResponse nextWeapon) 
+    {
+        int weaponSlotIndex = (int)nextWeapon.weaponSlot;
+        var newWeapon = GetWeapon(weaponSlotIndex);
+        if (newWeapon) {
+            Destroy(newWeapon.gameObject);
         }
-        currentWeapon = nextWeapon;
-        currentWeapon.raycastDestination = aimRayCrossHair;
-        currentWeapon.transform.SetParent(weaponParent);
-        currentWeapon.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
-        animator.Play(Animator.StringToHash("Weapon_"+currentWeapon.weaponName), 3);
+        newWeapon = nextWeapon;
+        newWeapon.raycastDestination = aimRayCrossHair;
+        newWeapon.transform.SetParent(weaponSlots[weaponSlotIndex], false);
+        newWeapon.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+        equippedWeapons[weaponSlotIndex] = newWeapon;
+
+        //SetActiveWeapon(newWeapon.weaponSlot);
     }
 
+    //void ToggleActiveWeapon()
+    //{
+    //    bool isHolstered = animator.GetBool("IsAiming");
+    //    if (isHolstered)
+    //        StartCoroutine(ActiveWeapon(activeWeaponIndex));
+    //    else
+    //        StartCoroutine(HolsterWeapon(activeWeaponIndex));
+    //}
+
+    //void SetActiveWeapon(WeaponResponse.WeaponSlots weaponSlotIndex)
+    //{
+    //    int holsterIndex = activeWeaponIndex;
+    //    int activateIndex = (int)weaponSlotIndex;
+    //    if (holsterIndex == activateIndex)
+    //        holsterIndex = -1;
+    //    StartCoroutine(SwitchWeapon(holsterIndex, activateIndex));
+    //}
+
+    //IEnumerator SwitchWeapon(int holsterIndex, int activateIndex)
+    //{
+    //    yield return StartCoroutine(HolsterWeapon(holsterIndex));
+    //    yield return StartCoroutine(ActiveWeapon(activateIndex));
+    //    activeWeaponIndex = activateIndex;
+    //}
+
+    //IEnumerator HolsterWeapon(int index)
+    //{
+    //    var weapon = GetWeapon(index);
+    //    if (weapon)
+    //    {
+    //        animator.SetBool("IsAiming", true);
+
+    //        do
+    //            yield return new WaitForEndOfFrame();
+    //        while (animator.GetCurrentAnimatorStateInfo(playerSettings.layerWeaponAnimator).normalizedTime < 1.0f);
+    //    }
+    //}
+
+    //IEnumerator ActiveWeapon(int index)
+    //{
+    //    var weapon = GetWeapon(index);
+    //    if (weapon)
+    //    {
+    //        animator.SetBool("IsAiming", false);
+    //        animator.Play(Animator.StringToHash("Weapon_" + weapon.weaponName), playerSettings.layerWeaponAnimator);
+
+    //        do
+    //            yield return new WaitForEndOfFrame();
+    //        while (animator.GetCurrentAnimatorStateInfo(playerSettings.layerWeaponAnimator).normalizedTime < 1.0f);
+    //    }
+    //}
+
+    public void SwitchWeaponButton()
+    {
+        var weapon = GetWeapon(activeWeaponIndex);
+        if (weapon)
+        {
+            //if (weapon.weaponSlot == WeaponResponse.WeaponSlots.Primary)
+                //SetActiveWeapon(WeaponResponse.WeaponSlots.Secundary);
+            //else if (weapon.weaponSlot == WeaponResponse.WeaponSlots.Secundary)
+                //SetActiveWeapon(WeaponResponse.WeaponSlots.Primary);
+        }
+    }
     #endregion
 
     #region Aim Raycast
@@ -698,13 +764,25 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         }
     }
 
-    //private void OnLand(AnimationEvent animationEvent)
-    //{
-    //    if (animationEvent.animatorClipInfo.weight > 0.5f)
-    //    {
-    //        AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_controller.center), FootstepAudioVolume);
-    //    }
-    //}
+    private void OnLand(AnimationEvent animationEvent)
+    {
+        if (animationEvent.animatorClipInfo.weight > 0.5f)
+        {
+            AudioSource.PlayClipAtPoint(playerSettings.landingAudioClip, transform.TransformPoint(new Vector3(0.0f, characterController.center.y - characterController.height / 2, 0.0f)), 1f);
+        }
+    }
+
+    private void OnJump(AnimationEvent animationEvent)
+    {
+        if (animationEvent.animatorClipInfo.weight > 0.5f)
+        {
+            if (playerSettings.footStepAudioClips.Count > 0)
+            {
+                var index = Random.Range(0, playerSettings.footStepAudioClips.Count);
+                AudioSource.PlayClipAtPoint(playerSettings.footStepAudioClips[index], transform.TransformPoint(new Vector3(0.0f, characterController.center.y, 0.0f)), 0.5f);
+            }
+        }
+    }
 
     #endregion
 

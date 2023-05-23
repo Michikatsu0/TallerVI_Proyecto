@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class HealthResponse : MonoBehaviour
+public class PlayerHealthResponse : MonoBehaviour
 {
     [SerializeField] private StatsSettings statsSettings;
 
@@ -44,14 +44,6 @@ public class HealthResponse : MonoBehaviour
         healthSlider.maxValue = statsSettings.maxHealth;
         healthSlider.value = currentHealth;
 
-        var rigidBodies = GetComponentsInChildren<Rigidbody>();
-
-        foreach (Rigidbody rigidBody in rigidBodies)
-        {
-            HitboxResponse hitbox = rigidBody.gameObject.AddComponent<HitboxResponse>();
-            hitbox.healthResponse = this;
-        }
-
         audioSource = GetComponent<AudioSource>();
         audioSource.volume = 0.5f;
         audioSource.spatialBlend = 0.5f;
@@ -60,7 +52,6 @@ public class HealthResponse : MonoBehaviour
 
     private void Update()
     {
-
         blinkTimer -= Time.deltaTime;
 
         intensity = (Mathf.Clamp01(blinkTimer / statsSettings.blinkDuration) * statsSettings.blinkIntensity) + 1.0f;
@@ -81,7 +72,7 @@ public class HealthResponse : MonoBehaviour
 
         if (deathScript) return;
 
-        ColorChanger();
+        UIColorChanger();
 
         if (currentHealth < 10.0f && !isRegenerating && canRegenerate)
         {
@@ -106,21 +97,19 @@ public class HealthResponse : MonoBehaviour
             {
                 if (audioSource.isPlaying)
                     currentVolumen = 0.0f;
+
                 audioRegeFlag = true;
                 canRegenerate = true;
                 isRegenerating = false;
                 regenerateValue = 0;
                 tmpTimeToRegenerate = statsSettings.timeToRegenerate;
             }
-
-
         }
         else
         {
             if (audioSource.isPlaying)
-            {
                 currentVolumen = 1.0f;
-            }
+            
             currentVolumen = 0f;
         }
 
@@ -143,7 +132,7 @@ public class HealthResponse : MonoBehaviour
         regenerateValue = currentHealth;
     }
 
-    public void TakeDamage(int amount) //Changes the current Health, public so enemydamage can access it. When damaged, starts the timer for invencibility
+    public void TakeDamage(float amount) //Changes the current Health, public so enemydamage can access it. When damaged, starts the timer for invencibility
     {
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, statsSettings.maxHealth);
@@ -152,13 +141,13 @@ public class HealthResponse : MonoBehaviour
         canRegenerate = true;
     }
 
-    void ColorChanger()
+    void UIColorChanger()
     {
         Color healthBarColor = Color.Lerp(statsSettings.sliderColors[1], statsSettings.sliderColors[0], healthSlider.value / healthSlider.maxValue);
         fillImage.color = healthBarColor;
     }
 
-    public void IsDeath()
+    void IsDeath()
     {
         if (currentHealth <= 0.0f)
             StartCoroutine(DeathCoroutine());

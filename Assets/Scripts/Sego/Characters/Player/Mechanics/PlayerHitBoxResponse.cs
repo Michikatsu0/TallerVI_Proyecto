@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HitboxResponse : MonoBehaviour
+public class PlayerHitBoxResponse : MonoBehaviour
 {
-    public HealthResponse healthResponse;
+    public PlayerHealthResponse healthResponse;
 
     public void OnRaycastHit()
     {
