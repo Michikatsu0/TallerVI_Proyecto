@@ -23,6 +23,7 @@ public class CoinBehaviour : MonoBehaviour
         GameObject target = collision.gameObject;
         if (target.CompareTag("Player")) {
             upgradesManager.CoinQuantity++;
+            ShowCoins.changeCoinText();
             Destroy(gameObject);
         }
     }

@@ -6,8 +6,19 @@ using TMPro;
 public class ShowCoins : MonoBehaviour
 {
     [SerializeField] TMP_Text CoinText;
+    public static TMP_Text CoinTextStatic;
+    private void Start()
+    {
+        CoinTextStatic = CoinText;
+        CoinTextStatic.text = upgradesManager.CoinQuantity.ToString();
+
+    }
     void Update()
     {
-        CoinText.text = upgradesManager.CoinQuantity.ToString();
+    }
+    public static void changeCoinText()
+    {
+        CoinTextStatic.text = upgradesManager.CoinQuantity.ToString();
+
     }
 }
