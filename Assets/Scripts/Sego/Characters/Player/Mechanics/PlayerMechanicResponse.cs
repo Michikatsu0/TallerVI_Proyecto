@@ -275,7 +275,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     public void Dash()
     {
-        dashPercent = (playerSettings.dashForce * playerSettings.dashForceMultiplier) / 100;
+        dashPercent = (playerSettings.dashForce * playerSettings.dashForceMultiplier) / 100; //change the dash strenght
 
         animator.SetBool("IsDashing", isDashing);
 
@@ -324,9 +324,9 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         if (rightJoystickXYAimLimit)
             this.maxNumberofJumps = 1;
         else
-            this.maxNumberofJumps = playerSettings.maxNumberOfJumps;
+            this.maxNumberofJumps = playerSettings.maxNumberOfJumps; //jump number
 
-        jumpPercent = (playerSettings.jumpForce * playerSettings.jumpForceMultiplier) / 100; //here are the jump settings to change
+        jumpPercent = (playerSettings.jumpForce * playerSettings.jumpForceMultiplier) / 100; //here are the jump settings to change of force
         jumpSpeedPercent = (playerSettings.jumpSpeed * playerSettings.jumpSpeedMultiplier) / 100;
         
         CoyoteTime();

@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+/// <summary>
+/// changed the max health multiplying it with the modifier
+/// also changed the regen speed and regen time
+/// </summary>
 
 public class HealthResponse : MonoBehaviour
 {
@@ -38,9 +42,9 @@ public class HealthResponse : MonoBehaviour
         ragdoll = GetComponentInChildren<RagdollResponse>();
         characterController = GetComponent<CharacterController>();
 
-        currentHealth = statsSettings.maxHealth; //heres max health, we will change this with the modifier
+        currentHealth = statsSettings.maxHealth; //Here we change the initial max health with the modifier
 
-        healthSlider.maxValue = statsSettings.maxHealth;
+        healthSlider.maxValue = statsSettings.maxHealth; //here too
         healthSlider.value = currentHealth;
 
         var rigidBodies = GetComponentsInChildren<Rigidbody>();
@@ -87,7 +91,7 @@ public class HealthResponse : MonoBehaviour
         {
             playerImage.color = Color.green * 1;
             regenerateValue += Time.deltaTime; 
-            currentHealth = regenerateValue * statsSettings.regenerationSpeed;
+            currentHealth = regenerateValue * statsSettings.regenerationSpeed; //regeneration speed changed
 
             if (healthSlider.value >= 10.0f)
             {
