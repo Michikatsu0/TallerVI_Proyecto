@@ -58,8 +58,6 @@ public class TurrentGunLaserResponse : BaseEnemyController
             searchTargetPos.z = playerTarget.position.z;
             searchRigidbody.MovePosition(Vector3.Lerp(searchTarget.position, searchTargetPos, baseEnemySettings.lerpSearchPosTarget * Time.deltaTime * 10f));
 
-            UpdateFiring(Time.deltaTime);
-            UpdateBullets(Time.deltaTime);
         }
         else
         {
