@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class win : MonoBehaviour
 {
-    //public GameObject winnCanvas
+    //public GameObject winnCanvas;
+
+   // [SerializeField] private LevelMenu levelmenu;
     // Start is called before the first frame update
     void Start()
     {
@@ -22,7 +24,7 @@ public class win : MonoBehaviour
         GameObject Target = collision.gameObject;
         if(Target.CompareTag("Player"))
         {
-
+           // levelmenu.win = true;
         }
     }
 
@@ -31,6 +33,7 @@ public class win : MonoBehaviour
         GameObject Target = other.gameObject;
         if (Target.CompareTag("Player"))
         {
+          //  levelmenu.win = true;
         }
     }
 }

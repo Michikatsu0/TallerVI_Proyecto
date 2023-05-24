@@ -12,7 +12,7 @@ using TMPro;
 /// also changed the regen speed and regen time
 /// </summary>
 
-public class PlayerHealthResponse : MonoBehaviour
+public class HealthResponse : MonoBehaviour
 {
     [SerializeField] private StatsSettings statsSettings;
 
@@ -56,6 +56,14 @@ public class PlayerHealthResponse : MonoBehaviour
 
         healthSlider.maxValue = FinalMaxHealth; //here too
         healthSlider.value = currentHealth;
+
+        var rigidBodies = GetComponentsInChildren<Rigidbody>();
+
+        foreach (Rigidbody rigidBody in rigidBodies)
+        {
+            HitboxResponse hitbox = rigidBody.gameObject.AddComponent<HitboxResponse>();
+            hitbox.healthResponse = this;
+        }
 
     }
 

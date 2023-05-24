@@ -7,28 +7,23 @@ public class LoadingManager : MonoBehaviour
 {
     public static LoadingManager Instance;
 
-    [SerializeField] private float transitionDelay, lerpAudioTransition;
+    [SerializeField] private float transitionDelay;
     [SerializeField] private Slider slider;
+    [SerializeField] private TransitionUIPanel transitionUIPanel;
     [SerializeField] private List<Animator> animators = new List<Animator>();
-    [SerializeField] private AudioUISettings audioSettings;
-
-    private AudioSource camUIAudioSource;
     private int sceneIndex;
-    private bool flagOneTouch = true;
-
+    private bool flagOneTouech;
     private void Awake()
     {
         Instance = this;
-        sceneIndex = PlayerPrefs.GetInt("LoadingSceneIndexToLoad");
     }
 
     void Start()
     {
-        camUIAudioSource = GameObject.Find("Main Camera").GetComponent<AudioSource>();
-        TransitionUIPanel.Instance.FadeIn();
-        camUIAudioSource.clip = audioSettings.loadingClips[Random.Range(0, audioSettings.loadingClips.Count)];
-        camUIAudioSource.spatialBlend = 0.5f;
-        camUIAudioSource.Play();
+        flagOneTouech = true;
+        transitionUIPanel.FadeIn();
+        sceneIndex = PlayerPrefs.GetInt("LoadingSceneIndexToLoad");
+
     }
 
     void Update()
@@ -37,23 +32,17 @@ public class LoadingManager : MonoBehaviour
         {
             animators[0].SetBool("IsHide", true);
             animators[1].SetBool("IsShow", true);
-            if (Input.touchCount > 0 && flagOneTouch)
+            if (Input.touchCount > 0 && flagOneTouech)
             {
-                camUIAudioSource.PlayOneShot(audioSettings.uICanvasClips[2], 0.5f);
-                flagOneTouch = false;
+                flagOneTouech = false;
                 StartCoroutine(TransitionNextScene());
             }
         }
-        if (flagOneTouch)
-            camUIAudioSource.volume = Mathf.Lerp(camUIAudioSource.volume, 0.5f, lerpAudioTransition * Time.deltaTime);
-        else
-            camUIAudioSource.volume = Mathf.Lerp(camUIAudioSource.volume, 0f, lerpAudioTransition * Time.deltaTime);
-        
     }
 
     private IEnumerator TransitionNextScene()
     {
-        TransitionUIPanel.Instance.FadeOut();
+        transitionUIPanel.FadeOut();
         yield return new WaitForSeconds(transitionDelay);
         SceneManager.LoadSceneAsync(sceneIndex, LoadSceneMode.Single);
         yield return null;
