@@ -9,8 +9,8 @@ public abstract class BaseEnemyController : MonoBehaviour
 {
     [SerializeField] protected BaseEnemySettings baseEnemySettings;
 
-    protected Transform playerTarget;
-    protected float startTime, currentDistance;
+    [SerializeField] protected Transform playerTarget;
+    protected float startAlertTime, currentDistance, currentMaxDistance;
     public bool onAlert;
 
     public bool OnAlert { get => onAlert; set => onAlert = value; }
@@ -21,15 +21,23 @@ public abstract class BaseEnemyController : MonoBehaviour
         currentDistance = Vector3.Distance(transform.position, playerTarget.position);
         if (currentDistance <= baseEnemySettings.alertDistance)
         {
-            startTime += Time.deltaTime;
-            if (startTime >= baseEnemySettings.timeToStartAlert)
+            startAlertTime += Time.deltaTime;
+            if (startAlertTime >= baseEnemySettings.timeToStartAlert)
             {
                 onAlert = true;
             }
         }
         else
         {
-            startTime = 0;
+            startAlertTime = 0;
+        }
+
+        currentMaxDistance = Vector3.Distance(transform.position, playerTarget.position);
+
+
+        if (currentMaxDistance >= baseEnemySettings.maxAlertDistance)
+        {
+            
         }
     }
 

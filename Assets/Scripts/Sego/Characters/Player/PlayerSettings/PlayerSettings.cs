@@ -78,6 +78,8 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
     [SerializeField][Range(0f, 0.2f)] public float aimRigLayerSmoothTime;
     [SerializeField][Range(-150f, 150f)] public float weaponMultiAimRotation;
 
+    [SerializeField] public int layerWeaponAnimator = 3;
+
     [Header("Camera Settings")]
     [SerializeField] public float baseCamPos;
     [SerializeField] public float crouchCamPos, currentCamCrouchDelay, jumpCamPos, deadCamZone, lerpDeadZoneHeight, lerpCamMoveVelocity;

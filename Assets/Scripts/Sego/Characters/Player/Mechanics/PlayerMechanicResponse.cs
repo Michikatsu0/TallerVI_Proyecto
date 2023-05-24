@@ -28,11 +28,9 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
 
-        rigController = GameObject.Find("____RigLayers____").GetComponent<Animator>();
-
         multiAimWeaponRigPose = GameObject.Find("WeaponPose_Aiming").GetComponent<MultiAimConstraint>();
 
-        weaponParent = GameObject.Find("Primary_Weapon").GetComponent<Transform>();
+        weaponParent = GameObject.Find("WeaponPivot").GetComponent<Transform>();
         weaponLeftGrip = GameObject.Find("| Weapon | LeftHand IK").GetComponent<Transform>();
         weaponRightGrip = GameObject.Find("| Weapon | RightHand IK").GetComponent<Transform>();
         
@@ -572,8 +570,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     #region WeaponActive
 
     private float animatorLayer1, animatorLayer2, animatorLayer3;
-
-    private Animator rigController;
+    
     private WeaponResponse currentWeapon;
     private Transform weaponParent;
     private Transform weaponLeftGrip;
@@ -586,6 +583,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
             animatorLayer1 = Mathf.Lerp(animator.GetLayerWeight(1), 0, playerSettings.aimAnimatorLayerSmoothTime * Time.deltaTime);
 
             PlayerActionsResponse.ActionShootWeaponTrigger?.Invoke(rightJoystickXYAimLimit);
+            animator.SetBool("IsAiming", rightJoystickXYAimLimit);
 
             if (rightJoystickXYAimLimit)
             {
@@ -638,6 +636,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         currentWeapon.raycastDestination = aimRayCrossHair;
         currentWeapon.transform.SetParent(weaponParent);
         currentWeapon.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+        animator.Play(Animator.StringToHash("Weapon_"+currentWeapon.weaponName), 3);
     }
 
     #endregion
