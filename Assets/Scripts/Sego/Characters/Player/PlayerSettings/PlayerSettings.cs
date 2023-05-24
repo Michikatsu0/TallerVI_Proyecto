@@ -12,7 +12,7 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
     [SerializeField][Range(0f, 1f)] public float leftDeathZoneCrouchY;
 
     [Header("Movement Settings")]
-    [SerializeField][Range(0f, 100f)] public float movementSpeedMultiplier;
+    [SerializeField][Range(0f, 100f)] public float movementSpeedMultiplier; //cambiar
     [SerializeField] public float movementSpeed;
     [SerializeField][Range(0f, 2f)] public float xMoveSpeed;
 
@@ -20,7 +20,7 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
     [SerializeField][Range(0f, 0.2f)] public float turnSmoothTime;
 
     [Header("Crouch Movement Settings")]
-    [SerializeField][Range(0f, 100f)] public float crouchSpeedMultiplier;
+    [SerializeField][Range(0f, 100f)] public float crouchSpeedMultiplier; //cambiar
     [SerializeField] public float crouchSpeed, crouchCenter;
     [SerializeField][Range(0f, 1f)] public float topHitDistance, crouchTopHitRadiusDistance;
 
@@ -29,7 +29,7 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
     [SerializeField] public float gravityMultiplier;
     [SerializeField][Range(-1, -20)] public float groundGravity;
 
-    [Header("Jump Settings")]
+    [Header("Jump Settings")] //cambiar
     [SerializeField] public float maxNumberOfJumps;
     [SerializeField][Range(0f, 100f)] public float jumpForceMultiplier;
     [SerializeField] public float jumpForce;
@@ -67,21 +67,23 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
     [SerializeField] public float pushPowerProbs;
 
     [Header("Aim Speed Movement Settings")]
-    [SerializeField][Range(0f, 0.2f)] public float turnAimSmoothTime;
-    [SerializeField][Range(0f, 0.2f)] public float aimAnimatorLayerSmoothTime;
+    [SerializeField][Range(0f, 0.2f)] public float turnLookRotationSmoothTime;
+    [SerializeField][Range(0f, 10f)] public float aimAnimatorLayerSmoothTime;
     [SerializeField][Range(0f, 100f)] public float aimSpeedMultiplier;
     [SerializeField] public float aimSpeed;
 
     [Header("Aim Ray Settings")]
     [SerializeField] public float aimRayMaxDistance;
-    [SerializeField] public float aimRigLayerSmoothTime, defaultWeaponRot;
+    [SerializeField] public float defaultWeaponRot;
+    [SerializeField][Range(0f, 0.2f)] public float aimRigLayerSmoothTime;
+    [SerializeField][Range(-150f, 150f)] public float weaponMultiAimRotation;
 
     [Header("Camera Settings")]
     [SerializeField] public float baseCamPos;
-    [SerializeField] public float crouchCamPos, currentCamCrouchDelay, jumpCamPos, deadCamZone;
+    [SerializeField] public float crouchCamPos, currentCamCrouchDelay, jumpCamPos, deadCamZone, lerpDeadZoneHeight, lerpCamMoveVelocity;
 
-
-    [SerializeField] public List<AudioClip> audioClips = new List<AudioClip>();
+    [Header("Audio Settings")]
+    [SerializeField] public List<AudioClip> footStepAudioClips = new List<AudioClip>();
     public void Init()
     {
 

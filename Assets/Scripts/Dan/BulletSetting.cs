@@ -10,6 +10,9 @@ public class BulletSetting : MonoBehaviour
     public float damage = 2;
     private float time = 0;
     private Collider col;
+
+
+
     private void Start()
     {
         col = GetComponent<SphereCollider>();
@@ -33,6 +36,11 @@ public class BulletSetting : MonoBehaviour
         if (time >= 0.03f)
         {
             Destroy(gameObject);
+        }
+
+        GameObject target = collision.gameObject;
+        if (target.CompareTag("enemy")) {
+
         }
     }
 }

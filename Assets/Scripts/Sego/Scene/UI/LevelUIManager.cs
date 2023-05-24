@@ -1,90 +1,120 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using Unity.VisualScripting;
+using System;
+using UnityEngine.UI;
+
+public enum StatesGameLoop
+{
+    Game,
+    Pause
+}
 
 public class LevelUIManager : MonoBehaviour
 {
     public static LevelUIManager Instance;
 
-    [SerializeField] private List<GameObject> panelList = new List<GameObject>();
+    public static Action<StatesGameLoop> ActionShootWeaponTrigger;
+    public StatesGameLoop stateGame = StatesGameLoop.Game;
 
-    [SerializeField] public bool lose, win, joystick, pause, pausePanel, pauseButton, healthBar, dashButton, dashBar, switchWeaponButton, weaponBar, interactableUi;
+    public int level;
+    [SerializeField] private float delayToRestart;
+    [SerializeField] private UISettings uISettings;
+    [SerializeField] private List<GameObject> uIObjectList = new List<GameObject>();
+    [SerializeField] private List<AudioClip> audioClips = new List<AudioClip>();
+
+    [SerializeField] public bool lose, win, joystick, pause, pausePanel, pauseButton, healthBar, dashButton, dashBar, switchWeaponButton, weaponBar, score, flagTransition;
 
     private Joystick leftJoystick, rightJoystick;
-    private int triggerId;
+    private AudioSource camUIAudioSource;
+   
 
-    private void Awake()
+    private void Start()
     {
-        ProbsActionResponse.InteractableUI += InteractableUI;
+        camUIAudioSource = GameObject.Find("Main Camera").GetComponent<AudioSource>();
+        camUIAudioSource.spatialBlend = 0.5f;
+        camUIAudioSource.volume = 1f;
         Instance = this;
-        leftJoystick = panelList[4].GetComponent<Joystick>();
-        rightJoystick= panelList[5].GetComponent<Joystick>();
+        TransitionUIPanel.Instance.FadeIn();
+        leftJoystick = uIObjectList[2].GetComponent<Joystick>();
+        rightJoystick = uIObjectList[3].GetComponent<Joystick>();
+        Invoke(nameof(DisabledPanelTransition), 1f); 
+        pausePanel = false;
+        pauseButton = false;
+        joystick = false;
+        dashButton = false;
+        healthBar = false;
+        switchWeaponButton = false;
+        dashBar = false;
+        weaponBar = false;
+        score = false;
+    }
+
+    private void DisabledPanelTransition()
+    {
+        TransitionUIPanel.Instance.transform.gameObject.SetActive(false);
+        flagTransition = true;
     }
 
     private void Update()
     {
         if (joystick)
         {
-            panelList[4].SetActive(true);
-            panelList[5].SetActive(true);
+            uIObjectList[2].SetActive(true);
+            uIObjectList[3].SetActive(true);
         }
         else
         {
-            panelList[4].SetActive(false);
-            panelList[5].SetActive(false);
+            uIObjectList[2].SetActive(false);
+            uIObjectList[3].SetActive(false);
         }
 
         if (pauseButton)
-            panelList[2].SetActive(true);
+            uIObjectList[0].SetActive(true);
         else
-            panelList[2].SetActive(false);
+            uIObjectList[0].SetActive(false);
 
         if (pausePanel)
-            panelList[3].SetActive(true);
+            uIObjectList[1].SetActive(true);
         else
-            panelList[3].SetActive(false);
+            uIObjectList[1].SetActive(false);
 
         if (dashButton)
-            panelList[6].SetActive(true);
+            uIObjectList[4].SetActive(true);
         else
-            panelList[6].SetActive(false);
+            uIObjectList[4].SetActive(false);
 
         if (dashBar)
-            panelList[7].SetActive(true);
+            uIObjectList[5].SetActive(true);
         else
-            panelList[7].SetActive(false);
+            uIObjectList[5].SetActive(false);
 
         if (switchWeaponButton)
-            panelList[8].SetActive(true);
+            uIObjectList[6].SetActive(true);
         else
-            panelList[8].SetActive(false);
-
-        if (interactableUi)
-            panelList[9].SetActive(true);
-        else
-            panelList[9].SetActive(false);
+            uIObjectList[6].SetActive(false);
 
         if (healthBar)
-            panelList[12].SetActive(true);
+            uIObjectList[7].SetActive(true);
         else
-            panelList[12].SetActive(false);
-
-        if (switchWeaponButton)
-            panelList[13].SetActive(true);
-        else
-            panelList[13].SetActive(false);
+            uIObjectList[7].SetActive(false);
 
         if (weaponBar)
-            panelList[14].SetActive(true);
+            uIObjectList[8].SetActive(true);
         else
-            panelList[14].SetActive(false);
+            uIObjectList[8].SetActive(false);
+
+        if (score)
+            uIObjectList[9].SetActive(true);
+        else
+            uIObjectList[9].SetActive(false);
 
         if (pause)
         {
+           
+            stateGame = StatesGameLoop.Pause;
+
             leftJoystick.ResetJoysticks();
             rightJoystick.ResetJoysticks();
 
@@ -96,10 +126,13 @@ public class LevelUIManager : MonoBehaviour
             switchWeaponButton= false;
             dashBar = false;
             weaponBar = false;
-            //Time.timeScale = 0;
+            score = false;
+            ActionShootWeaponTrigger?.Invoke(stateGame);
         }
-        else
+        else if (!pause && flagTransition)
         {
+            stateGame = StatesGameLoop.Game;
+
             pausePanel = false;
             joystick = true;
             pauseButton = true;
@@ -108,7 +141,8 @@ public class LevelUIManager : MonoBehaviour
             switchWeaponButton = true;
             dashBar = true;
             weaponBar = true;
-            //Time.timeScale = 1;
+            score = true;
+            ActionShootWeaponTrigger?.Invoke(stateGame);
         }
 
 
@@ -116,31 +150,37 @@ public class LevelUIManager : MonoBehaviour
         {
             leftJoystick.ResetJoysticks();
             rightJoystick.ResetJoysticks();
-            panelList[0].SetActive(true);
-            joystick = false;
+            pausePanel = false;
             pauseButton = false;
+            joystick = false;
+            dashButton = false;
+            healthBar = false;
+            switchWeaponButton = false;
+            dashBar = false;
+            weaponBar = false;
+            score = false;
+            TransitionUIPanel.Instance.FadeOut();
+            SceneManager.LoadScene((int)SceneIndexes.DEATH, LoadSceneMode.Single);
         }
-        else
-        {
-            panelList[0].SetActive(false);
-        }
-
         if (win)
         {
             leftJoystick.ResetJoysticks();
-            rightJoystick.ResetJoysticks();
-            panelList[1].SetActive(true);
+            rightJoystick.ResetJoysticks();  
             pauseButton = false;
             joystick = false;
-        }
-        else
-        {
-            panelList[1].SetActive(false);
         }
    
     }
 
     public void ResetTheLevel()
+    {
+        camUIAudioSource.PlayOneShot(uISettings.uICanvasClips[0]);
+        TransitionUIPanel.Instance.transform.gameObject.SetActive(true);
+        TransitionUIPanel.Instance.animator.SetBool("Flag", true);
+        TransitionUIPanel.Instance.FadeOut();
+        Invoke(nameof(DelayReset), delayToRestart);
+    }
+    void DelayReset()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
@@ -148,26 +188,20 @@ public class LevelUIManager : MonoBehaviour
     public void PauseTheGame()
     {
         pause = true;
+        camUIAudioSource.PlayOneShot(uISettings.uICanvasClips[1]);
     }
-
     public void ContinueTheGame()
     {
         pause = false;
+        camUIAudioSource.PlayOneShot(uISettings.uICanvasClips[2]);
     }
 
-    public void InteractableUI(bool interactableUi, int id)
+    public void QuitApplication()
     {
-        this.interactableUi = interactableUi;
-        this.triggerId = id;
-    }
-
-    public void InteractableButton()
-    {
-        ProbsActionResponse.InteractableButtonUI?.Invoke(true, triggerId);
-        Invoke(nameof(ResetInteractableButton), 0.1f);
-    }
-    private void ResetInteractableButton()
-    {
-        ProbsActionResponse.InteractableButtonUI?.Invoke(false, triggerId);
-    }
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            AndroidJavaObject activity = new AndroidJavaClass("com.unity3d.player.UnityPlayer").GetStatic<AndroidJavaObject>("currentActivity");
+            activity.Call<bool>("moveTaskToBack", true);
+        }
+    } 
 }

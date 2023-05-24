@@ -5,7 +5,7 @@ using UnityEngine;
 public class TransitionUIPanel : MonoBehaviour
 {
     public static TransitionUIPanel Instance;
-    private Animator animator;
+    public Animator animator;
     // Start is called before the first frame update
     private void Awake()
     {
