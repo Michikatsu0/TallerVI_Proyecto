@@ -319,6 +319,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         isDashing = false;
         yield return new WaitForSeconds(FinalDashCd);
         canDash = true;
+        statsManager.dashesDados++;
     }
 
     #endregion

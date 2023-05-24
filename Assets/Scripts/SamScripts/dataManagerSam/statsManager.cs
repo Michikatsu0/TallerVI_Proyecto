@@ -54,7 +54,7 @@ public class statsManager : MonoBehaviour
     public void showStats()
     {
         statsCanvas.enabled = true;
-        Jumps.text = saltosDados.ToString()+" Time jumped";
+        Jumps.text = saltosDados.ToString()+" Times jumped ";
         Deaths.text  = muertes.ToString()+" Deaths";
         Dashes.text = dashesDados.ToString() + " Dashes performed";
         Damage.text = dañoHecho.ToString() + " Damage done";

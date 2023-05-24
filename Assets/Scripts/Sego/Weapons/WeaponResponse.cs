@@ -179,6 +179,7 @@ public class WeaponResponse : MonoBehaviour
 
         var ramdonShootClip = Random.Range(0, weaponSettings.weaponShootAudioClips.Count);
         audioSource.PlayOneShot(weaponSettings.weaponShootAudioClips[ramdonShootClip], 0.5f);
+        statsManager.balasDisparadas++;
     }
 
     public void OnFiringWeapon(bool isFiring)
