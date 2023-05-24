@@ -13,12 +13,12 @@ public class upgradesManager : MonoBehaviour
      public static int RegenerableLife=0,  ThetimeToRegenerate = 0, TheregenerationSpeed = 0,  TheDashStrenght = 0, TheDashCoolDown = 0, ThemaxHealth = 0, jumpQuantity = 0, JumpStrenght = 0;
 
     //UpgradePricesScaleLineally
-
+    
     [SerializeField] public float RegenerableLifeMod, TimeRegenMod, RegenSpeedMod, DashStrenghtMod, DashCDMod, MaxHealthMod, JumpQuantityMod, jumpStrenghtMod;
     public static float RegenerableLifeChange, TimeRegenChange, RegenSpeedChange, DashStrenghtChange, DashCDChange, MaxHealthChange, JumpQuantityChange, jumpStrenghtChange;
 
     public static int levelCounter; //total accesive levels
-    public static int CoinQuantity; //coinsPref
+    public static int CoinQuantity = 0; //coinsPref
 
     private void Awake()
     {
@@ -34,7 +34,7 @@ public class upgradesManager : MonoBehaviour
         jumpStrenghtChange = jumpStrenghtMod * JumpStrenght;
 
         #endregion
-
+        
         #region initializePrefs
         CoinQuantity = PlayerPrefs.GetInt("CoinsPref", CoinQuantity);
 
@@ -61,7 +61,6 @@ public class upgradesManager : MonoBehaviour
     public static void SaveGame()//se guardan al final de un juego
     {
         PlayerPrefs.SetInt("CoinsPref", CoinQuantity);
-
         PlayerPrefs.SetInt("DashStrenghtPref", TheDashStrenght);
         PlayerPrefs.SetInt("DashCoolDownPref", TheDashCoolDown);
         PlayerPrefs.SetInt("RegenerableLifePref", RegenerableLife);

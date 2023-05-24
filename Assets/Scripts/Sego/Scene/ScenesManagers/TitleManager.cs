@@ -38,7 +38,7 @@ public class TitleManager : MonoBehaviour
         {
             fly = 1;
             flagOneTouch = false;
-            PlayerPrefs.SetInt("LoadingSceneIndexToLoad", 3);
+            PlayerPrefs.SetInt("LoadingSceneIndexToLoad", 7);
             camUIAudioSource.PlayOneShot(audioSettings.uICanvasClips[2], 0.5f);
             StartCoroutine(TransitionToNextScene((int)SceneIndexes.LOADING));
         }

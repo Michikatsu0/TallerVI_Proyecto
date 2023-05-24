@@ -27,18 +27,14 @@ public class storeManager : MonoBehaviour
     private int LoadingScene;
     [SerializeField] int targetScene;  //scene where is the level
 
-    int numberOfUpgrade;
     void Start()
     {
         otherCanvas = targetCanvas.GetComponent<CanvasGroup>();
         myCanvasGroup = OwnCanvas.GetComponent<CanvasGroup>();
         LoadingScene = 2;
-        if (PlayerPrefs.GetInt(upgradeName, 0) >= 4)
-        {
-            activeButton.enabled = false;
-        } 
+ 
         PriceScalling = PriceScalling*PlayerPrefs.GetInt(upgradeName, 0);
-        priceText.text = (Price+Price*PriceScalling*PlayerPrefs.GetInt(upgradeName, 0)).ToString();
+        priceText.text = "price"; // (Price+Price*PriceScalling*PlayerPrefs.GetInt(upgradeName, 0)).ToString();
         DOTween.Init();
             
     }

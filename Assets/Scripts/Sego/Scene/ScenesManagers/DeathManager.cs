@@ -15,6 +15,8 @@ public class DeathManager : MonoBehaviour
         Instance = this;
         TransitionUIPanel.Instance.FadeIn();
         Invoke(nameof(DelayDeath), timeDeathScene);
+        PlayerPrefs.SetInt("LoadingSceneIndexToLoad",7);
+        PlayerPrefs.Save();
     }
     void DelayDeath()
     {
