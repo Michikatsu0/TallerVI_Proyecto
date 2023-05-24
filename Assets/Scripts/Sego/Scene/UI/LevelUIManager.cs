@@ -20,7 +20,7 @@ public class LevelUIManager : MonoBehaviour
 
     public int level;
     [SerializeField] private float delayToRestart;
-    [SerializeField] private UISettings uISettings;
+    [SerializeField] private AudioUISettings uISettings;
     [SerializeField] private List<GameObject> uIObjectList = new List<GameObject>();
     [SerializeField] private List<AudioClip> audioClips = new List<AudioClip>();
 

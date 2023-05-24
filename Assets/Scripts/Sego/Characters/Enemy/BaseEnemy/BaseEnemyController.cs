@@ -19,6 +19,8 @@ public abstract class BaseEnemyController : MonoBehaviour
 
     protected void TimingDistanceAlert()
     {
+        PlayerAudioMode.OnCombat?.Invoke(onAlert);
+
         if (onAlert) return;
         currentDistance = Vector3.Distance(transform.position, playerTarget.position);
         if (currentDistance <= baseEnemySettings.alertDistance)

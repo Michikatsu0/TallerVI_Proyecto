@@ -10,7 +10,7 @@ public class LoadingManager : MonoBehaviour
     [SerializeField] private float transitionDelay, lerpAudioTransition;
     [SerializeField] private Slider slider;
     [SerializeField] private List<Animator> animators = new List<Animator>();
-    [SerializeField] private UISettings audioSettings;
+    [SerializeField] private AudioUISettings audioSettings;
 
     private AudioSource camUIAudioSource;
     private int sceneIndex;

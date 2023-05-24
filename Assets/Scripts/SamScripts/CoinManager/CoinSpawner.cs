@@ -14,7 +14,7 @@ public class CoinSpawner : MonoBehaviour
         coinsNumber = Random.Range(lowerLimit, upperLimit);
         for (int i = 0; i < coinsNumber; i++)
         {
-            Vector2 ramdonPointSphere = Random.insideUnitCircle / 2;
+            Vector2 ramdonPointSphere = Random.insideUnitCircle;
             GameObject coinSpawner = Instantiate(scifiCoin, transform.position + (Vector3)ramdonPointSphere, Quaternion.identity);
             coinSpawner.GetComponent<CoinBehaviour>().inEnemy = true;
         }

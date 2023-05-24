@@ -10,7 +10,7 @@ public class AIEnemyRobotHumanoide : BaseEnemyController
     [SerializeField] private Transform searchTarget;
     private NavMeshAgent agent;
     private Vector3 searchTargetPos;
-    private float currentVelocity, searchTime;
+    private float currentVelocity, currentDistance, searchTime;
      // Start is called before the first frame update
     void Start()
     {
@@ -28,6 +28,7 @@ public class AIEnemyRobotHumanoide : BaseEnemyController
         else
         {
             searchTime += Time.deltaTime;
+
             if (searchTime >= baseEnemySettings.timeToSearchPos)
             {
                 searchTime = 0;

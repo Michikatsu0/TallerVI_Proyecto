@@ -17,6 +17,7 @@ public class HealthEnemyResponse : MonoBehaviour
 
     void Start()
     {
+        coinSpawner = GetComponent<CoinSpawner>();
         if (humanoide)
             skinnedMeshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
         audioSource = GetComponent<AudioSource>();
@@ -26,6 +27,8 @@ public class HealthEnemyResponse : MonoBehaviour
         healthSlider.minValue = 0;
         healthSlider.value = maxHealth;
         fillImage = healthSlider.fillRect.gameObject.GetComponent<Image>();
+
+       
     }
 
     void Update()

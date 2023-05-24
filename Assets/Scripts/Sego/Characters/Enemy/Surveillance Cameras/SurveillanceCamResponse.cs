@@ -86,6 +86,9 @@ public class SurveillanceCamResponse : MonoBehaviour
 
     void SurveillanceCamFuntion()
     {
+
+        PlayerAudioMode.OnCombat?.Invoke(onAlert);
+
         if (onAlert)
         {
             animator.SetBool("OnAlert", true);
@@ -108,6 +111,7 @@ public class SurveillanceCamResponse : MonoBehaviour
 
             if (searchTime >= surveillanceSettings.timeToSearchPos)
             {
+
                 searchTime = 0;
                 searchTargetPos.y = transform.position.y + UnityEngine.Random.Range(0.0f, surveillanceSettings.searchYlimit);
                 searchTargetPos.z = transform.position.z + UnityEngine.Random.Range(-surveillanceSettings.alertDistance, surveillanceSettings.alertDistance);

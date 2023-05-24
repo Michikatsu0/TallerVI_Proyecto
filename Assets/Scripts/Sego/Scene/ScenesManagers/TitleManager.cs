@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class TitleManager : MonoBehaviour
 { 
     public static TitleManager Instance;
-    [SerializeField] private UISettings audioSettings;
+    [SerializeField] private AudioUISettings audioSettings;
     [SerializeField] private float transitionDelay, lerpAudioTransition;
     private int tutorial, fly = 0;
 

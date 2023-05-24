@@ -665,7 +665,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     //        do
     //            yield return new WaitForEndOfFrame();
-    //        while (animator.GetCurrentAnimatorStateInfo(playerSettings.layerWeaponAnimator).normalizedTime < 1.0f);
+    //        while (animator.GetCurrentAnimatorStateInfo(playerSettings.layerWeaponAnimator).normalizedTime > 1.0f);
     //    }
     //}
 
@@ -679,7 +679,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     //        do
     //            yield return new WaitForEndOfFrame();
-    //        while (animator.GetCurrentAnimatorStateInfo(playerSettings.layerWeaponAnimator).normalizedTime < 1.0f);
+    //        while (animator.GetCurrentAnimatorStateInfo(playerSettings.layerWeaponAnimator).normalizedTime > 1.0f);
     //    }
     //}
 
