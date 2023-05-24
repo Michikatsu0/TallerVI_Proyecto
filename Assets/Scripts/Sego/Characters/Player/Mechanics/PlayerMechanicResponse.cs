@@ -13,8 +13,18 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     private CharacterController characterController;
     private Animator animator;
 
+   public float FinalDashCd;
+   public float FinalDashForce;
+    public float FinalJumpNumber;
+    public float FinalJumpForce;
+
     void Start()
     {
+        FinalDashCd = playerSettings.dashCoolDown+ upgradesManager.DashCDChange;
+        FinalDashForce = playerSettings.dashForce+upgradesManager.DashStrenghtChange;
+        FinalJumpNumber = playerSettings.maxNumberOfJumps+upgradesManager.JumpQuantityChange;
+        FinalJumpForce = playerSettings.jumpForce+upgradesManager.jumpStrenghtChange;
+
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
 
@@ -273,7 +283,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     public void Dash()
     {
-        dashPercent = (playerSettings.dashForce * playerSettings.dashForceMultiplier) / 100;
+        dashPercent = (FinalDashForce * playerSettings.dashForceMultiplier) / 100; //change the dash strenght
 
         animator.SetBool("IsDashing", isDashing);
 
@@ -305,8 +315,9 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         }
         dashTime = 0;
         isDashing = false;
-        yield return new WaitForSeconds(playerSettings.dashCoolDown);
+        yield return new WaitForSeconds(FinalDashCd);
         canDash = true;
+        statsManager.dashesDados++;
     }
 
     #endregion
@@ -322,9 +333,9 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         if (rightJoystickXYAimLimit)
             this.maxNumberofJumps = 1;
         else
-            this.maxNumberofJumps = playerSettings.maxNumberOfJumps;
+            this.maxNumberofJumps = FinalJumpNumber; //jump number
 
-        jumpPercent = (playerSettings.jumpForce * playerSettings.jumpForceMultiplier) / 100; //here are the jump settings to change
+        jumpPercent = (FinalJumpForce * playerSettings.jumpForceMultiplier) / 100; //here are the jump settings to change of force
         jumpSpeedPercent = (playerSettings.jumpSpeed * playerSettings.jumpSpeedMultiplier) / 100;
         
         CoyoteTime();

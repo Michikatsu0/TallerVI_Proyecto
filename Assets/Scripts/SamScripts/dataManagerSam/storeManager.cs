@@ -2,12 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using TMPro;
+using DG.Tweening;  
+
+
 
 public class storeManager : MonoBehaviour
 {
     [SerializeField] string upgradeName;
     [SerializeField] int Price;
     [SerializeField] int PriceScalling;
+    [SerializeField] TMP_Text priceText;
 
 
     [SerializeField] Button activeButton;
@@ -15,23 +21,37 @@ public class storeManager : MonoBehaviour
     [SerializeField] Canvas targetCanvas;
     [SerializeField] Canvas OwnCanvas;
 
+    private CanvasGroup myCanvasGroup;
+    private CanvasGroup otherCanvas;
+
+    private int LoadingScene;
+    [SerializeField] int targetScene;  //scene where is the level
+
     int numberOfUpgrade;
     void Start()
     {
+        otherCanvas = targetCanvas.GetComponent<CanvasGroup>();
+        myCanvasGroup = OwnCanvas.GetComponent<CanvasGroup>();
+        LoadingScene = 2;
         if (PlayerPrefs.GetInt(upgradeName, 0) >= 4)
         {
             activeButton.enabled = false;
         } 
+        PriceScalling = PriceScalling*PlayerPrefs.GetInt(upgradeName, 0);
+        priceText.text = (Price+Price*PriceScalling*PlayerPrefs.GetInt(upgradeName, 0)).ToString();
+        DOTween.Init();
+            
     }
     #region buyFunctions
     public void BuyMaxLife()
     {
-        if (upgradesManager.CoinQuantity > Price*PriceScalling)
+        if (upgradesManager.CoinQuantity > Price+PriceScalling)
         {
-            upgradesManager.CoinQuantity -= Price*PriceScalling;
+            upgradesManager.CoinQuantity -= Price+PriceScalling;
             upgradesManager.ThemaxHealth++;
             upgradesManager.SaveGame();
             PriceScalling = PriceScalling * upgradesManager.ThemaxHealth;
+            priceText.text = Price + PriceScalling.ToString();
             if (PlayerPrefs.GetInt(upgradeName, 0) >= 4)
             {
                 activeButton.enabled = false;
@@ -40,12 +60,14 @@ public class storeManager : MonoBehaviour
     }
     public void BuyMaxJumps()
     {
-        if (upgradesManager.CoinQuantity > Price * PriceScalling)
+        if (upgradesManager.CoinQuantity > Price + PriceScalling)
         {
-            upgradesManager.CoinQuantity -= Price * PriceScalling;
+            upgradesManager.CoinQuantity -= Price + PriceScalling;
             upgradesManager.jumpQuantity++;
             upgradesManager.SaveGame();
-            PriceScalling = PriceScalling * upgradesManager.ThemaxHealth;
+            PriceScalling = PriceScalling * upgradesManager.jumpQuantity;
+            priceText.text = Price + PriceScalling.ToString();
+
             if (PlayerPrefs.GetInt(upgradeName, 0) >= 4)
             {
                 activeButton.enabled = false;
@@ -54,12 +76,14 @@ public class storeManager : MonoBehaviour
     }
     public void BuyRegenSpeed()
     {
-        if (upgradesManager.CoinQuantity > Price * PriceScalling)
+        if (upgradesManager.CoinQuantity > Price + PriceScalling)
         {
-            upgradesManager.CoinQuantity -= Price * PriceScalling;
+            upgradesManager.CoinQuantity -= Price + PriceScalling;
             upgradesManager.TheregenerationSpeed++;
             upgradesManager.SaveGame();
-            PriceScalling = PriceScalling * upgradesManager.ThemaxHealth;
+            PriceScalling = PriceScalling * upgradesManager.TheregenerationSpeed;
+            priceText.text = Price + PriceScalling.ToString();
+
             if (PlayerPrefs.GetInt(upgradeName, 0) >= 4)
             {
                 activeButton.enabled = false;
@@ -69,26 +93,30 @@ public class storeManager : MonoBehaviour
 
     public void BuyRegenTime()
     {
-        if (upgradesManager.CoinQuantity > Price * PriceScalling)
+        if (upgradesManager.CoinQuantity > Price + PriceScalling)
         {
-            upgradesManager.CoinQuantity -= Price * PriceScalling;
+            upgradesManager.CoinQuantity -= Price + PriceScalling;
             upgradesManager.ThetimeToRegenerate++;
             upgradesManager.SaveGame();
-            PriceScalling = PriceScalling * upgradesManager.ThemaxHealth;
+            PriceScalling = PriceScalling * upgradesManager.ThetimeToRegenerate;
+            priceText.text = Price + PriceScalling.ToString();
+
         }
         if (PlayerPrefs.GetInt(upgradeName, 0) >= 4)
         {
             activeButton.enabled = false;
         }
     }
-    public void BuyTimeInvincible()
+    public void BuyRegenerableLife()
     {
-        if (upgradesManager.CoinQuantity > Price * PriceScalling)
-        {
-            upgradesManager.CoinQuantity -= Price * PriceScalling;
-            upgradesManager.ThemaxTimeInvincible++;
+        if (upgradesManager.CoinQuantity > Price + PriceScalling)
+        {   
+            upgradesManager.CoinQuantity -= Price + PriceScalling;
+            upgradesManager.RegenerableLife++;
             upgradesManager.SaveGame();
-            PriceScalling = PriceScalling * upgradesManager.ThemaxHealth;
+            PriceScalling = PriceScalling * upgradesManager.RegenerableLife;
+            priceText.text = Price + PriceScalling.ToString();
+
             if (PlayerPrefs.GetInt(upgradeName, 0) >= 4)
             {
                 activeButton.enabled = false;
@@ -98,12 +126,14 @@ public class storeManager : MonoBehaviour
     }
     public void BuyDashCd()
     {
-        if (upgradesManager.CoinQuantity > Price * PriceScalling)
+        if (upgradesManager.CoinQuantity > Price + PriceScalling)
         {
-            upgradesManager.CoinQuantity -= Price * PriceScalling;
+            upgradesManager.CoinQuantity -= Price + PriceScalling;
             upgradesManager.TheDashCoolDown++;
             upgradesManager.SaveGame();
-            PriceScalling = PriceScalling * upgradesManager.ThemaxHealth;
+            PriceScalling = PriceScalling * upgradesManager.TheDashCoolDown;
+            priceText.text = Price + PriceScalling.ToString();
+
             if (PlayerPrefs.GetInt(upgradeName, 0) >= 4)
             {
                 activeButton.enabled = false;
@@ -112,26 +142,30 @@ public class storeManager : MonoBehaviour
     }
     public void BuyDashForce()
     {
-        if (upgradesManager.CoinQuantity > Price * PriceScalling)
+        if (upgradesManager.CoinQuantity > Price + PriceScalling)
         {
-            upgradesManager.CoinQuantity -= Price * PriceScalling;
+            upgradesManager.CoinQuantity -= Price + PriceScalling;
             upgradesManager.TheDashStrenght++;
             upgradesManager.SaveGame();
-            PriceScalling = PriceScalling * upgradesManager.ThemaxHealth;
+            PriceScalling = PriceScalling * upgradesManager.TheDashStrenght;
+            priceText.text = Price + PriceScalling.ToString();
+
             if (PlayerPrefs.GetInt(upgradeName, 0) >= 4)
             {
                 activeButton.enabled = false;
             }
         }
     }
-    public void BuyCrouchSpeed()
+    public void BuyJumpStrenght()
     {
-        if (upgradesManager.CoinQuantity > Price * PriceScalling)
+        if (upgradesManager.CoinQuantity > Price + PriceScalling)
         {
-            upgradesManager.CoinQuantity -= Price * PriceScalling;
-            upgradesManager.TheCrouchedSpeed++;
+            upgradesManager.CoinQuantity -= Price + PriceScalling;
+            upgradesManager.JumpStrenght++;
             upgradesManager.SaveGame();
-            PriceScalling = PriceScalling * upgradesManager.ThemaxHealth;
+            PriceScalling = PriceScalling * upgradesManager.JumpStrenght;
+            priceText.text = Price + PriceScalling.ToString();
+
             if (PlayerPrefs.GetInt(upgradeName, 0) >= 4)
             {
                 activeButton.enabled = false;
@@ -139,25 +173,20 @@ public class storeManager : MonoBehaviour
         }
     }
 
-    public void BuyMovementSpeed()
-    {
-        if (upgradesManager.CoinQuantity > Price * PriceScalling)
-        {
-            upgradesManager.CoinQuantity -= Price * PriceScalling;
-            upgradesManager.RegularMovementSpeed++;
-            upgradesManager.SaveGame();
-            PriceScalling = PriceScalling * upgradesManager.ThemaxHealth;
-            if (PlayerPrefs.GetInt(upgradeName, 0) >= 4)
-            {
-                activeButton.enabled = false;
-            }
-        }
-    }
     #endregion
 
     public void ChangeCanvas()
     {
         targetCanvas.enabled = true;
+        otherCanvas.DOFade(1, 1); //targetCanvas
+        myCanvasGroup.DOFade(0,1);  //mine
         OwnCanvas.enabled = false;
+    }
+    public void ChangeScene()
+    {
+        PlayerPrefs.SetInt("LoadingSceneIndexToLoad", targetScene);
+        PlayerPrefs.Save();
+        SceneManager.LoadScene(2);
+
     }
 }

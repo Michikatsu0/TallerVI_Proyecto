@@ -15,7 +15,7 @@ public class DashBarCoolDown : MonoBehaviour
         slider = GetComponent<Slider>();
         PlayerActionsResponse.ActionDashBarCoolDown += UpdatePlayerDashBar;
         slider.minValue = 0;
-        slider.maxValue = mechanicResponse.playerSettings.dashCoolDown;
+        slider.maxValue = mechanicResponse.FinalDashCd;
         slider.value = slider.maxValue;
         currentValue = slider.value;
     }
@@ -23,7 +23,7 @@ public class DashBarCoolDown : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        slider.maxValue = mechanicResponse.playerSettings.dashCoolDown;
+        slider.maxValue = mechanicResponse.FinalDashCd;
 
         if (isDashing)
         {

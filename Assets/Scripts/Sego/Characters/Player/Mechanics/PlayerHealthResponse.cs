@@ -7,25 +7,38 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+/// <summary>
+/// changed the max health multiplying it with the modifier
+/// also changed the regen speed and regen time
+/// </summary>
 
-public class PlayerHealthResponse : MonoBehaviour
+public class HealthResponse : MonoBehaviour
 {
     [SerializeField] private StatsSettings statsSettings;
 
     public float currentHealth;
 
-    private float blinkTimer, intensity, tmpTimeToRegenerate,regenerateValue = 0, currentVolumen;
+    private float blinkTimer, intensity, tmpTimeToRegenerate,regenerateValue = 0;
     private SkinnedMeshRenderer skinnedMeshRenderer;
     private CharacterController characterController;
-    private AudioSource audioSource;  
     private RagdollResponse ragdoll;
     private Slider healthSlider;
     private Image fillImage, playerImage;
     private TextMeshProUGUI textMeshPro;
-    private bool canRegenerate = true, isRegenerating, deathScript, audioBlowFlag = true, audioRegeFlag = true;
-    
+    private bool canRegenerate = true, isRegenerating, deathScript;
+
+    float FinalMaxHealth;
+    float FinalRegenerableHealth;
+    float FinalRegenTime;
+    float FinalRegenSpeed;
+
     private void Start()
     {
+        FinalMaxHealth = statsSettings.maxHealth+upgradesManager.MaxHealthChange;
+        FinalRegenerableHealth = regenerateValue+upgradesManager.RegenerableLifeChange;
+        FinalRegenTime = statsSettings.timeToRegenerate + upgradesManager.TimeRegenChange;
+        FinalRegenSpeed = statsSettings.regenerationSpeed + upgradesManager.RegenSpeedChange; //here we changing things
+        
         skinnedMeshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
 
         healthSlider = GameObject.Find("Health_Bar").GetComponent<Slider>();
@@ -39,15 +52,19 @@ public class PlayerHealthResponse : MonoBehaviour
         ragdoll = GetComponentInChildren<RagdollResponse>();
         characterController = GetComponent<CharacterController>();
 
-        currentHealth = statsSettings.maxHealth;
+        currentHealth = FinalMaxHealth; //max health changed
 
-        healthSlider.maxValue = statsSettings.maxHealth;
+        healthSlider.maxValue = FinalMaxHealth; //here too
         healthSlider.value = currentHealth;
 
-        audioSource = GetComponent<AudioSource>();
-        audioSource.volume = 0.5f;
-        audioSource.spatialBlend = 0.5f;
-        audioSource.loop = false;
+        var rigidBodies = GetComponentsInChildren<Rigidbody>();
+
+        foreach (Rigidbody rigidBody in rigidBodies)
+        {
+            HitboxResponse hitbox = rigidBody.gameObject.AddComponent<HitboxResponse>();
+            hitbox.healthResponse = this;
+        }
+
     }
 
     private void Update()
@@ -62,64 +79,42 @@ public class PlayerHealthResponse : MonoBehaviour
         else
             playerImage.color = Color.red * intensity;
 
-        if (blinkTimer > -0.1f)
+        if (blinkTimer > -0.01f)
             BlinkColorChanger();
 
         healthSlider.value = Mathf.Lerp(healthSlider.value, currentHealth, statsSettings.transitionDamageLerp * Time.deltaTime);
         int  stringHealth = (int)healthSlider.value;
         textMeshPro.text = stringHealth.ToString();
 
-        IsDeath();
-
         if (deathScript) return;
 
-        UIColorChanger();
+        ColorChanger();
+        IsDeath();
 
         if (currentHealth < 10.0f && !isRegenerating && canRegenerate)
         {
-            audioSource.PlayOneShot(statsSettings.deathClips[4], 1f);
             Invoke(nameof(DelayRegeneration), tmpTimeToRegenerate);
             canRegenerate = false;
         }
 
         if (isRegenerating)
         {
-            currentVolumen = 1.0f;
-            if (!audioSource.isPlaying)
-            {
-                audioSource.clip = statsSettings.deathClips[5];
-                audioSource.Play();
-            }
             playerImage.color = Color.green * 1;
             regenerateValue += Time.deltaTime; 
-            currentHealth = regenerateValue * statsSettings.regenerationSpeed;
+            currentHealth = regenerateValue * FinalRegenSpeed; //regeneration speed changed
 
             if (healthSlider.value >= 10.0f)
             {
-                if (audioSource.isPlaying)
-                    currentVolumen = 0.0f;
-
-                audioRegeFlag = true;
                 canRegenerate = true;
                 isRegenerating = false;
                 regenerateValue = 0;
-                tmpTimeToRegenerate = statsSettings.timeToRegenerate;
+                tmpTimeToRegenerate = FinalRegenTime; //here we will change the time to regenerate
             }
-
-
-        }
-        else
-        {
-            if (audioSource.isPlaying)
-            {
-                currentVolumen = 1.0f;
-            }
-            
-            currentVolumen = 0f;
         }
 
-        regenerateValue = currentHealth;
+
     }
+
     void BlinkColorChanger()
     {
         skinnedMeshRenderer.materials[0].color = statsSettings.armatureColorsMaterial[0] * intensity;
@@ -129,22 +124,23 @@ public class PlayerHealthResponse : MonoBehaviour
         foreach (var material in statsSettings.armatureHelmetMaterials)
             material.color = Color.white * intensity;
     }
+
     void DelayRegeneration()
     {
         isRegenerating = true;
         regenerateValue = currentHealth;
     }
 
-    public void TakeDamage(float amount) //Changes the current Health, public so enemydamage can access it. When damaged, starts the timer for invencibility
+    public void TakeDamage(int amount) //Changes the current Health, public so enemydamage can access it. When damaged, starts the timer for invencibility
     {
         currentHealth -= amount;
-        currentHealth = Mathf.Clamp(currentHealth, 0, statsSettings.maxHealth);
+        currentHealth = Mathf.Clamp(currentHealth, 0, FinalMaxHealth);
         blinkTimer = statsSettings.blinkDuration;
         isRegenerating = false;
         canRegenerate = true;
     }
 
-    void UIColorChanger()
+    void ColorChanger()
     {
         Color healthBarColor = Color.Lerp(statsSettings.sliderColors[1], statsSettings.sliderColors[0], healthSlider.value / healthSlider.maxValue);
         fillImage.color = healthBarColor;
@@ -162,9 +158,10 @@ public class PlayerHealthResponse : MonoBehaviour
     IEnumerator DeathCoroutine() //waits for the destruction of the player, use and adjust the time for a death animation
     {
         statsManager.muertes++; //añade uno al contador de muertes
+
         statsManager.OnGameOver();
         upgradesManager.SaveGame();
-        audioSource.PlayOneShot(statsSettings.deathClips[UnityEngine.Random.Range(0, 4)],0.5f);
+
         deathScript = true;
         ragdoll.ActivateRagdolls();
         characterController.enabled = false;
