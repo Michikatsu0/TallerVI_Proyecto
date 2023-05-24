@@ -24,14 +24,15 @@ public class storeManager : MonoBehaviour
     private CanvasGroup myCanvasGroup;
     private CanvasGroup otherCanvas;
 
-    [SerializeField] int targetScene;
+    private int LoadingScene;
+    [SerializeField] int targetScene;  //scene where is the level
 
     int numberOfUpgrade;
     void Start()
     {
         otherCanvas = targetCanvas.GetComponent<CanvasGroup>();
         myCanvasGroup = OwnCanvas.GetComponent<CanvasGroup>();
-
+        LoadingScene = 2;
         if (PlayerPrefs.GetInt(upgradeName, 0) >= 4)
         {
             activeButton.enabled = false;
@@ -183,7 +184,9 @@ public class storeManager : MonoBehaviour
     }
     public void ChangeScene()
     {
-        SceneManager.LoadScene(targetScene);
+        PlayerPrefs.SetInt("LoadingSceneIndexToLoad", targetScene);
+        PlayerPrefs.Save();
+        SceneManager.LoadScene(2);
 
     }
 }

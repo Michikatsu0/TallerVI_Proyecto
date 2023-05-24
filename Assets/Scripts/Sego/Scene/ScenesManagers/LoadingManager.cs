@@ -21,9 +21,9 @@ public class LoadingManager : MonoBehaviour
     void Start()
     {
         flagOneTouech = true;
-
         transitionUIPanel.FadeIn();
         sceneIndex = PlayerPrefs.GetInt("LoadingSceneIndexToLoad");
+
     }
 
     void Update()
