@@ -14,6 +14,7 @@ public class Health : MonoBehaviour
     Rigidbody rigidbody;
     public int deathTimer; //time for the destruction of the players
 
+   // [SerializeField] LevelMenu levelmenu;
 
 
     void Start()
@@ -50,6 +51,7 @@ public class Health : MonoBehaviour
     IEnumerator DeathCoroutine() //waits for the destruction of the player, use and adjust the time for a death animation
     {
         yield return new WaitForSeconds(deathTimer);
+      //  levelmenu.lose = true;
 
         Destroy(gameObject);
 
