@@ -43,6 +43,7 @@ public class CoinBehaviour : MonoBehaviour
             inEnemyTime += Time.deltaTime;
             if (inEnemyTime >= delayToFollow)
             {
+                rgbd.useGravity = false;
                 rgbd.isKinematic = true;
                 rgbd.position = Vector3.MoveTowards(transform.position, playerPosition.transform.position, followSpeed * Time.deltaTime);
                 
