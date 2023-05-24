@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.AI;
-using static UnityEditor.Searcher.SearcherWindow.Alignment;
 
 public class AIEnemyRobotHumanoide : BaseEnemyController
 {
@@ -29,7 +28,7 @@ public class AIEnemyRobotHumanoide : BaseEnemyController
         else
             animator.SetBool("IsMoving", true);
 
-        animator.SetFloat("ZMove", agent.velocity.magnitude);
+        animator.SetFloat("XMove", agent.velocity.magnitude);
 
         if (onAlert)
         {
