@@ -20,7 +20,7 @@ public class StatsEnemySettings : ScriptableObject, ISerializationCallbackReceiv
 
     [Header("Audio Settings")]
     [SerializeField] public List<AudioClip> deathClips;
-
+    [SerializeField] public List<AudioClip> footClips;
     public void Init()
     {
 

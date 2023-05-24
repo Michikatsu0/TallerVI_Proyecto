@@ -9,7 +9,7 @@ public class TurrentGunLaserResponse : BaseEnemyController
     [SerializeField] private Rig playerAimRig;
     [SerializeField] private Rig searchAimRig;
     [SerializeField] private Transform searchTarget;
-    [SerializeField] private bool horizontal;
+    [SerializeField] private bool horizontal, direction;
     private Vector3 searchTargetPos;
     private float searchTime, accumulatedTime, fireInterval;
     private bool flagOnDeath = true;
@@ -83,7 +83,13 @@ public class TurrentGunLaserResponse : BaseEnemyController
                 if (!horizontal)
                     searchTargetPos.z = transform.position.z + UnityEngine.Random.Range(-baseEnemySettings.alertDistance, baseEnemySettings.alertDistance);
                 else
-                    searchTargetPos.z = transform.position.z + UnityEngine.Random.Range(-baseEnemySettings.alertDistance, 0);
+                {
+                    if (direction)
+                        searchTargetPos.z = transform.position.z + UnityEngine.Random.Range(-baseEnemySettings.alertDistance, 0);
+                    else
+                        searchTargetPos.z = transform.position.z + UnityEngine.Random.Range(0, baseEnemySettings.alertDistance);
+                }
+                    
             }
 
             searchRigidbody.MovePosition(Vector3.Lerp(searchTarget.position, searchTargetPos, baseEnemySettings.lerpSearchPosTarget * Time.deltaTime* 2f));

@@ -8,6 +8,7 @@ public class RagdollResponse : MonoBehaviour
     private Rigidbody[] rigidbodies;
     private Collider[] colliders;
     private Animator animator;
+    public bool inEnemy;
 
     void Start()
     {
@@ -20,27 +21,33 @@ public class RagdollResponse : MonoBehaviour
 
     public void DeactiveRagdolls()
     {
-        foreach (var collider in colliders)
-        {
-            collider.isTrigger = true;
-        }
         foreach (var rigidBody in rigidbodies)
         {
             rigidBody.isKinematic = true;
         }
         animator.enabled = true;
+
+        if (inEnemy) return;
+
+        foreach (var collider in colliders)
+        {
+            collider.isTrigger = true;
+        }
     }
 
     public void ActivateRagdolls()
     {
-        foreach (var collider in colliders)
-        {
-            collider.isTrigger = false;
-        }
         foreach (var rigidBody in rigidbodies)
         {
             rigidBody.isKinematic = false;
         }
         animator.enabled = false;
+
+        if (inEnemy) return;
+
+        foreach (var collider in colliders)
+        {
+            collider.isTrigger = false;
+        }
     }
 }

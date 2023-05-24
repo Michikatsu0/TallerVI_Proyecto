@@ -6,12 +6,12 @@ public class CoinBehaviour : MonoBehaviour
 {
     [SerializeField] private ScifiCoinSettings coinSettings;
     [SerializeField] private GameObject scifiMesh;
-    [SerializeField] private float delayToFollow, followSpeed;
-    private GameObject playerPosition;
+    [SerializeField] public float delayToFollow, followSpeed;
+    public bool inEnemy;
 
     private float inEnemyTime;
-    public bool inEnemy;
     private int amount;
+    private GameObject playerPosition;
     private AudioSource audioSource;
     private Rigidbody rgbd;
     private Collider col;

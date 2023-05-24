@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class EnemyHitboxResponse : MonoBehaviour
 {
-    HealthEnemyResponse healthEnemy;
+    [HideInInspector] public HealthEnemyResponse healthEnemy;
 
     // Start is called before the first frame update
     void Start()

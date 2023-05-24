@@ -28,11 +28,8 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 
     void Start()
     {
-       
-
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();
-
 
         multiAimWeaponRigPose = GameObject.Find("WeaponPose_Aiming").GetComponent<MultiAimConstraint>();
 
@@ -550,7 +547,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
                     currentRotation = negativeRotation;
             } 
                 
-            animator.SetFloat("MoveX", leftJoystick.Horizontal);
+            animator.SetFloat("MoveZ", leftJoystick.Horizontal);
         }
         else if (-playerSettings.rightDeathZoneAimXY >= rightJoystick.Horizontal)
         {
@@ -562,7 +559,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
                 else if (joystickDashDirection.z < 0)
                     currentRotation = negativeRotation;
             }
-            animator.SetFloat("MoveX", -leftJoystick.Horizontal);
+            animator.SetFloat("MoveZ", -leftJoystick.Horizontal);
         }
 
         float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, currentRotation, ref turnSmoothVelocity, playerSettings.turnLookRotationSmoothTime);
@@ -601,7 +598,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
                 animatorLayer2 = Mathf.Lerp(animator.GetLayerWeight(2), 0, playerSettings.aimAnimatorLayerSmoothTime * Time.deltaTime);
 
                 if (leftJoystickXMovementLimits)
-                    animator.SetFloat("MoveX", leftJoystick.Horizontal);
+                    animator.SetFloat("MoveZ", leftJoystick.Horizontal);
             }
             animator.SetLayerWeight(1, animatorLayer1);
             animator.SetLayerWeight(2, animatorLayer2);
@@ -617,7 +614,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
                 animatorLayer1 = Mathf.Lerp(animator.GetLayerWeight(1), 0, playerSettings.aimAnimatorLayerSmoothTime * Time.deltaTime);
 
                 if (leftJoystickXMovementLimits)
-                    animator.SetFloat("MoveX", leftJoystick.Horizontal);
+                    animator.SetFloat("MoveZ", leftJoystick.Horizontal);
             }
             animator.SetLayerWeight(1, animatorLayer1);
             animator.SetLayerWeight(2, animatorLayer2);
@@ -643,7 +640,7 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
         newWeapon.transform.SetParent(weaponSlots[weaponSlotIndex], false);
         newWeapon.transform.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
         equippedWeapons[weaponSlotIndex] = newWeapon;
-
+        animator.Play(Animator.StringToHash("Weapon_" + newWeapon.weaponName), playerSettings.layerWeaponAnimator);
         //SetActiveWeapon(newWeapon.weaponSlot);
     }
 

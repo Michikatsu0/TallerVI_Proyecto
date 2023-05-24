@@ -9,7 +9,7 @@ public class CoinSpawner : MonoBehaviour
     [SerializeField] int upperLimit;
     int coinsNumber;
 
-    public void SpawnCoins()
+    public void SpawnCoins(bool onHumanoid)
     {
         coinsNumber = Random.Range(lowerLimit, upperLimit);
         for (int i = 0; i < coinsNumber; i++)
@@ -17,6 +17,8 @@ public class CoinSpawner : MonoBehaviour
             Vector2 ramdonPointSphere = Random.insideUnitCircle;
             GameObject coinSpawner = Instantiate(scifiCoin, transform.position + (Vector3)ramdonPointSphere, Quaternion.identity);
             coinSpawner.GetComponent<CoinBehaviour>().inEnemy = true;
+            if (onHumanoid)
+                coinSpawner.GetComponent<CoinBehaviour>().delayToFollow = 0f;
         }
     }
 }

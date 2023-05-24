@@ -39,7 +39,7 @@ public class LevelUIManager : MonoBehaviour
         TransitionUIPanel.Instance.FadeIn();
         leftJoystick = uIObjectList[2].GetComponent<Joystick>();
         rightJoystick = uIObjectList[3].GetComponent<Joystick>();
-        Invoke(nameof(DisabledPanelTransition), 1f); 
+        Invoke(nameof(DisabledPanelTransition), delayToRestart); 
         pausePanel = false;
         pauseButton = false;
         joystick = false;
