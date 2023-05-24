@@ -14,7 +14,7 @@ public class StatsEnemySettings : ScriptableObject, ISerializationCallbackReceiv
 
     [Header("Hit Effect Settings")]
     [SerializeField] public List<Material> effectMaterial;
-    [SerializeField] public List<Color> enemyColors;
+    [SerializeField] public List<Color> armatureColorMaterials;
     [SerializeField] public List<Color> sliderColors;
     [SerializeField] public float transitionDamageLerp;
 

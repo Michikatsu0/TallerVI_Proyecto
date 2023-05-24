@@ -6,15 +6,19 @@ public class HealthEnemyResponse : MonoBehaviour
 {
     [SerializeField] public StatsEnemySettings statsEnemySettings;
     [SerializeField] private Slider healthSlider;
-
+    [SerializeField] private bool humanoide;
+    private SkinnedMeshRenderer skinnedMeshRenderer;
     private AudioSource audioSource;
     private Image fillImage;
+    private CoinSpawner coinSpawner;
     [HideInInspector] public float currentHealth, maxHealth;
     private float blinkTimer, intensity;
     [HideInInspector] public bool deathScript, onHit;
 
     void Start()
     {
+        if (humanoide)
+            skinnedMeshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
         audioSource = GetComponent<AudioSource>();
         maxHealth = statsEnemySettings.maxHealth;
         currentHealth = maxHealth;
@@ -28,7 +32,7 @@ public class HealthEnemyResponse : MonoBehaviour
     {
         blinkTimer -= Time.deltaTime;
         intensity = (Mathf.Clamp01(blinkTimer / statsEnemySettings.blinkDuration) * statsEnemySettings.blinkIntensity) + 1.0f;
-        if (blinkTimer > -0.05f)
+        if (blinkTimer > -0.1f)
             BlinkColorChanger();
         healthSlider.value = Mathf.Lerp(healthSlider.value, currentHealth, statsEnemySettings.transitionDamageLerp * Time.deltaTime);
         if (deathScript) return;
@@ -46,7 +50,14 @@ public class HealthEnemyResponse : MonoBehaviour
 
     void BlinkColorChanger()
     {
-        statsEnemySettings.effectMaterial[0].color = Color.white * intensity;
+        if (humanoide)
+        {
+            skinnedMeshRenderer.materials[0].color = statsEnemySettings.armatureColorMaterials[0] * intensity;
+            skinnedMeshRenderer.materials[1].color = statsEnemySettings.armatureColorMaterials[1] * intensity;
+            skinnedMeshRenderer.materials[2].color = statsEnemySettings.armatureColorMaterials[2] * intensity;
+        }
+        else
+            statsEnemySettings.effectMaterial[0].color = Color.white * intensity;
     }
 
     void UIColorChanger()
@@ -61,14 +72,13 @@ public class HealthEnemyResponse : MonoBehaviour
             StartCoroutine(DeathCoroutine());
     }
 
-
     IEnumerator DeathCoroutine() 
     {
-        audioSource.PlayOneShot(statsEnemySettings.deathClips[UnityEngine.Random.Range(0, 5)], 1f);
         deathScript = true;
-        healthSlider.gameObject.SetActive(false);
         
         yield return new WaitForSeconds(statsEnemySettings.deathTime);
-          
+        audioSource.PlayOneShot(statsEnemySettings.deathClips[UnityEngine.Random.Range(0, 5)], 1f);
+        healthSlider.gameObject.SetActive(false);
+        coinSpawner.SpawnCoins();
     }
 }

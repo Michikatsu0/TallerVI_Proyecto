@@ -23,7 +23,7 @@ public class AIEnemyRobotHumanoide : BaseEnemyController
     {
         if (onAlert)
         {
-
+            agent.SetDestination(searchTarget.position);
         }
         else
         {
