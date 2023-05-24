@@ -68,7 +68,7 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
 
     [Header("Aim Speed Movement Settings")]
     [SerializeField][Range(0f, 0.2f)] public float turnLookRotationSmoothTime;
-    [SerializeField][Range(0f, 0.2f)] public float aimAnimatorLayerSmoothTime;
+    [SerializeField][Range(0f, 10f)] public float aimAnimatorLayerSmoothTime;
     [SerializeField][Range(0f, 100f)] public float aimSpeedMultiplier;
     [SerializeField] public float aimSpeed;
 
@@ -80,7 +80,7 @@ public class PlayerSettings : ScriptableObject, ISerializationCallbackReceiver
 
     [Header("Camera Settings")]
     [SerializeField] public float baseCamPos;
-    [SerializeField] public float crouchCamPos, currentCamCrouchDelay, jumpCamPos, deadCamZone;
+    [SerializeField] public float crouchCamPos, currentCamCrouchDelay, jumpCamPos, deadCamZone, lerpDeadZoneHeight, lerpCamMoveVelocity;
 
     [Header("Audio Settings")]
     [SerializeField] public List<AudioClip> footStepAudioClips = new List<AudioClip>();
