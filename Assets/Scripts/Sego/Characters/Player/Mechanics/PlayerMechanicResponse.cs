@@ -13,17 +13,22 @@ public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
     private CharacterController characterController;
     private Animator animator;
 
-   public float FinalDashCd;
-   public float FinalDashForce;
+    public float FinalDashCd;
+    public float FinalDashForce;
     public float FinalJumpNumber;
     public float FinalJumpForce;
 
+    private void Awake()
+    {
+        FinalDashCd = playerSettings.dashCoolDown + upgradesManager.DashCDChange;
+        FinalDashForce = playerSettings.dashForce + upgradesManager.DashStrenghtChange;
+        FinalJumpNumber = playerSettings.maxNumberOfJumps + upgradesManager.JumpQuantityChange;
+        FinalJumpForce = playerSettings.jumpForce + upgradesManager.jumpStrenghtChange;
+    }
+
     void Start()
     {
-        FinalDashCd = playerSettings.dashCoolDown+ upgradesManager.DashCDChange;
-        FinalDashForce = playerSettings.dashForce+upgradesManager.DashStrenghtChange;
-        FinalJumpNumber = playerSettings.maxNumberOfJumps+upgradesManager.JumpQuantityChange;
-        FinalJumpForce = playerSettings.jumpForce+upgradesManager.jumpStrenghtChange;
+       
 
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();

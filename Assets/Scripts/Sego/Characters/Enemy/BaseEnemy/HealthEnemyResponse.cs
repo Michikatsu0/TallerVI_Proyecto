@@ -14,9 +14,10 @@ public class HealthEnemyResponse : MonoBehaviour
     [HideInInspector] public float currentHealth, maxHealth;
     private float blinkTimer, intensity;
     [HideInInspector] public bool deathScript, onHit;
-
+    private Transform cam;
     void Start()
     {
+        cam = GameObject.Find("Main Camera").transform;
         coinSpawner = GetComponent<CoinSpawner>();
         if (humanoide)
             skinnedMeshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
@@ -28,11 +29,13 @@ public class HealthEnemyResponse : MonoBehaviour
         healthSlider.value = maxHealth;
         fillImage = healthSlider.fillRect.gameObject.GetComponent<Image>();
 
-       
+        
     }
 
     void Update()
     {
+        healthSlider.transform. rotation = cam.transform.rotation;
+
         blinkTimer -= Time.deltaTime;
         intensity = (Mathf.Clamp01(blinkTimer / statsEnemySettings.blinkDuration) * statsEnemySettings.blinkIntensity) + 1.0f;
         if (blinkTimer > -0.1f)

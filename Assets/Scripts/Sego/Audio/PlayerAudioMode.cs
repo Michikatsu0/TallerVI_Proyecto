@@ -15,6 +15,7 @@ public class PlayerAudioMode : MonoBehaviour
     void Start()
     {
         Instance = this;
+        animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
         audioSource.volume = 0.5f;
         audioSource.spatialBlend = 0.5f;
