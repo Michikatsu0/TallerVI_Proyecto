@@ -9,7 +9,7 @@ using UnityEngine;
 public class StatsSettings : ScriptableObject, ISerializationCallbackReceiver
 {
     [Header("Health Settings")]
-    [SerializeField] public int maxHealth;
+    [SerializeField] public int maxHealth; //change here
     [SerializeField] public float maxTimeInvincible, deathTime, timeToRegenerate, regenerationSpeed;
     
     [Header("Health Slider Settings")]
@@ -20,6 +20,7 @@ public class StatsSettings : ScriptableObject, ISerializationCallbackReceiver
     [SerializeField] public float blinkIntensity, blinkDuration;
     [SerializeField] public List<Color> armatureColorsMaterial;
     [SerializeField] public List<Material> armatureHelmetMaterials;
+    
 
     [SerializeField] public float lerpAudioTransition;
     [SerializeField] public List<AudioClip> deathClips;

@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+/// <summary>
+/// changed the max health multiplying it with the modifier
+/// also changed the regen speed and regen time
+/// </summary>
 
 public class HealthResponse : MonoBehaviour
 {
@@ -14,18 +18,27 @@ public class HealthResponse : MonoBehaviour
 
     public float currentHealth;
 
-    private float blinkTimer, intensity, tmpTimeToRegenerate,regenerateValue = 0, currentVolumen;
+    private float blinkTimer, intensity, tmpTimeToRegenerate,regenerateValue = 0;
     private SkinnedMeshRenderer skinnedMeshRenderer;
     private CharacterController characterController;
-    private AudioSource audioSource;  
     private RagdollResponse ragdoll;
     private Slider healthSlider;
     private Image fillImage, playerImage;
     private TextMeshProUGUI textMeshPro;
-    private bool canRegenerate = true, isRegenerating, deathScript, audioBlowFlag = true, audioRegeFlag = true;
-    
+    private bool canRegenerate = true, isRegenerating, deathScript;
+
+    float FinalMaxHealth;
+    float FinalRegenerableHealth;
+    float FinalRegenTime;
+    float FinalRegenSpeed;
+
     private void Start()
     {
+        FinalMaxHealth = statsSettings.maxHealth+upgradesManager.MaxHealthChange;
+        FinalRegenerableHealth = regenerateValue+upgradesManager.RegenerableLifeChange;
+        FinalRegenTime = statsSettings.timeToRegenerate + upgradesManager.TimeRegenChange;
+        FinalRegenSpeed = statsSettings.regenerationSpeed + upgradesManager.RegenSpeedChange; //here we changing things
+        
         skinnedMeshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
 
         healthSlider = GameObject.Find("Health_Bar").GetComponent<Slider>();
@@ -39,9 +52,9 @@ public class HealthResponse : MonoBehaviour
         ragdoll = GetComponentInChildren<RagdollResponse>();
         characterController = GetComponent<CharacterController>();
 
-        currentHealth = statsSettings.maxHealth;
+        currentHealth = FinalMaxHealth; //max health changed
 
-        healthSlider.maxValue = statsSettings.maxHealth;
+        healthSlider.maxValue = FinalMaxHealth; //here too
         healthSlider.value = currentHealth;
 
         var rigidBodies = GetComponentsInChildren<Rigidbody>();
@@ -52,10 +65,6 @@ public class HealthResponse : MonoBehaviour
             hitbox.healthResponse = this;
         }
 
-        audioSource = GetComponent<AudioSource>();
-        audioSource.volume = 0.5f;
-        audioSource.spatialBlend = 0.5f;
-        audioSource.loop = false;
     }
 
     private void Update()
@@ -77,54 +86,33 @@ public class HealthResponse : MonoBehaviour
         int  stringHealth = (int)healthSlider.value;
         textMeshPro.text = stringHealth.ToString();
 
-        IsDeath();
-
         if (deathScript) return;
 
         ColorChanger();
+        IsDeath();
 
         if (currentHealth < 10.0f && !isRegenerating && canRegenerate)
         {
-            audioSource.PlayOneShot(statsSettings.deathClips[4], 1f);
             Invoke(nameof(DelayRegeneration), tmpTimeToRegenerate);
             canRegenerate = false;
         }
 
         if (isRegenerating)
         {
-            currentVolumen = 1.0f;
-            if (!audioSource.isPlaying)
-            {
-                audioSource.clip = statsSettings.deathClips[5];
-                audioSource.Play();
-            }
             playerImage.color = Color.green * 1;
             regenerateValue += Time.deltaTime; 
-            currentHealth = regenerateValue * statsSettings.regenerationSpeed;
+            currentHealth = regenerateValue * FinalRegenSpeed; //regeneration speed changed
 
             if (healthSlider.value >= 10.0f)
             {
-                if (audioSource.isPlaying)
-                    currentVolumen = 0.0f;
-                audioRegeFlag = true;
                 canRegenerate = true;
                 isRegenerating = false;
                 regenerateValue = 0;
-                tmpTimeToRegenerate = statsSettings.timeToRegenerate;
+                tmpTimeToRegenerate = FinalRegenTime; //here we will change the time to regenerate
             }
-
-
-        }
-        else
-        {
-            if (audioSource.isPlaying)
-            {
-                currentVolumen = 1.0f;
-            }
-            currentVolumen = 0f;
         }
 
-        audioSource.volume = Mathf.Lerp(audioSource.volume, currentVolumen, statsSettings.lerpAudioTransition * Time.deltaTime);
+
     }
 
     void BlinkColorChanger()
@@ -146,7 +134,7 @@ public class HealthResponse : MonoBehaviour
     public void TakeDamage(int amount) //Changes the current Health, public so enemydamage can access it. When damaged, starts the timer for invencibility
     {
         currentHealth -= amount;
-        currentHealth = Mathf.Clamp(currentHealth, 0, statsSettings.maxHealth);
+        currentHealth = Mathf.Clamp(currentHealth, 0, FinalMaxHealth);
         blinkTimer = statsSettings.blinkDuration;
         isRegenerating = false;
         canRegenerate = true;
@@ -169,7 +157,11 @@ public class HealthResponse : MonoBehaviour
 
     IEnumerator DeathCoroutine() //waits for the destruction of the player, use and adjust the time for a death animation
     {
-        audioSource.PlayOneShot(statsSettings.deathClips[UnityEngine.Random.Range(0, 4)],0.5f);
+        statsManager.muertes++; //añade uno al contador de muertes
+
+        statsManager.OnGameOver();
+        upgradesManager.SaveGame();
+
         deathScript = true;
         ragdoll.ActivateRagdolls();
         characterController.enabled = false;
