@@ -3,7 +3,6 @@ using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Animations.Rigging;
-using static WeaponResponse;
 
 public class PlayerMechanicResponse : MonoBehaviour, IPlayerMechanicProvider
 {
