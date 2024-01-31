@@ -24,7 +24,6 @@ Cuando se trataba del tema de materialización o prototipado del proyecto, me en
 
 ![image](https://github.com/Michikatsu0/TallerVI_Proyecto/assets/68073260/02ee6702-0e75-47ee-8365-e19a6bd32dcc)
 ![image](https://github.com/Michikatsu0/TallerVI_Proyecto/assets/68073260/b2dbe58e-e8fe-4433-8c52-8f11b373fff2)
-
 ![image](https://github.com/Michikatsu0/TallerVI_Proyecto/assets/68073260/16b1f153-39dc-41a4-8b90-33b5e072ea14)
 ![image](https://github.com/Michikatsu0/TallerVI_Proyecto/assets/68073260/85e63843-a8a3-48ed-a068-29b63db662a8)
 
