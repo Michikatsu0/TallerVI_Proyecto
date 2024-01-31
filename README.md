@@ -6,11 +6,40 @@ Suni es una aplicacion para android desiñada por Zen Rise Dynamics para un publ
 
 Cuando se trataba del tema de materialización o prototipado del proyecto, me encargue de liderar e implementar todo el tema de apartado de UI y audiovisual del proyecto, asi tambien como las efectos y transiciones entre escenas relacionadas a la UI. 
 
-- Menus: Implementacion de todos las las escenas en secuencia y script global y funcional para pasar entre ella por codigo o por medio de eventos en la propia interfaz de unity. inlucye botones, acciones y configuraciones de la UI 
-- AuthFirebase: SDK usado para implementar de las autentificaciones y registros por provedores email y anonimos usando firebase.
+- Menus: Implementacion de todos las las escenas en secuencia y script global y funcional para pasar entre ella por codigo o por medio de eventos en la propia interfaz de unity. inlucye botones, acciones y configuraciones de la UI.
+
+- AuthFirebase: SDK usado para implementar las autentificaciones y registros por provedores email y anonimos usando Google Firebase.
+
+![image](https://github.com/Michikatsu0/TallerVI_Proyecto/assets/68073260/b6a8e2b3-9b85-453b-b338-7965edbd489a)
+![image](https://github.com/Michikatsu0/TallerVI_Proyecto/assets/68073260/7ea55620-85a5-4832-a40d-2bc3e655546d)
+![image](https://github.com/Michikatsu0/TallerVI_Proyecto/assets/68073260/e37a4eeb-9021-445c-b08e-e0088ec0431a)
+
+### Inicio de Sesion Como Anonimo
+
+![image](https://github.com/Michikatsu0/TallerVI_Proyecto/assets/68073260/9a4f5d3b-8a51-4b8b-b9b1-a981dc1d1792)
+![image](https://github.com/Michikatsu0/TallerVI_Proyecto/assets/68073260/8c4ca901-4461-43a3-96c0-947ad5b1d2e2)
+
 - DatabaseFirebase: SDK usado para implementar de envio y captura de informacion dentro del servidor usando un archivo .json interno para almacenarlas.
-- Sitema de EPX: Emplementacion del sistema de EXP para subir niveles en el transcurso en que las meditaciones esten en emision, esta conectado a la base de datos en Firebase y sirve como fuente de descarga de informacion al dispositivo de cada usuario.
-- Mascara de Imagen: Se implementa una mascara por codigo que invierte el componente nativo de mascara de unity para serusando en el tutorial como efecto de interes para guiar mejor al usuario acerca de la app.
+- Sitema de EPX: Emplementacion del sistema de EXP para subir niveles en el transcurso en que las meditaciones esten en emision, está conectado a la base de datos en Firebase y sirve como fuente de descarga de informacion al dispositivo de cada usuario.
+
+
+
+- Sistema de Notificaciones: Implementacion de sistema de notificaciones dentro de la app, aunque para el trabaja se requeria notificaciones internas y notificaciones nativas de android externas de la app, esta ultima no fue posible de implementar debido a poca experiencia usando el SDK de Android Studio.
+ 
+Accesibles unicamente desde el registro y el menu, en el apartado de configuraciones.
+
+![image](https://github.com/Michikatsu0/TallerVI_Proyecto/assets/68073260/e63eff6d-f226-439f-8aff-84d114006dc6)
+![image](https://github.com/Michikatsu0/TallerVI_Proyecto/assets/68073260/edd1d97a-2e84-4f8c-92ba-c0b67bc9d05d)
+
+### Notificacion
+![image](https://github.com/Michikatsu0/TallerVI_Proyecto/assets/68073260/b9a6a13a-eb22-415b-ab1d-240c578437e1)
+
+
+- Mascara de Imagen Y Tutorial: Se implementa una mascara por codigo que invierte el componente nativo de mascara de unity para serusando en el tutorial como efecto de interes para guiar mejor al usuario acerca de la app.
+
+![image](https://github.com/Michikatsu0/TallerVI_Proyecto/assets/68073260/5935b9cf-af32-4a51-8e99-b0df82180daf)
+![image](https://github.com/Michikatsu0/TallerVI_Proyecto/assets/68073260/2e715850-f578-455b-9ea7-21747c7ba4fb)
+
 - Managers: Implementacion de todas las acciones loopeadas o no dentro de cada escena de manera independiente y muy comunicativa al cambiar al guardarlas entre cambios.
 - Videos en secuencia: Se implementa transiciones espeficicas para los videos de la mascota de la empresa y el fondo.
 - Shader Chromakey para videos, Usando ShaderGraph se logra implementar un shader chromakey bastante optimizado para celulares, se logra buenos visiales en el video o textura a implementar el efecto sin perdir detalle.
@@ -20,7 +49,7 @@ Cuando se trataba del tema de materialización o prototipado del proyecto, me en
 ### Inicio de sesión y registro
 
 ![image](https://github.com/Michikatsu0/TallerVI_Proyecto/assets/68073260/fe0ecfb5-8750-48f6-88c9-53ab0f3723bc)
-
 ![image](https://github.com/Michikatsu0/TallerVI_Proyecto/assets/68073260/d5399b56-30bb-40af-b459-f5ee5e0fe9d8)
 
 ![image](https://github.com/Michikatsu0/TallerVI_Proyecto/assets/68073260/c36a764f-59ac-4524-ad75-b44ce71050b0)
+
