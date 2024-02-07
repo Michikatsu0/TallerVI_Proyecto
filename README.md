@@ -6,7 +6,7 @@ Robot Mayhem es un videojuego plataformero - metroidvania en 2.5D ambientado en 
 
 ## ScriptableObjects
 
-Se utiliza en la mayoría de las implementaciones se tiene el uso de ScriptableObjects para proveer a los códigos de las variables modificables que pueden ser o no alteradas dentro del juego, podemos verlo en las mecánicas del jugador, armas, enemigos de Vigilancia, Humanoides y enemigos de Torreta
+Se utiliza en la mayoría de las implementaciones el uso de ScriptableObjects para proveer a los códigos de las variables modificables que pueden ser o no alteradas dentro del juego, podemos verlo en las mecánicas del jugador, armas, enemigos de Vigilancia, Humanoides y enemigos de Torreta
 
 ### Estadísticas de básicas del Jugador
 
